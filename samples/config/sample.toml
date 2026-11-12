@@ -1,0 +1,5 @@
+virtualize = ["compute"]
+mutate = ["mix"]
+virtualize_all = false
+mutate_all = false
+seed = 1

@@ -1,0 +1,15 @@
+/target/
+**/target/
+__pycache__/
+*.pyc
+.cursor/
+.codex/
+.idea/
+.vscode/
+.env
+.env.*
+*.profraw
+lcov.info
+/docs/plans/
+/T4-T11-report.md
+/artifacts/

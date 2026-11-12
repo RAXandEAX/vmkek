@@ -1,0 +1,16 @@
+[package]
+name = "vmkek-packager"
+version = "0.1.0"
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+publish = false
+
+[dependencies]
+chacha20poly1305 = "0.10"
+hkdf = "0.12"
+p256 = { version = "0.13", features = ["ecdsa"] }
+rand = "0.8"
+sha2 = "0.10"
+thiserror = "2"
+vmkek-protocol = { path = "../protocol" }
+zeroize = "1"

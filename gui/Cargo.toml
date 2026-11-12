@@ -1,0 +1,17 @@
+[package]
+name = "vmkek-gui"
+version = "0.1.0"
+edition = "2021"
+description = "egui shell that calls the vmkek library"
+license = "PolyForm-Noncommercial-1.0.0"
+publish = false
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "glow", "x11"] }
+egui = "0.37"
+hex = "0.4"
+serde_json = "1"
+vmkek = { path = ".." }
+
+[dev-dependencies]
+egui_kittest = "0.37"

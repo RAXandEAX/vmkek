@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "families": {
+    "arithmetic": ["affine_xor", "add_rotate", "lane_sum"],
+    "branches": ["clamp", "parity_band", "threshold_pair"],
+    "loops": ["bounded_sum", "rolling_checksum", "count_transitions"],
+    "tables": ["lookup4", "lookup16", "table_classify"],
+    "buffers": ["xor_copy", "masked_add", "in_place_swap"],
+    "parsing": ["bounded_u16le", "hex_digit", "bounded_tlv"],
+    "state": ["counter", "rolling_state", "finite_state_machine"],
+    "calls": ["two_helpers", "conditional_helper", "callback_sequence"]
+  },
+  "seeds": [1025, 1026, 1027, 1028, 1029, 1030, 1031, 1032, 1033, 1034],
+  "wall_seconds": [60, 600, 3600],
+  "memory_bytes": 8589934592
+}

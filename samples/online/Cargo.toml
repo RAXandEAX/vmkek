@@ -1,0 +1,34 @@
+[package]
+name = "vmkek-online-sample"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.91"
+license = "PolyForm-Noncommercial-1.0.0"
+publish = false
+
+[target.'cfg(all(windows, target_arch = "x86_64"))'.dependencies]
+hex = "0.4"
+p256 = { version = "0.13", features = ["ecdsa"] }
+rand = "0.8"
+sha2 = "0.10"
+vmkek-protocol = { path = "../../crates/protocol" }
+vmkek-runtime = { path = "../../crates/runtime" }
+zeroize = "1"
+
+[target.'cfg(unix)'.dependencies]
+hex = "0.4"
+p256 = { version = "0.13", features = ["ecdsa"] }
+rand = "0.8"
+rcgen = { version = "0.14", default-features = false, features = ["ring"] }
+rustls = { version = "0.23", default-features = false, features = ["std"] }
+sha2 = "0.10"
+sqlx = { version = "0.8.6", default-features = false, features = ["postgres", "runtime-tokio"] }
+tokio = { version = "1", features = ["macros", "net", "rt", "time"] }
+vmkek-packager = { path = "../../crates/packager" }
+vmkek-protocol = { path = "../../crates/protocol" }
+vmkek-server = { path = "../../crates/server" }
+zeroize = "1"
+
+[target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dependencies]
+libc = "0.2"
+vmkek-runtime = { path = "../../crates/runtime" }

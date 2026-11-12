@@ -1,0 +1,32 @@
+[package]
+name = "vmkek-runtime"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.91"
+license = "PolyForm-Noncommercial-1.0.0"
+publish = false
+
+[lib]
+crate-type = ["rlib", "cdylib", "staticlib"]
+
+[features]
+r06-experimental = ["vmkek-protocol/r06-experimental"]
+
+[dependencies]
+vmkek-protocol = { path = "../protocol" }
+zeroize = "1"
+
+[dev-dependencies]
+p256 = { version = "0.13", features = ["ecdsa"] }
+sha2 = "0.10"
+
+[target.'cfg(any(windows, all(target_os = "linux", target_arch = "x86_64")))'.dependencies]
+chacha20poly1305 = "0.10"
+p256 = { version = "0.13", features = ["ecdsa"] }
+rustls = { version = "0.23", default-features = false, features = ["std"] }
+sha2 = "0.10"
+tokio = { version = "1", features = ["macros", "net", "rt", "sync", "time"] }
+vmkek-client = { path = "../client" }
+
+[target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dependencies]
+libc = "0.2"

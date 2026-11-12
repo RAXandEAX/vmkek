@@ -1,8 +1,9 @@
 //! User-mode anti-debug. Each detector can fail closed on its own.
 //!
 //! `PEB.BeingDebugged` and `NtGlobalFlag & 0x70` stay in the loader. The VM's
-//! entry check reads BeingDebugged and the heap flags again and poisons the
-//! woven key from S5b. `NtGlobalFlag` also runs from a mutated code cave.
+//! native PE TLS entry check reads BeingDebugged and takes the protected
+//! failure return. The legacy entry check also reads the heap flags and
+//! poisons the woven key from S5b. `NtGlobalFlag` runs from a mutated code cave.
 //! `IsDebuggerPresent`, `CheckRemoteDebuggerPresent`, and a `GetTickCount64`
 //! delta run after the loader has resolved kernel32.
 //!

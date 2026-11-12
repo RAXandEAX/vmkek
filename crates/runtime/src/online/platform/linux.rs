@@ -19,7 +19,7 @@ pub(super) fn read(path: &Path) -> Result<ConfigurationBytes, Status> {
         return Err(Status::InvalidArgument);
     }
     let bytes = read_private(&directory, &name, CONFIG_MAX)?;
-    if !bytes.starts_with(b"VMKR21\0\0") {
+    if !bytes.starts_with(b"VMKR21\0\0") && !bytes.starts_with(b"VMKRA10\0") {
         return Err(Status::Incompatible);
     }
     let key = read_private(&directory, KEY, 32)?;

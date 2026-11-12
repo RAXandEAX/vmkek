@@ -11,7 +11,7 @@ vmkek is a Rust toolkit for x86-64 software protection, binary rewriting, and co
 | Obfuscation and mutation | Mixed Boolean-arithmetic rewrites, constant blinding, opaque predicates, and control-flow flattening. Selected functions can also be rewritten as native code. |
 | Two VM levels in the native protector | The outer VM runs the protected function. An inner bytecode interpreter chooses handlers. Instruction encodings and handler layouts can vary between builds. |
 | Experimental VM profiles | The separate Lab runtime has stack, register, and mixed forms. At depths 3 and 4, selected handler operations run as microprograms. Both depths have been exercised through the Windows C ABI on a lab machine. |
-| Runtime checks | Supported Windows and Linux profiles check for debugging. Windows lab runs exercised debugger attachment, exception unwinding through virtualized calls, and selected CFG, CET shadow stack, and ACG configurations. |
+| Runtime observations | Opt-in Lab and Online policies cover debugger attachment and selected ranges of the application's own code. The qualification covers a specific Windows build and WSL2 kernel. [Profiles and limits](docs/architecture.md#observation-profiles) |
 | Authenticated offline profiles | The PE and ELF lab profiles use an independently supplied signing key. At startup they verify an ECDSA P-256 signature and authenticate the payload with ChaCha20-Poly1305. |
 | Online runtime | The server issues signed sessions, delivers encrypted modules, and can revoke access. Selected operations can run on the server and return signed results. |
 | Windows driver research | The experimental backend rewrites synthetic `.sys` images and preserves the Native subsystem. Image rewriting is tested. Live kernel loading, IOCTL, and unload are roadmap items. |
@@ -28,11 +28,11 @@ Z3 checks individual rewrite rules in the experimental Lab runtime over 64-bit b
 
 ## Roadmap
 
-Next up is a clean-clone example on each platform, followed by broader compatibility and performance measurements. The [roadmap](ROADMAP.md) gives the acceptance checks for each milestone, including independent evaluation, live driver validation, and recovery of the online service.
+The observation candidate has isolated build and lab checks. Broader compatibility, independent resistance, and transfer measurements remain open. The [roadmap](ROADMAP.md) gives the acceptance checks for each milestone, including independent evaluation, live driver validation, and recovery of the online service.
 
 ## Try it
 
-With Rust 1.95.0 installed, run this from the repository root.
+With Rust 1.95.0 installed, run this from the repository root in Linux or WSL2.
 
 ```sh
 cargo +1.95.0 run --locked --bin vmkek -- --help

@@ -226,12 +226,14 @@ fn emit_probe(
     go(a.db(&[0x65, 0x48, 0x8b, 0x04, 0x25, 0x60, 0x00, 0x00, 0x00]))?;
     go(a.mov(al, byte_ptr(rax + 2i32)))?;
     go(a.test(al, al))?;
-    go(a.jnz(poison))?;
-    if !super::chain::pe_tls_bound() {
-        emit_heap_probe(a, &mut poison, &mut clean)?;
-        go(a.set_label(&mut clean))?;
-        crate::antidebug::emit_linux_gate(a, linux, &mut poison)?;
+    if super::chain::pe_tls_bound() {
+        go(a.jnz(*fail))?;
+        return finish(a, dispatch);
     }
+    go(a.jnz(poison))?;
+    emit_heap_probe(a, &mut poison, &mut clean)?;
+    go(a.set_label(&mut clean))?;
+    crate::antidebug::emit_linux_gate(a, linux, &mut poison)?;
     finish(a, dispatch)?;
     go(a.set_label(&mut poison))?;
     poison_key(a)?;

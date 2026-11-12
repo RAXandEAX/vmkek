@@ -66,8 +66,12 @@ impl<'a> Reader<'a> {
         Ok(value)
     }
 
+    pub(super) fn is_empty(&self) -> bool {
+        self.input.is_empty()
+    }
+
     pub(super) fn finish(self) -> Result<()> {
-        if self.input.is_empty() {
+        if self.is_empty() {
             Ok(())
         } else {
             Err(Error::Invalid)

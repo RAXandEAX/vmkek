@@ -1,4 +1,11 @@
 use p256::ecdsa::{SigningKey, VerifyingKey};
+use sha2::{Digest as _, Sha256};
+
+#[path = "observation_policy.rs"]
+mod observation_policy;
+pub use observation_policy::*;
+
+use crate::session_observation::{ObservationKind, ObservationPlatform};
 
 use crate::{
     canonical::Reader,
@@ -8,6 +15,8 @@ use crate::{
 
 const POLICY: u16 = 15;
 const AMD64: u16 = 0x8664;
+const ELF_AMD64: u16 = 62;
+const INTERNAL_LINUX_RANGE: BuildRange = BuildRange { first: 1, last: 1 };
 const MAX_RULES: usize = 128;
 const MAX_IMAGE_RULES: usize = 16;
 pub const MAX_CODE_BYTES: u32 = 64 * 1024;
@@ -113,41 +122,254 @@ pub struct PolicyContext {
 }
 
 pub struct VerifiedPolicy<'a> {
-    payload: &'a DetectionPolicy,
-    windows_build: u32,
+    payload: &'a PolicyPayload,
+    revision: PolicyRevision,
+    supported: u8,
+    verified_at_ms: u64,
+    platform: ObservationPlatform,
 }
 
 impl VerifiedPolicy<'_> {
     pub fn check_time(&self, now_ms: u64) -> Result<()> {
-        if (self.payload.issued_ms..self.payload.expires_ms).contains(&now_ms) {
+        if (self.payload.policy.issued_ms..self.payload.policy.expires_ms).contains(&now_ms) {
             Ok(())
         } else {
             Err(Error::Expired)
         }
     }
 
+    pub fn expires_ms(&self) -> u64 {
+        self.payload.policy.expires_ms
+    }
+
     pub fn epoch(&self) -> u64 {
-        self.payload.epoch
+        self.payload.policy.epoch
     }
 
     pub fn windows_build(&self) -> u32 {
-        self.windows_build
+        match self.platform {
+            ObservationPlatform::Windows { build } => build,
+            ObservationPlatform::Linux { .. } => 0,
+        }
+    }
+
+    pub fn platform(&self) -> ObservationPlatform {
+        self.platform
+    }
+
+    pub fn revision(&self) -> PolicyRevision {
+        self.revision
+    }
+
+    pub fn observation_policy(&self) -> Option<ObservationPolicy> {
+        self.payload
+            .settings
+            .clone()
+            .map(|settings| ObservationPolicy {
+                settings,
+                app_id: self.payload.policy.app_id,
+                build_id: self.payload.policy.build_id,
+                supported: self.supported,
+                platform: self.platform,
+                linux_release: self.payload.linux_release,
+                revision: self.revision(),
+                issued_ms: self.payload.policy.issued_ms,
+                expires_ms: self.payload.policy.expires_ms,
+                verified_at_ms: self.verified_at_ms,
+            })
     }
 
     pub fn artifact_rules(&self) -> &[ArtifactRule] {
-        &self.payload.artifacts
+        &self.payload.policy.artifacts
     }
 
     pub fn image_rules(&self) -> &[ImageRule] {
-        &self.payload.images
+        &self.payload.policy.images
     }
 }
 
-pub struct SignedDetectionPolicy(Signed<DetectionPolicy>);
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct PolicyPayload {
+    policy: DetectionPolicy,
+    settings: Option<ObservationSettings>,
+    linux_release: Option<LinuxRelease>,
+}
+
+#[derive(Clone, Debug)]
+pub struct SignedDetectionPolicy(Signed<PolicyPayload>);
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PolicyRevision {
+    pub epoch: u64,
+    pub digest: Digest,
+}
+
+pub struct ProfileContext<'a> {
+    pub policy: PolicyContext,
+    pub profile: ObservationProfile,
+    pub supported: &'a [ObservationKind],
+    /// An installed revision for this app, build and profile from trusted local
+    /// storage, when available. Epoch floors also apply on first activation.
+    pub previous: Option<PolicyRevision>,
+}
+
+/// Exact Linux kernel release identity, including distribution suffixes.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct LinuxRelease {
+    version: [u32; 3],
+    digest: Digest,
+}
+
+impl LinuxRelease {
+    pub fn from_uname(release: &[u8]) -> Result<Self> {
+        if release.is_empty()
+            || release.len() > 64
+            || !release
+                .iter()
+                .all(|b| b.is_ascii_alphanumeric() || b"._+-".contains(b))
+        {
+            return Err(Error::Invalid);
+        }
+        let numeric = |value: &[u8]| {
+            if value.is_empty() || !value.iter().all(u8::is_ascii_digit) {
+                return Err(Error::Invalid);
+            }
+            std::str::from_utf8(value)
+                .map_err(|_| Error::Invalid)?
+                .parse::<u32>()
+                .map_err(|_| Error::Invalid)
+        };
+        let mut fields = release.splitn(3, |&b| b == b'.');
+        let major = numeric(fields.next().ok_or(Error::Invalid)?)?;
+        let minor = numeric(fields.next().ok_or(Error::Invalid)?)?;
+        let rest = fields.next().ok_or(Error::Invalid)?;
+        let digits = rest
+            .iter()
+            .position(|b| !b.is_ascii_digit())
+            .unwrap_or(rest.len());
+        let patch = numeric(&rest[..digits])?;
+        if major == 0 {
+            return Err(Error::Invalid);
+        }
+        Ok(Self {
+            version: [major, minor, patch],
+            digest: Sha256::digest(release).into(),
+        })
+    }
+
+    pub fn platform(self) -> ObservationPlatform {
+        let [major, minor, patch] = self.version;
+        ObservationPlatform::Linux {
+            major,
+            minor,
+            patch,
+        }
+    }
+
+    fn encode(self, out: &mut Vec<u8>) {
+        for field in self.version {
+            out.extend(field.to_le_bytes());
+        }
+        out.extend(self.digest);
+    }
+
+    fn decode(reader: &mut Reader<'_>) -> Result<Self> {
+        let version = [reader.u32()?, reader.u32()?, reader.u32()?];
+        let digest = reader.array()?;
+        if version[0] == 0 || digest == [0; 32] {
+            return Err(Error::Invalid);
+        }
+        Ok(Self { version, digest })
+    }
+}
+
+pub struct LinuxProfileContext<'a> {
+    pub app_id: Id,
+    pub build_id: Id,
+    pub epoch_floor: u64,
+    pub now_ms: u64,
+    pub release: LinuxRelease,
+    pub profile: ObservationProfile,
+    pub supported: &'a [ObservationKind],
+    pub previous: Option<PolicyRevision>,
+}
 
 impl SignedDetectionPolicy {
     pub fn sign(policy: DetectionPolicy, key: &SigningKey) -> Result<Self> {
-        Signed::sign(policy, key).map(Self)
+        Signed::sign(
+            PolicyPayload {
+                policy,
+                settings: None,
+                linux_release: None,
+            },
+            key,
+        )
+        .map(Self)
+    }
+
+    pub fn sign_for_profile(
+        policy: DetectionPolicy,
+        settings: ObservationSettings,
+        key: &SigningKey,
+    ) -> Result<Self> {
+        Signed::sign(
+            PolicyPayload {
+                policy,
+                settings: Some(settings),
+                linux_release: None,
+            },
+            key,
+        )
+        .map(Self)
+    }
+
+    /// Signs Linux-only observation settings. Image ranges use ELF virtual
+    /// addresses rather than PE RVAs. Windows build range is unused here.
+    pub fn sign_for_linux_profile(
+        mut policy: DetectionPolicy,
+        settings: ObservationSettings,
+        release: LinuxRelease,
+        key: &SigningKey,
+    ) -> Result<Self> {
+        policy.windows_builds = INTERNAL_LINUX_RANGE;
+        Signed::sign(
+            PolicyPayload {
+                policy,
+                settings: Some(settings),
+                linux_release: Some(release),
+            },
+            key,
+        )
+        .map(Self)
+    }
+
+    pub fn is_linux(&self) -> bool {
+        self.0.payload().linux_release.is_some()
+    }
+
+    pub fn verify_for_linux_profile(
+        &self,
+        pin: &VerifyingKey,
+        context: LinuxProfileContext<'_>,
+    ) -> Result<VerifiedPolicy<'_>> {
+        let payload = self.0.verify(pin)?;
+        if payload.linux_release != Some(context.release) {
+            return Err(Error::Binding);
+        }
+        let verified = self.verify_common(
+            payload,
+            context.app_id,
+            context.build_id,
+            context.epoch_floor,
+            context.now_ms,
+            context.release.platform(),
+        )?;
+        Self::verify_settings(
+            verified,
+            context.profile,
+            context.supported,
+            context.previous,
+        )
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
@@ -158,26 +380,120 @@ impl SignedDetectionPolicy {
         self.0.as_bytes()
     }
 
+    /// Indicates which validation entry point is required. The version is
+    /// authenticated only after successful verification.
+    pub fn has_profile(&self) -> bool {
+        self.0.payload().settings.is_some()
+    }
+
     pub fn verify_for(
         &self,
         pin: &VerifyingKey,
         context: PolicyContext,
     ) -> Result<VerifiedPolicy<'_>> {
-        let policy = self.0.verify(pin)?;
-        if policy.app_id != context.app_id
-            || policy.build_id != context.build_id
-            || policy.epoch < context.epoch_floor
-            || !policy.windows_builds.contains(context.windows_build)
+        let verified = self.verify_binding(pin, context)?;
+        if verified.payload.settings.is_some() {
+            return Err(Error::UnknownMandatory);
+        }
+        Ok(verified)
+    }
+
+    pub fn verify_for_profile(
+        &self,
+        pin: &VerifyingKey,
+        context: ProfileContext<'_>,
+    ) -> Result<VerifiedPolicy<'_>> {
+        let verified = self.verify_binding(pin, context.policy)?;
+        Self::verify_settings(
+            verified,
+            context.profile,
+            context.supported,
+            context.previous,
+        )
+    }
+
+    fn verify_settings<'a>(
+        mut verified: VerifiedPolicy<'a>,
+        profile: ObservationProfile,
+        supported: &[ObservationKind],
+        previous: Option<PolicyRevision>,
+    ) -> Result<VerifiedPolicy<'a>> {
+        let settings = verified.payload.settings.as_ref().ok_or(Error::Version)?;
+        if settings.profile != profile {
+            return Err(Error::Binding);
+        }
+        if let Some(previous) = previous {
+            if verified.epoch() < previous.epoch
+                || (verified.epoch() == previous.epoch
+                    && verified.revision().digest != previous.digest)
+            {
+                return Err(Error::Binding);
+            }
+        }
+        if settings
+            .rules
+            .iter()
+            .any(|rule| rule.required && !supported.contains(&rule.signal_id.kind))
+        {
+            return Err(Error::UnknownMandatory);
+        }
+        verified.supported = supported
+            .iter()
+            .fold(0, |mask, kind| mask | capability_bit(*kind));
+        Ok(verified)
+    }
+
+    fn verify_binding(
+        &self,
+        pin: &VerifyingKey,
+        context: PolicyContext,
+    ) -> Result<VerifiedPolicy<'_>> {
+        let payload = self.0.verify(pin)?;
+        if payload.linux_release.is_some()
+            || !payload
+                .policy
+                .windows_builds
+                .contains(context.windows_build)
         {
             return Err(Error::Binding);
         }
-        if !(policy.issued_ms..policy.expires_ms).contains(&context.now_ms) {
-            return Err(Error::Expired);
+        self.verify_common(
+            payload,
+            context.app_id,
+            context.build_id,
+            context.epoch_floor,
+            context.now_ms,
+            ObservationPlatform::Windows {
+                build: context.windows_build,
+            },
+        )
+    }
+
+    fn verify_common<'a>(
+        &self,
+        payload: &'a PolicyPayload,
+        app_id: Id,
+        build_id: Id,
+        epoch_floor: u64,
+        now_ms: u64,
+        platform: ObservationPlatform,
+    ) -> Result<VerifiedPolicy<'a>> {
+        let policy = &payload.policy;
+        if policy.app_id != app_id || policy.build_id != build_id || policy.epoch < epoch_floor {
+            return Err(Error::Binding);
         }
-        Ok(VerifiedPolicy {
-            payload: policy,
-            windows_build: context.windows_build,
-        })
+        let verified = VerifiedPolicy {
+            payload,
+            revision: PolicyRevision {
+                epoch: policy.epoch,
+                digest: Sha256::digest(self.as_bytes()).into(),
+            },
+            supported: 0,
+            verified_at_ms: now_ms,
+            platform,
+        };
+        verified.check_time(now_ms)?;
+        Ok(verified)
     }
 }
 
@@ -229,32 +545,53 @@ impl DetectionPolicy {
     }
 }
 
-impl Payload for DetectionPolicy {
+impl Payload for PolicyPayload {
     const KIND: u16 = POLICY;
     const DOMAIN: &'static [u8] = b"vmkek.protocol.v1.windows-observation-policy\0";
 
     fn key_id(&self) -> &Digest {
-        &self.key_id
+        &self.policy.key_id
     }
 
     fn encode_body(&self) -> Result<Vec<u8>> {
-        self.validate()?;
+        let policy = &self.policy;
+        policy.validate()?;
+        if let Some(settings) = &self.settings {
+            settings.validate(policy)?;
+        }
         let mut out = Vec::new();
-        out.extend(self.app_id);
-        out.extend(self.build_id);
-        out.extend(self.key_id);
-        out.extend(self.epoch.to_le_bytes());
-        out.extend(self.issued_ms.to_le_bytes());
-        out.extend(self.expires_ms.to_le_bytes());
-        out.extend(AMD64.to_le_bytes());
-        self.windows_builds.encode(&mut out);
-        out.extend((self.artifacts.len() as u16).to_le_bytes());
-        for rule in &self.artifacts {
+        out.extend(policy.app_id);
+        out.extend(policy.build_id);
+        out.extend(policy.key_id);
+        out.extend(policy.epoch.to_le_bytes());
+        out.extend(policy.issued_ms.to_le_bytes());
+        out.extend(policy.expires_ms.to_le_bytes());
+        if let Some(release) = self.linux_release {
+            if self.settings.is_none()
+                || !policy.artifacts.is_empty()
+                || policy
+                    .images
+                    .iter()
+                    .any(|rule| rule.purpose != ImagePurpose::CodeIntegrity)
+            {
+                return Err(Error::Invalid);
+            }
+            out.extend(ELF_AMD64.to_le_bytes());
+            release.encode(&mut out);
+        } else {
+            out.extend(AMD64.to_le_bytes());
+            policy.windows_builds.encode(&mut out);
+        }
+        out.extend((policy.artifacts.len() as u16).to_le_bytes());
+        for rule in &policy.artifacts {
             rule.encode(&mut out);
         }
-        out.extend((self.images.len() as u16).to_le_bytes());
-        for rule in &self.images {
+        out.extend((policy.images.len() as u16).to_le_bytes());
+        for rule in &policy.images {
             rule.encode(&mut out);
+        }
+        if let Some(settings) = &self.settings {
+            settings.encode(&mut out);
         }
         Ok(out)
     }
@@ -267,23 +604,47 @@ impl Payload for DetectionPolicy {
         let epoch = reader.u64()?;
         let issued_ms = reader.u64()?;
         let expires_ms = reader.u64()?;
-        if reader.u16()? != AMD64 {
-            return Err(Error::Invalid);
-        }
-        let policy = Self {
+        let (windows_builds, linux_release) = match reader.u16()? {
+            AMD64 => (BuildRange::decode(&mut reader)?, None),
+            ELF_AMD64 => (
+                INTERNAL_LINUX_RANGE,
+                Some(LinuxRelease::decode(&mut reader)?),
+            ),
+            _ => return Err(Error::Invalid),
+        };
+        let policy = DetectionPolicy {
             app_id,
             build_id,
             key_id,
             epoch,
             issued_ms,
             expires_ms,
-            windows_builds: BuildRange::decode(&mut reader)?,
+            windows_builds,
             artifacts: decode_rules(&mut reader, MAX_RULES, ArtifactRule::decode)?,
             images: decode_rules(&mut reader, MAX_IMAGE_RULES, ImageRule::decode)?,
         };
+        let settings = if reader.is_empty() {
+            None
+        } else {
+            Some(ObservationSettings::decode(&mut reader, &policy)?)
+        };
         reader.finish()?;
         policy.validate()?;
-        Ok(policy)
+        if linux_release.is_some()
+            && (settings.is_none()
+                || !policy.artifacts.is_empty()
+                || policy
+                    .images
+                    .iter()
+                    .any(|rule| rule.purpose != ImagePurpose::CodeIntegrity))
+        {
+            return Err(Error::Invalid);
+        }
+        Ok(Self {
+            policy,
+            settings,
+            linux_release,
+        })
     }
 }
 

@@ -21,6 +21,8 @@ struct Probe {
     at: Checkpoint,
     arrived: SyncSender<(Instant, WipeObservation)>,
     resume: Receiver<()>,
+    #[cfg(windows)]
+    reenter: Option<(VmkRuntime, VmkRequestId)>,
 }
 
 thread_local! {
@@ -36,6 +38,13 @@ pub(in crate::online) fn pause(at: Checkpoint, call: &Call) {
         }
     });
     if let Some(probe) = probe {
+        #[cfg(windows)]
+        if let Some((handle, id)) = probe.reenter {
+            // The outer call remains active on this thread throughout the inner ABI call.
+            let outer = WIPE_OBSERVATION.with(|slot| slot.take());
+            invoke_expect(handle, id, Status::Ok);
+            WIPE_OBSERVATION.with(|slot| slot.set(outer));
+        }
         let wipes = WIPE_OBSERVATION.with(|slot| slot.get().unwrap());
         probe.arrived.send((call.lease.unwrap(), wipes)).unwrap();
         probe.resume.recv_timeout(WAIT).unwrap();
@@ -125,6 +134,8 @@ fn exercise(
                 at,
                 arrived,
                 resume,
+                #[cfg(windows)]
+                reenter: None,
             })
         });
         WIPE_OBSERVATION.with(|slot| slot.set(Some(WipeObservation::default())));
@@ -204,3 +215,6 @@ fn invoke_and_check_output(handle: VmkRuntime, request_id: VmkRequestId) -> u32 
     }
     status
 }
+
+#[cfg(windows)]
+mod response;

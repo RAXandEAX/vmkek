@@ -7,6 +7,10 @@ use crate::{
     Digest, Id, ProtocolError as Error, SESSION_PROOF_BYTES,
 };
 
+#[path = "observation.rs"]
+mod observation;
+pub use observation::*;
+
 const KIND: u16 = 16;
 pub const MAX_OBSERVATIONS: usize = 8;
 const RECORD_BYTES: usize = 4;
@@ -31,6 +35,22 @@ pub enum ObservationKind {
     ApplicationFile = 4,
     RunningApplication = 5,
     DriverPackage = 6,
+}
+
+impl TryFrom<u8> for ObservationKind {
+    type Error = Error;
+
+    fn try_from(value: u8) -> Result<Self> {
+        match value {
+            1 => Ok(Self::DebuggerAttachment),
+            2 => Ok(Self::CodeIntegrity),
+            3 => Ok(Self::RegisteredProvider),
+            4 => Ok(Self::ApplicationFile),
+            5 => Ok(Self::RunningApplication),
+            6 => Ok(Self::DriverPackage),
+            _ => Err(Error::UnknownMandatory),
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -69,9 +89,8 @@ impl ObservationRecord {
         )
     }
 
-    fn valid(self) -> bool {
-        let has_rule = self.kind != ObservationKind::DebuggerAttachment;
-        if has_rule != (self.rule_id != 0) {
+    pub(crate) fn valid(self) -> bool {
+        if !self.signal_id().valid() {
             return false;
         }
         match self.finding {
@@ -86,20 +105,15 @@ impl ObservationRecord {
         }
     }
 
-    fn key(self) -> (ObservationKind, u16) {
-        (self.kind, self.rule_id)
+    pub fn signal_id(self) -> SignalId {
+        SignalId {
+            kind: self.kind,
+            rule_id: self.rule_id,
+        }
     }
 
     fn read(input: &mut Reader<'_>) -> Result<Self> {
-        let kind = match input.u8()? {
-            1 => ObservationKind::DebuggerAttachment,
-            2 => ObservationKind::CodeIntegrity,
-            3 => ObservationKind::RegisteredProvider,
-            4 => ObservationKind::ApplicationFile,
-            5 => ObservationKind::RunningApplication,
-            6 => ObservationKind::DriverPackage,
-            _ => return Err(Error::UnknownMandatory),
-        };
+        let kind = ObservationKind::try_from(input.u8()?)?;
         let rule_id = input.u16()?;
         let finding = match input.u8()? {
             1 => ObservationFinding::Observed,
@@ -239,7 +253,7 @@ impl SessionObservation {
             || self
                 .records
                 .windows(2)
-                .any(|pair| pair[0].key() >= pair[1].key())
+                .any(|pair| pair[0].signal_id() >= pair[1].signal_id())
             || (self.action == ObservationAction::RequestOwnStop
                 && !self
                     .records

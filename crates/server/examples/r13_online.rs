@@ -72,6 +72,7 @@ mod lab {
     ) -> Result<(), Box<dyn std::error::Error>> {
         let r17 = database.starts_with("vmkek_r17_");
         let hybrid = database.starts_with("vmkek_r15_") || r17;
+        let response = database.starts_with("vmkek_r17_response_");
         let directory_metadata = fs::symlink_metadata(&directory)?;
         if !directory_metadata.is_dir() || directory_metadata.mode() & 0o077 != 0 {
             return Err("fixture directory must be private and must not be a symlink".into());
@@ -152,6 +153,7 @@ mod lab {
                 &release_key,
                 VmForm::Stack,
                 now + 2800,
+                false,
             )
             .await?;
         }
@@ -161,7 +163,7 @@ mod lab {
             VmForm::Stack,
             VmForm::Register,
         ] {
-            prepare(&store, &generations, &release_key, form, u64::MAX).await?;
+            prepare(&store, &generations, &release_key, form, u64::MAX, response).await?;
         }
 
         let CertifiedKey { cert, signing_key } =
@@ -173,7 +175,7 @@ mod lab {
             vec![cert.clone()],
             PrivatePkcs8KeyDer::from(signing_key.serialize_der()).into(),
         )?;
-        let server = if hybrid {
+        let operations = if hybrid {
             let receipt_signer = SigningKey::random(&mut OsRng);
             let receipt_pin = sec1(&receipt_signer);
             let operations = OperationStore::new(
@@ -188,15 +190,27 @@ mod lab {
             )?;
             operations.configure(ACTOR).await?;
             write_private(&directory.join("receipt-pin.bin"), &receipt_pin)?;
-            tokio::spawn(serve_hybrid_generations_tls(
-                listener,
-                tls,
-                generations.clone(),
-                operations,
-            ))
+            Some(operations)
         } else {
-            tokio::spawn(serve_generations_tls(listener, tls, generations.clone()))
+            None
         };
+        let serve = |listener| {
+            if let Some(operations) = &operations {
+                tokio::spawn(serve_hybrid_generations_tls(
+                    listener,
+                    tls.clone(),
+                    generations.clone(),
+                    operations.clone(),
+                ))
+            } else {
+                tokio::spawn(serve_generations_tls(
+                    listener,
+                    tls.clone(),
+                    generations.clone(),
+                ))
+            }
+        };
+        let mut server = Some(serve(listener));
 
         let capacity = 8
             + 5 * 16
@@ -223,7 +237,12 @@ mod lab {
         config.extend(sec1(&root));
         config.extend(EPOCH.to_le_bytes());
         config.push(GENERATION_STACK | GENERATION_REGISTER);
-        config.extend(0u16.to_le_bytes());
+        let capabilities = if response {
+            vmkek_protocol::GENERATION_COPY_INPUT
+        } else {
+            0
+        };
+        config.extend(capabilities.to_le_bytes());
         let flags_at = config.len();
         config.push(0);
         let mut credential = device.to_bytes();
@@ -256,11 +275,39 @@ mod lab {
         let mut refilled = false;
         let mut operation_stalled = false;
         let mut retry = None;
-        let until = tokio::time::Instant::now() + Duration::from_secs(180);
+        let until =
+            tokio::time::Instant::now() + Duration::from_secs(if response { 600 } else { 180 });
         while tokio::time::Instant::now() < until
             && !directory.join("stop").exists()
-            && !server.is_finished()
+            && server.as_ref().is_none_or(|task| !task.is_finished())
         {
+            if response && directory.join("transport-off").is_file() {
+                if let Some(task) = server.take() {
+                    task.abort();
+                    let _ = task.await;
+                    write_private(&directory.join("transport-offline"), b"offline\n")?;
+                }
+                fs::remove_file(directory.join("transport-off"))?;
+            }
+            if response && directory.join("transport-on").is_file() {
+                if server.is_none() {
+                    let listener = TcpListener::bind(&address).await?;
+                    server = Some(serve(listener));
+                    write_private(&directory.join("transport-online"), b"online\n")?;
+                }
+                fs::remove_file(directory.join("transport-on"))?;
+            }
+            if response && available_generations(&pool).await? < 4 {
+                prepare(
+                    &store,
+                    &generations,
+                    &release_key,
+                    VmForm::Stack,
+                    u64::MAX,
+                    true,
+                )
+                .await?;
+            }
             if !revoked && directory.join("revoke").exists() {
                 if let Some(access) = &access {
                     decision = Some(access.apply(&pool, None).await?);
@@ -302,10 +349,19 @@ mod lab {
             }
             if short_release && !refilled && directory.join("refill").exists() {
                 for _ in 0..64 {
-                    prepare(&store, &generations, &release_key, VmForm::Stack, u64::MAX).await?;
+                    prepare(
+                        &store,
+                        &generations,
+                        &release_key,
+                        VmForm::Stack,
+                        u64::MAX,
+                        false,
+                    )
+                    .await?;
                 }
                 let (scope, release) =
-                    publish_variant(&store, &release_key, VmForm::Register, u64::MAX).await?;
+                    publish_variant(&store, &release_key, VmForm::Register, u64::MAX, false)
+                        .await?;
                 for _ in 0..3 {
                     let blocked = generations
                         .prepare(scope, &release)
@@ -351,13 +407,24 @@ mod lab {
             }
             tokio::time::sleep(Duration::from_millis(25)).await;
         }
-        if server.is_finished() {
-            server.await??;
-        } else {
-            server.abort();
-            let _ = server.await;
+        if let Some(server) = server {
+            if server.is_finished() {
+                server.await??;
+            } else {
+                server.abort();
+                let _ = server.await;
+            }
         }
         Ok(())
+    }
+
+    async fn available_generations(pool: &sqlx::PgPool) -> Result<i64, sqlx::Error> {
+        sqlx::query_scalar(
+            "SELECT count(*) FROM generation_catalog WHERE app_id=$1 AND NOT allocated",
+        )
+        .bind(APP.as_slice())
+        .fetch_one(pool)
+        .await
     }
 
     async fn prepare(
@@ -366,8 +433,10 @@ mod lab {
         release_key: &SigningKey,
         form: VmForm,
         expires_at_ms: u64,
+        response: bool,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let (scope, release) = publish_variant(store, release_key, form, expires_at_ms).await?;
+        let (scope, release) =
+            publish_variant(store, release_key, form, expires_at_ms, response).await?;
         generations.prepare(scope, &release).await?;
         Ok(())
     }
@@ -377,12 +446,13 @@ mod lab {
         release_key: &SigningKey,
         form: VmForm,
         expires_at_ms: u64,
+        response: bool,
     ) -> Result<(ReleaseScope, SealedRelease), Box<dyn std::error::Error>> {
         let mut generation_id = [0; 16];
         let mut module_id = [0; 16];
         OsRng.try_fill_bytes(&mut generation_id)?;
         OsRng.try_fill_bytes(&mut module_id)?;
-        let instructions = match form {
+        let mut instructions = match form {
             VmForm::Stack => vec![
                 Instruction::Argument(0),
                 Instruction::JumpIfZero(4),
@@ -399,6 +469,14 @@ mod lab {
                 Instruction::Jump(5),
             ],
         };
+        if response {
+            for instruction in &mut instructions {
+                if let Instruction::Jump(target) | Instruction::JumpIfZero(target) = instruction {
+                    *target += 1;
+                }
+            }
+            instructions.insert(0, Instruction::CopyInput);
+        }
         let code = Zeroizing::new(
             LabProgram {
                 arguments: vec![ScalarType::I64],
@@ -415,13 +493,20 @@ mod lab {
             generation_id,
             form,
             depth: 2,
-            capabilities: vec![],
+            capabilities: if response {
+                vec![vmkek_protocol::Capability {
+                    id: vmkek_protocol::COPY_INPUT_CAPABILITY,
+                    required: true,
+                }]
+            } else {
+                vec![]
+            },
             program_sha256: Sha256::digest(&code[..]).into(),
             budgets: Budgets {
                 fuel: 10_000_000,
                 memory_bytes: 65536,
                 deadline_ms: 5000,
-                active_contexts: 1,
+                active_contexts: if response { 4 } else { 1 },
                 call_depth: 1,
             },
             profile: Profile::Online,

@@ -132,3 +132,29 @@ without either target executable, then record and bind the results. The
 `grade` command compares those submitted observations and reports
 `matched_observations` or `mismatch`. Recovery requires separate verified
 execution and provenance. Result and control files stay outside client reports.
+
+
+## A09 matched Windows Lab evidence
+
+```sh
+python3 evaluation/anti_analysis.py --manifest docs/plans/anti-analysis/evidence/A09/manifest.json --output docs/plans/anti-analysis/evidence/A09/results
+```
+
+The manifest references SHA-256-pinned evidence files under its directory.
+It records ten distinct Lab artifacts, each paired across the unprofiled
+baseline, observe, enforce, debugger-only enforce, and integrity-only
+enforce. The native fixture is the Windows x64 `scheduling_lab` example in
+`--assessment <profile> <seed>` mode. Every run uses the same native
+executable and a seed-specific signed policy where applicable.
+
+The evaluator checks the recorded stdin digest, canonical descriptor and
+program bytes, selected clean observations, and actual ABI outputs against
+a private arithmetic corpus. It never executes recorded commands. A new
+output directory receives `summary.json` with row outcomes, coverage and
+timing. Activation uses same-seed baseline deltas. Invocation statistics
+compare each process's 128-call p95. The ten-run p95 uses nearest rank.
+
+This campaign verifies clean behavior and the configured signal selection
+on one Windows build. First-attempt effort, transfer, accepted external
+outcomes and client-data assessment need independent evidence and are
+recorded as `not-run`.

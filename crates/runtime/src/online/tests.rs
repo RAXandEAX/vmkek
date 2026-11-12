@@ -701,7 +701,7 @@ fn native_owned_code_stop_cancels_and_reports_without_permanent_revoke() {
             1,
         )
         .unwrap();
-        assert!(checked.sample().is_none());
+        assert!(checked.stop_candidate(checked.sample()).is_none());
     }
     let policy = signed(ImagePurpose::CodeIntegrity, file_digest);
     let proof = consent(&policy);
@@ -717,9 +717,10 @@ fn native_owned_code_stop_cancels_and_reports_without_permanent_revoke() {
     .is_err());
     let checked =
         StopPolicy::new(policy.as_bytes(), pin, proof, flags, app_id, build_id, 1).unwrap();
-    let (_, observed) = checked
-        .sample()
-        .expect("native owned exact file and code mismatch");
+    let observed = checked
+        .stop_candidate(checked.sample())
+        .expect("native owned exact file and code mismatch")
+        .record;
     assert_eq!(observed.kind, ObservationKind::CodeIntegrity);
     assert_eq!(observed.finding, ObservationFinding::SignedMismatch);
     assert!(OwnedModule::from_address(address).is_ok());
@@ -824,6 +825,10 @@ fn native_owned_code_stop_cancels_and_reports_without_permanent_revoke() {
         );
         thread::sleep(Duration::from_millis(25));
     }
+    assert_eq!(
+        crate::runtime_observation_delivery(handle).unwrap(),
+        crate::observations::ObservationDelivery::Queued,
+    );
     drop(call);
     assert_eq!(crate::vmk_shutdown(handle), Status::Ok as u32);
     let fresh = native_open(base_path.to_str().unwrap());

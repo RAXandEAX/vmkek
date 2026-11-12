@@ -352,6 +352,10 @@ impl<T: Payload> Signed<T> {
         })
     }
 
+    pub(super) fn payload(&self) -> &T {
+        &self.payload
+    }
+
     pub(super) fn as_bytes(&self) -> &[u8] {
         &self.bytes
     }

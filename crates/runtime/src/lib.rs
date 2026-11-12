@@ -15,6 +15,7 @@ mod state;
 use std::mem::size_of;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::ptr;
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use abi::{borrow_input, initialization_version, validate_layout, validate_version, Span};
@@ -144,7 +145,7 @@ unsafe fn initialize(
     }
     let descriptor = unsafe { borrow_input(args.descriptor.data, &descriptor) };
     let program = unsafe { borrow_input(args.program.data, &program) };
-    let handle = state::insert(verified_runtime(descriptor, program)?)?;
+    let handle = state::insert(verified_runtime(descriptor, program, None)?)?;
     unsafe { out_runtime.write(handle) };
     Ok(())
 }
@@ -190,7 +191,72 @@ fn check_profile(profile: u32, reserved: u32) -> Result<(), Status> {
     }
 }
 
-fn verified_runtime(descriptor: &[u8], program: &[u8]) -> Result<Runtime, Status> {
+/// Initializes the local Lab runtime with an activated Offline observation
+/// profile. The trusted launcher owns policy storage and sampling. Invocation
+/// and shutdown use the same ABI and handle as an ordinary Lab runtime.
+#[cfg(any(
+    all(windows, target_arch = "x86_64"),
+    all(target_os = "linux", target_arch = "x86_64"),
+    test
+))]
+pub fn initialize_observed_lab(
+    descriptor: &[u8],
+    program: &[u8],
+    observation_gate: Arc<observations::ObservationGate>,
+) -> Result<VmkRuntime, Status> {
+    process_fence()?;
+    if descriptor.len().saturating_add(program.len()) > MAX_BODY_BYTES {
+        return Err(Status::ResourceLimit);
+    }
+    #[cfg(all(windows, target_arch = "x86_64"))]
+    if !observation_gate.matches_native_build(
+        observations::windows::native_windows_build().map_err(|_| Status::Incompatible)?,
+    ) {
+        return Err(Status::Incompatible);
+    }
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    if !observation_gate.matches_linux_release(
+        observations::linux::native_release().map_err(|_| Status::Incompatible)?,
+    ) {
+        return Err(Status::Incompatible);
+    }
+    state::insert(verified_runtime(
+        descriptor,
+        program,
+        Some(observation_gate),
+    )?)
+}
+
+/// Returns the scoped local assessment for an opt-in runtime by handle.
+pub fn runtime_observation(
+    runtime: VmkRuntime,
+    signal_id: vmkek_protocol::session_observation::SignalId,
+) -> Result<Option<observations::ObservationAssessment>, Status> {
+    process_fence()?;
+    Ok(state::get(runtime)?.observation(signal_id))
+}
+
+/// Latest local stop notification enqueue result, independent of admission.
+pub fn runtime_observation_delivery(
+    runtime: VmkRuntime,
+) -> Result<observations::ObservationDelivery, Status> {
+    process_fence()?;
+    Ok(state::get(runtime)?.observation_delivery())
+}
+
+/// Latest online own-stop report acknowledgement for this runtime.
+pub fn runtime_observation_report(
+    runtime: VmkRuntime,
+) -> Result<observations::ObservationReport, Status> {
+    process_fence()?;
+    Ok(state::get(runtime)?.observation_report())
+}
+
+fn verified_runtime(
+    descriptor: &[u8],
+    program: &[u8],
+    observation_gate: Option<Arc<observations::ObservationGate>>,
+) -> Result<Runtime, Status> {
     let overhead = size_of::<Runtime>() + size_of::<Generation>();
     // Canonical decoding copies extension contents and allocates typed
     // records. The wire length bounds the bytes copied and record count.
@@ -205,6 +271,12 @@ fn verified_runtime(descriptor: &[u8], program: &[u8]) -> Result<Runtime, Status
         Profile::Lab => {}
         Profile::Online => return Err(Status::Unavailable),
         Profile::Legacy => return Err(Status::Incompatible),
+    }
+    if observation_gate
+        .as_ref()
+        .is_some_and(|gate| !gate.matches_offline_artifact(descriptor.app_id, descriptor.build_id))
+    {
+        return Err(Status::InvalidPackage);
     }
     let estimate = VerifiedProgram::verification_bytes_for(&descriptor, program)?;
     let working = overhead
@@ -221,7 +293,7 @@ fn verified_runtime(descriptor: &[u8], program: &[u8]) -> Result<Runtime, Status
             .checked_add(verified.memory_bytes())
             .ok_or(Status::ResourceLimit)?,
     )?;
-    Ok(Runtime::from_generation(
+    let runtime = Runtime::from_generation(
         Generation::new(
             generation_id,
             form,
@@ -231,7 +303,12 @@ fn verified_runtime(descriptor: &[u8], program: &[u8]) -> Result<Runtime, Status
             reservation,
         ),
         None,
-    ))
+    );
+    if let Some(gate) = observation_gate {
+        gate.check_time()?;
+        runtime.attach_observation_gate(gate);
+    }
+    Ok(runtime)
 }
 
 fn descriptor_error(error: ProtocolError) -> Status {
@@ -318,8 +395,9 @@ unsafe fn invoke(
         GenerationCode::Online(frame) => {
             let network_deadline =
                 started + Duration::from_millis(u64::from(vmkek_protocol::MAX_DEADLINE_MS));
-            let (program, retained, working) =
-                frame.load(&runtime, &call, deadline, network_deadline)?;
+            let (program, retained, working) = frame
+                .load(&runtime, &call, deadline, network_deadline)
+                .map_err(|status| call.failure(status))?;
             #[cfg(all(test, target_os = "linux", target_arch = "x86_64"))]
             r13_swap::before_execute(&call, deadline);
             _active = working;
@@ -329,10 +407,16 @@ unsafe fn invoke(
             executed
         }
     };
-    if call.lease.is_some_and(|expires| Instant::now() >= expires) {
-        return Err(Status::Expired);
-    }
-    let executed = executed?;
+    let executed = executed.map_err(|status| {
+        let status = if call.lease.is_some_and(|expires| Instant::now() >= expires) {
+            Status::Expired
+        } else {
+            status
+        };
+        call.failure(status)
+    })?;
+    #[cfg(test)]
+    observations::tests::pause_before_offline_commit();
     call.commit(|| {
         if Instant::now() >= deadline {
             return Err(Status::ResourceLimit);

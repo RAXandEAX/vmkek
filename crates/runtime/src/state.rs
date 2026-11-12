@@ -7,6 +7,11 @@ use vmkek_protocol::{Id, VerifiedProgram, VmForm, MAX_ACTIVE_CONTEXTS, MAX_VM_ME
 
 use crate::{Status, VmkRequestId, VmkRuntime};
 
+use crate::observations::{
+    ObservationAssessment, ObservationDelivery, ObservationGate, ObservationReport,
+};
+use vmkek_protocol::session_observation::SignalId;
+
 static QUOTA: Mutex<Quota> = Mutex::new(Quota {
     active: 0,
     bytes: 0,
@@ -181,6 +186,9 @@ struct RuntimeState {
     next_ticket: u64,
     draining: HashSet<Id>,
     calls: HashMap<VmkRequestId, ActiveCall>,
+    observation_gate: Option<Arc<ObservationGate>>,
+    observation_delivery: ObservationDelivery,
+    observation_report: ObservationReport,
 }
 
 impl Runtime {
@@ -198,6 +206,9 @@ impl Runtime {
                 next_ticket: 1,
                 draining: HashSet::new(),
                 calls: HashMap::new(),
+                observation_gate: None,
+                observation_delivery: ObservationDelivery::NotAttempted,
+                observation_report: ObservationReport::NotCompleted,
             }),
             #[cfg(any(windows, all(target_os = "linux", target_arch = "x86_64")))]
             worker: Mutex::new(None),
@@ -210,6 +221,9 @@ impl Runtime {
             return Err(Status::NotFound);
         }
         state.authority()?;
+        if let Some(gate) = &state.observation_gate {
+            gate.admit()?;
+        }
         if state.pending.is_some() {
             return Err(Status::Unavailable);
         }
@@ -282,17 +296,64 @@ impl Runtime {
             .send_key_request(request)
     }
 
-    #[cfg(windows)]
-    pub(crate) fn stop_for_observation(&self, notify: impl FnOnce(vmkek_client::LeaseToken)) {
-        self.stop_local(|authority| {
-            if let Some(token) = authority.token {
-                notify(token);
-            }
-        });
+    pub(crate) fn observation(&self, signal_id: SignalId) -> Option<ObservationAssessment> {
+        lock(&self.state)
+            .observation_gate
+            .as_ref()?
+            .assessment(signal_id)
     }
 
-    #[cfg(any(windows, test))]
+    pub(crate) fn observation_delivery(&self) -> ObservationDelivery {
+        lock(&self.state).observation_delivery
+    }
+
+    pub(crate) fn observation_report(&self) -> ObservationReport {
+        lock(&self.state).observation_report
+    }
+
+    #[cfg(any(windows, all(target_os = "linux", target_arch = "x86_64")))]
+    pub(crate) fn complete_observation_report(&self, result: Result<(), Status>) {
+        lock(&self.state).observation_report = match result {
+            Ok(()) => ObservationReport::Acknowledged,
+            Err(status) => ObservationReport::Failed(status),
+        };
+    }
+
+    pub(crate) fn attach_observation_gate(&self, gate: Arc<ObservationGate>) {
+        lock(&self.state).observation_gate = Some(gate);
+    }
+
+    #[cfg(any(windows, all(target_os = "linux", target_arch = "x86_64")))]
+    pub(crate) fn stop_for_observation(
+        &self,
+        candidate: impl FnOnce() -> Option<vmkek_protocol::session_observation::ObservationSample>,
+        notify: impl FnOnce(
+            vmkek_client::LeaseToken,
+            vmkek_protocol::session_observation::ObservationSample,
+        ) -> ObservationDelivery,
+    ) -> bool {
+        self.stop_local_when(candidate, |authority, sample| {
+            authority.token.map(|token| notify(token, sample))
+        })
+    }
+
+    #[cfg(test)]
     fn stop_local(&self, notify: impl FnOnce(LeaseAuthority)) -> bool {
+        self.stop_local_when(
+            || Some(()),
+            |authority, ()| {
+                notify(authority);
+                None
+            },
+        )
+    }
+
+    #[cfg(any(windows, test, all(target_os = "linux", target_arch = "x86_64")))]
+    fn stop_local_when<T>(
+        &self,
+        candidate: impl FnOnce() -> Option<T>,
+        notify: impl FnOnce(LeaseAuthority, T) -> Option<ObservationDelivery>,
+    ) -> bool {
         let mut state = lock(&self.state);
         if state.closed || state.authority().is_err() {
             return false;
@@ -300,10 +361,15 @@ impl Runtime {
         let Some(authority) = state.active.as_ref().and_then(|active| active.lease) else {
             return false;
         };
+        let Some(candidate) = candidate() else {
+            return false;
+        };
         state.invalidate(Status::Denied);
         // The callback only sends a nonblocking one-shot notification. No I/O
         // occurs while holding the runtime state lock.
-        notify(authority);
+        if let Some(delivery) = notify(authority, candidate) {
+            state.observation_delivery = delivery;
+        }
         true
     }
 
@@ -413,8 +479,15 @@ impl Runtime {
         lock(&self.state).invalidate(status);
     }
 
-    fn close(&self) {
+    pub(crate) fn stop_offline_observation(&self) {
+        lock(&self.state).invalidate(Status::Denied);
+    }
+
+    fn close(&self, handle: VmkRuntime) {
         let mut state = lock(&self.state);
+        if let Some(gate) = &state.observation_gate {
+            gate.unbind_offline_runtime(handle);
+        }
         state.closed = true;
         state.invalidate(Status::Cancelled);
     }
@@ -506,6 +579,24 @@ pub(crate) struct Call {
 }
 
 impl Call {
+    pub(crate) fn failure(&self, status: Status) -> Status {
+        let state = lock(&self.runtime.state);
+        if let Some(terminal) = state.terminal {
+            return terminal;
+        }
+        // A concurrent offline publisher may have latched the stop before
+        // it can acquire this runtime's state to cancel active work.
+        if state
+            .observation_gate
+            .as_ref()
+            .is_some_and(|gate| gate.offline_stop_latched())
+        {
+            Status::Denied
+        } else {
+            status
+        }
+    }
+
     pub(crate) fn commit(
         &self,
         publish: impl FnOnce() -> Result<(), Status>,
@@ -550,7 +641,10 @@ impl Call {
         if self.cancelled.load(Ordering::Acquire) {
             return Err(Status::Cancelled);
         }
-        let result = publish(&state)?;
+        let result = match &state.observation_gate {
+            Some(gate) => gate.commit(|| publish(&state)),
+            None => publish(&state),
+        }?;
         state.remove_call(self.id, self.generation.id());
         Ok(result)
     }
@@ -578,7 +672,18 @@ pub(crate) fn insert(runtime: impl Into<Arc<Runtime>>) -> Result<VmkRuntime, Sta
     }
     let handle = registry.next;
     registry.next = handle.checked_add(1).ok_or(Status::ResourceLimit)?;
-    registry.live.insert(handle, runtime.into());
+    let runtime = runtime.into();
+    {
+        let mut state = lock(&runtime.state);
+        if state
+            .observation_gate
+            .as_ref()
+            .is_some_and(|gate| gate.bind_offline_runtime(handle, &runtime))
+        {
+            state.invalidate(Status::Denied);
+        }
+    }
+    registry.live.insert(handle, runtime);
     Ok(handle)
 }
 
@@ -595,7 +700,7 @@ pub(crate) fn shutdown(handle: VmkRuntime) -> Result<(), Status> {
     let runtime = registry.live.get(&handle).ok_or(Status::NotFound)?;
     // Registry-to-state lock order keeps NotFound behind the point at which
     // the runtime forbids publication, including for calls with a cloned Arc.
-    runtime.close();
+    runtime.close(handle);
     let retired = registry.live.remove(&handle).ok_or(Status::Internal)?;
     drop(registry);
     #[cfg(any(windows, all(target_os = "linux", target_arch = "x86_64")))]
@@ -604,7 +709,7 @@ pub(crate) fn shutdown(handle: VmkRuntime) -> Result<(), Status> {
     Ok(())
 }
 
-fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+pub(crate) fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
     // RAII restores active-call accounting while unwinding. A Rust panic may
     // poison a mutex, but its protected mutations keep valid Rust state.
     mutex
@@ -813,6 +918,29 @@ mod tests {
             Err(Status::Denied)
         ));
         assert!(!runtime.stop_local(|_| panic!("local stop is one-shot")));
+    }
+
+    #[test]
+    fn dropped_observation_notice_does_not_undo_local_stop() {
+        let runtime = Arc::new(fixture());
+        runtime
+            .set_lease(Instant::now() + Duration::from_secs(3))
+            .unwrap();
+        let call = runtime.begin(VmkRequestId { bytes: [61; 16] }).unwrap();
+        assert!(
+            runtime.stop_local_when(|| Some(()), |_, ()| Some(ObservationDelivery::DroppedFull))
+        );
+        assert_eq!(
+            runtime.observation_delivery(),
+            ObservationDelivery::DroppedFull
+        );
+        assert!(call.cancelled.load(Ordering::Acquire));
+        assert_eq!(
+            call.commit(|| panic!("terminal observation cannot publish")),
+            Err(Status::Denied)
+        );
+        runtime.close(0);
+        assert!(!runtime.stop_local_when(|| panic!("late worker must not publish"), |_, ()| None));
     }
 
     #[test]

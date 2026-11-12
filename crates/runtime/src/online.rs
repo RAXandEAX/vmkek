@@ -35,9 +35,11 @@ use crate::{
 mod platform;
 #[cfg(windows)]
 mod stop_policy;
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+#[path = "online/stop_policy_linux.rs"]
+mod stop_policy;
 
-#[cfg(windows)]
-use stop_policy::{Observer, StopNotice, StopPolicy};
+use stop_policy::{start_observer, StopNotice, StopPolicy};
 
 const CONFIG_MAX: usize = 128 * 1024;
 const CONFIG_WORKING_BYTES: usize = 4 * CONFIG_MAX;
@@ -48,8 +50,7 @@ pub(crate) struct Worker {
     keys: async_mpsc::Sender<WorkerRequest>,
     stop: Option<oneshot::Sender<()>>,
     join: Option<JoinHandle<()>>,
-    #[cfg(windows)]
-    observer: Option<Observer>,
+    observer: Option<crate::observations::scheduler::ObservationWorker>,
 }
 
 impl Worker {
@@ -135,7 +136,6 @@ pub(crate) struct KeyRequest {
 
 impl Drop for Worker {
     fn drop(&mut self) {
-        #[cfg(windows)]
         drop(self.observer.take());
         if let Some(stop) = self.stop.take() {
             let _ = stop.send(());
@@ -152,7 +152,6 @@ struct Configuration {
     client: SessionClient<SigningKey>,
     launch: Launch,
     active_key: VerifyingKey,
-    #[cfg(windows)]
     stop_policy: Option<StopPolicy>,
 }
 
@@ -191,7 +190,6 @@ pub(crate) fn initialize(path: &str) -> Result<Arc<Runtime>, Status> {
     // The launcher supplies the config path from a trusted installation
     // directory. Its ancestors and write access are part of that trust.
     let config = Configuration::read(Path::new(path))?;
-    #[cfg(windows)]
     let (config, observer) = {
         let mut config = config;
         let observer = config.stop_policy.take().map(|policy| {
@@ -200,7 +198,6 @@ pub(crate) fn initialize(path: &str) -> Result<Arc<Runtime>, Status> {
         });
         (config, observer)
     };
-    #[cfg(windows)]
     let (observer, observations) = match observer {
         Some((policy, priority, observations)) => (Some((policy, priority)), Some(observations)),
         None => (None, None),
@@ -210,31 +207,23 @@ pub(crate) fn initialize(path: &str) -> Result<Arc<Runtime>, Status> {
     let (keys, requests) = async_mpsc::channel(MAX_ACTIVE_CONTEXTS);
     let join = thread::Builder::new()
         .name("vmkek-online".to_owned())
-        .spawn(move || {
-            worker(
-                config,
-                working,
-                ready,
-                stopped,
-                requests,
-                #[cfg(windows)]
-                observations,
-            )
-        })
+        .spawn(move || worker(config, working, ready, stopped, requests, observations))
         .map_err(|_| Status::ResourceLimit)?;
     let worker = Worker {
         keys,
         stop: Some(stop),
         join: Some(join),
-        #[cfg(windows)]
         observer: None,
     };
     let runtime = result.recv().map_err(|_| Status::Internal)??;
-    #[cfg(windows)]
     let worker = {
         let mut worker = worker;
         if let Some((policy, priority)) = observer {
-            worker.observer = Some(Observer::start(policy, Arc::downgrade(&runtime), priority)?);
+            if let Some(gate) = policy.gate() {
+                gate.check_time()?;
+                runtime.attach_observation_gate(gate);
+            }
+            worker.observer = Some(start_observer(policy, Arc::downgrade(&runtime), priority)?);
         }
         worker
     };
@@ -248,7 +237,7 @@ fn worker(
     ready: mpsc::SyncSender<Result<Arc<Runtime>, Status>>,
     stopped: oneshot::Receiver<()>,
     requests: async_mpsc::Receiver<WorkerRequest>,
-    #[cfg(windows)] mut observations: Option<async_mpsc::Receiver<StopNotice>>,
+    mut observations: Option<async_mpsc::Receiver<StopNotice>>,
 ) {
     let mut stopped = stopped;
     let executor = tokio::runtime::Builder::new_current_thread()
@@ -270,7 +259,6 @@ fn worker(
     if ready.send(prepared.map(|(runtime, _)| runtime)).is_ok() {
         if let Some((runtime, admitted)) = refresh {
             let heartbeat = catch_unwind(AssertUnwindSafe(|| {
-                #[cfg(windows)]
                 executor.block_on(async {
                     let notice = tokio::select! {
                         biased;
@@ -281,17 +269,14 @@ fn worker(
                         tokio::select! {
                             biased;
                             _ = &mut stopped => {},
-                            _ = config.client.report_local_stop(notice.token, notice.epoch, notice.record) => {},
+                            result = config.client.report_local_stop(notice.token, notice.epoch, notice.record) => {
+                                if let Some(runtime) = runtime.upgrade() {
+                                    runtime.complete_observation_report(result.map_err(client_error));
+                                }
+                            },
                         }
                     }
                 });
-                #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-                executor.block_on(config.heartbeat(
-                    runtime.clone(),
-                    admitted,
-                    &mut stopped,
-                    requests,
-                ));
             }));
             if heartbeat.is_err() {
                 if let Some(runtime) = runtime.upgrade() {
@@ -302,7 +287,6 @@ fn worker(
     }
 }
 
-#[cfg(windows)]
 async fn wait_observation(receiver: &mut Option<async_mpsc::Receiver<StopNotice>>) -> StopNotice {
     if let Some(receiver) = receiver {
         if let Some(notice) = receiver.recv().await {
@@ -325,6 +309,7 @@ impl Configuration {
             (b"VMKR13\0\0", false) => (true, false),
             (b"VMKR17\0\0", false) => (true, true),
             (b"VMKR21\0\0", true) => (true, false),
+            (b"VMKRA10\0", true) => (true, true),
             _ => return Err(Status::Incompatible),
         };
         let identity = SessionIdentity {
@@ -384,7 +369,6 @@ impl Configuration {
             .verify_for(&root, identity.app_id, minimum_epoch)
             .map_err(|_| Status::InvalidPackage)?;
         let active_key = bundle.active_key().map_err(|_| Status::InvalidPackage)?;
-        #[cfg(windows)]
         let stop_policy = if observed {
             let flags = input.fixed::<1>()?[0];
             let pin = input.public_key()?;
@@ -418,10 +402,6 @@ impl Configuration {
         } else {
             None
         };
-        #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-        if observed {
-            return Err(Status::Incompatible);
-        }
         if !input.0.is_empty() || minimum_epoch == 0 {
             return Err(Status::InvalidArgument);
         }
@@ -431,7 +411,6 @@ impl Configuration {
             client,
             launch,
             active_key,
-            #[cfg(windows)]
             stop_policy,
         })
     }

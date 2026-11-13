@@ -1,0 +1,130 @@
+{
+  "scope": "Windows x64 native PE qualification on fixed synthetic fixtures",
+  "base": "4cd330d0ba73b6a912506c3c83c2ee1331af262d",
+  "windows_build": 26300,
+  "msvc": "14.44.35207",
+  "release_protector_sha256": "3687a7f15308a4a57d56389cbe0f2e7ffdeb05d783658f6201598923c1e8ebf5",
+  "build_host": "WSL2",
+  "execution_host": "Windows x64",
+  "profile": "windows-native",
+  "seed": 7,
+  "stages": {
+    "T4": "pass",
+    "T5": "pass (native ACG/CFG/CET active)",
+    "T5-Reentry": "pass",
+    "T5-CFG": "pass (relocatable original and protected reject invalid target; fixed control allows as expected)"
+  },
+  "runner_exit": 0,
+  "native_rust": {
+    "exit": 0,
+    "ignored": 12,
+    "passed": 37
+  },
+  "artifacts_path": "C:\\Users\\rax\\AppData\\Local\\Temp\\vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951",
+  "artifacts": [
+    {
+      "name": "cfg-fixed.exe",
+      "bytes": 4096,
+      "sha256": "1fe050f1cc3d86b5e0b7e21f973884b10720e2926bd903636b0aa350386d24c5"
+    },
+    {
+      "name": "cfg-protected.exe",
+      "bytes": 265728,
+      "sha256": "0620fd2605c33af0b5331f4c6d01002652abd6a3686895a642ccc53b39fcbc1f"
+    },
+    {
+      "name": "cfg-protected.exe.report.json",
+      "bytes": 19889,
+      "sha256": "e7eeabe0cf267a0539e5ef1f6f9bf48ec6d233dec09efb9c0640e42cc39f2d3c"
+    },
+    {
+      "name": "cfg.exe",
+      "bytes": 4608,
+      "sha256": "996174535f506ce61e70652cf77b9f92229e979898684ca3b3b412cf97310e21"
+    },
+    {
+      "name": "reentry-protected.exe",
+      "bytes": 296960,
+      "sha256": "582bc8baec674c0f40c61fc301e4d2eaf0b0d3d2bc67a25f958843712fc119d7"
+    },
+    {
+      "name": "reentry-protected.exe.report.json",
+      "bytes": 21042,
+      "sha256": "e3e67d7c6917b46bcf14fb49e7d34ec912982abe1c0a9e76b85978fb40d29520"
+    },
+    {
+      "name": "reentry.exe",
+      "bytes": 3584,
+      "sha256": "4362be06511010192b28502f8ffa772f3d30c0215acd262d4df183d17c5efb8f"
+    },
+    {
+      "name": "seh-leaf-protected.exe",
+      "bytes": 262656,
+      "sha256": "ecfa06493d4f92fe8ff3dedef775c4bf555a63fd1f0f30ee4e27f022130c0f08"
+    },
+    {
+      "name": "seh-leaf-protected.exe.report.json",
+      "bytes": 19893,
+      "sha256": "33fc66021c6476bccdbdefad6ba276e5ad086d37754a97ddaa4dd391799cc98b"
+    },
+    {
+      "name": "seh-leaf.exe",
+      "bytes": 3072,
+      "sha256": "8827dd038328afa13e46686302973a5d524b9cbf0345d2f57b2bae23f6ff7626"
+    },
+    {
+      "name": "seh-protected.exe",
+      "bytes": 317440,
+      "sha256": "a8cf6a68c0893b762c5dd0690633a08ef3189477f1c07144f7c7513938cfe142"
+    },
+    {
+      "name": "seh-protected.exe.report.json",
+      "bytes": 21612,
+      "sha256": "c80e46d9b95e5fa1979bea40f8d42e85356d5629a0e3b9e7ec8298fdda4a8ed8"
+    },
+    {
+      "name": "seh.exe",
+      "bytes": 3072,
+      "sha256": "8827dd038328afa13e46686302973a5d524b9cbf0345d2f57b2bae23f6ff7626"
+    },
+    {
+      "name": "t5_acg_probe.exe",
+      "bytes": 140288,
+      "sha256": "8096e78cf2d4597cabade06797ff4c5fcd4e3540851737a9ba10de322d75814d"
+    },
+    {
+      "name": "threads-cet-protected.exe",
+      "bytes": 258560,
+      "sha256": "e3f7fd5e79b5f5fd1c991f0cf400c386bb545fe1c4ece153123d123e03be8971"
+    },
+    {
+      "name": "threads-cet-protected.exe.report.json",
+      "bytes": 19890,
+      "sha256": "c369dfcc690e87fbe8b4f5c256a35e1336cff68b91fbec46d6a3b19d26442d29"
+    },
+    {
+      "name": "threads-cet.exe",
+      "bytes": 3584,
+      "sha256": "d646677145bf5f9d41da4d6b7c7f77b500b0f6c15da10b3607cc42fbad5dd23f"
+    },
+    {
+      "name": "threads-protected.exe",
+      "bytes": 258048,
+      "sha256": "09e412f9a8c82782954494333aaf82d007bf5f7eb04557597e8758f26e268eff"
+    },
+    {
+      "name": "threads-protected.exe.report.json",
+      "bytes": 19890,
+      "sha256": "92e1d3ecf75b2ef6bc26a0da6d4b09a6c61f1085ffdff5813bcbd46b4080d106"
+    },
+    {
+      "name": "threads.exe",
+      "bytes": 3584,
+      "sha256": "a97add9cbf497f30bd94859e2278613383206ce168b2cd13b7fc38687312f79c"
+    }
+  ],
+  "log_hashes": {
+    "pe": "30360446585fe2cfff9ba8fb2c4ebd6a1691f84c73fa6a3a96d15988457a1e9a",
+    "rust": "96fe99ff8c368b22c3d91a86916b10a422998b37773ac4c088f35362faee36b4"
+  }
+}

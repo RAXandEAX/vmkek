@@ -1,0 +1,10 @@
+{
+  "base_stage03_patch_sha256": "adef839ba96691801d22f9907b0607859b305b6035208e39ecc151241c6f1b95",
+  "patch_sha256": "80b2a3bf0546a7ac1dfbdf679c4c74d990a5da3886cf515541bef456d9d7a5d9",
+  "files_sha256": {
+    "evaluation/research_data_encoding.c": "d51291161d97832a91228ad67c07bd62dd8c8a6277526b2bf194950846a00eec",
+    "evaluation/research_data_encoding.py": "5c0ae222db87f5650e574e5bd5a182ea5aed1c22e95aaffbb8a219c61072c6e0",
+    "evaluation/test_research_data_encoding.py": "d308cdcff76c3764f41d981489e5eea59a3044e13d107e8ac923cdac81840dab"
+  },
+  "decision": "REJECT"
+}

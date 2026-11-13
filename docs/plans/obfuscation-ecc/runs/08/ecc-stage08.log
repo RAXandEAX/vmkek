@@ -1,0 +1,64 @@
+**********************************************************************
+** Visual Studio 2022 Developer Command Prompt v17.14.41
+** Copyright (c) 2025 Microsoft Corporation
+**********************************************************************
+Lab files: C:\Users\rax\AppData\Local\Temp\vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951
+   Создается библиотека seh-ntdll.lib и объект seh-ntdll.exp
+t4_seh.c
+   Создается библиотека seh.lib и объект seh.exp
+Clean original SEH exit=0x00000011
+protected image written: /mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/seh-leaf-protected.exe
+/mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/seh-leaf-protected.exe.report.json
+Original SEH with unrelated leaf protected exit=0x00000011
+protected image written: /mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/seh-protected.exe
+/mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/seh-protected.exe.report.json
+Clean protected SEH exit=0x00000011
+t5_threads.c
+   Создается библиотека threads.lib и объект threads.exp
+Clean original threads exit=0x00000011
+protected image written: /mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/threads-protected.exe
+/mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/threads-protected.exe.report.json
+Clean protected threads exit=0x00000011
+t5_acg_probe.c
+Protected threads with ACG
+ProhibitDynamicCode=1 AllowThreadOptOut=0
+Executable image regions: 2, writable image regions: 2
+Fixture exit=0x00000011
+ACG probe exit=0x00000000
+Protected threads with process CFG
+EnableControlFlowGuard=1
+Executable image regions: 2, writable image regions: 2
+Fixture exit=0x00000011
+CFG probe exit=0x00000000
+t5_threads.c
+   Создается библиотека threads-cet.lib и объект threads-cet.exp
+Original CET-compatible threads with CET
+EnableUserShadowStack=1
+Executable image regions: 1, writable image regions: 1
+Fixture exit=0x00000011
+Original CET probe exit=0x00000000
+protected image written: /mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/threads-cet-protected.exe
+/mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/threads-cet-protected.exe.report.json
+Protected CET-compatible threads with CET
+EnableUserShadowStack=1
+Executable image regions: 2, writable image regions: 2
+Fixture exit=0x00000011
+Protected CET probe exit=0x00000000
+t5_threads.c
+   Создается библиотека reentry.lib и объект reentry.exp
+Clean original reentry exit=0x00000011
+protected image written: /mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/reentry-protected.exe
+/mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/reentry-protected.exe.report.json
+Clean protected reentry exit=0x00000011
+t5_cfg.c
+   Создается библиотека cfg-fixed.lib и объект cfg-fixed.exp
+t5_cfg.c
+   Создается библиотека cfg.lib и объект cfg.exp
+Fixed CFG valid call exit=0x00000011
+Fixed CFG negative control exit=0x00000011
+Original instrumented CFG valid call exit=0x00000011
+Original instrumented CFG rejects invalid target exit=0xc0000409
+protected image written: /mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/cfg-protected.exe
+/mnt/c/Users/rax/AppData/Local/Temp/vmkek-windows-29b84d3e7cb44e4a817dc4e2174d0951/cfg-protected.exe.report.json
+Protected instrumented CFG valid call exit=0x00000011
+Protected instrumented CFG rejects invalid target exit=0xc0000409

@@ -1,0 +1,12 @@
+{
+  "scope": "ELF Authenticated Lab functional correctness",
+  "source_baseline": "/home/rax/.cache/codex-evaluation/ecc-01/all-fixtures/baseline.json",
+  "source_baseline_sha256": "ec40812dfff7d746eea165cbc5f8814f1dfec42c72131b47eb4bf80be9033a33",
+  "run_config_sha256": "166471d6e6d577176d45ae9a3116c6e5c615aa2c1be60a1b9d4d2c8bd076107d",
+  "original_controls": 24,
+  "protected_outcomes": {
+    "pass": 240
+  },
+  "fixtures": 24,
+  "seeds": 10
+}

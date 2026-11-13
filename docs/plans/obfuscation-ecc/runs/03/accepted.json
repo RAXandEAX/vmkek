@@ -1,0 +1,10 @@
+{
+  "base_stage02_patch_sha256": "b43d90eab123c4d63e6403707bfef821b19cc06ffd9b7eec7ab0f8d35c13accb",
+  "patch_sha256": "adef839ba96691801d22f9907b0607859b305b6035208e39ecc151241c6f1b95",
+  "files_sha256": {
+    "evaluation/research_arithmetic.py": "6442a6efebd0354449c9427bb7092c63f387e490333be8701c2ea1727448f8a0",
+    "evaluation/research_arithmetic_solver.py": "b00098fde0006adc2a78437ed399329636c7e313a2e9e74a92cf69e82cda8cc5",
+    "evaluation/test_research_arithmetic.py": "02042d5584c0288a55af08cd7751f642ec6458774d55a0b5e0ed17cb527002a7"
+  },
+  "decision": "REJECT"
+}

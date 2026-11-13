@@ -1,0 +1,49 @@
+{
+  "baseline": "4cd330d0ba73b6a912506c3c83c2ee1331af262d",
+  "scope": "Windows x64 PE T4 SEH correctness smoke",
+  "windows_build": 26300,
+  "visual_studio": "17.14.41",
+  "toolchain": "1.95.0",
+  "seed": 7,
+  "protector": "/home/rax/vmkek-obfuscation-ecc/target/release/vmkek",
+  "protector_sha256": "4067e8f85f210a4ad99042e08e9a4847a190275c84029a4a6a20cbb9c44834a0",
+  "artifact_directory": "C:\\Users\\rax\\AppData\\Local\\Temp\\vmkek-windows-dbd12f354c8c4a82905176a37742aba3",
+  "artifacts": [
+    {
+      "name": "seh-leaf-protected.exe",
+      "size": 262656,
+      "sha256": "ecfa06493d4f92fe8ff3dedef775c4bf555a63fd1f0f30ee4e27f022130c0f08"
+    },
+    {
+      "name": "seh-leaf.exe",
+      "size": 3072,
+      "sha256": "f2a3a66c2777f0f4cf28239f90b30c112f29852cf9a8228d300a5619a16f1c52"
+    },
+    {
+      "name": "seh-protected.exe",
+      "size": 317440,
+      "sha256": "a8cf6a68c0893b762c5dd0690633a08ef3189477f1c07144f7c7513938cfe142"
+    },
+    {
+      "name": "seh.exe",
+      "size": 3072,
+      "sha256": "f2a3a66c2777f0f4cf28239f90b30c112f29852cf9a8228d300a5619a16f1c52"
+    }
+  ],
+  "command": "t4_t6.ps1 -WslProtector /home/rax/vmkek-obfuscation-ecc/target/release/vmkek -Stage T4",
+  "exit_code": 0,
+  "fixture_exit_codes": [
+    17,
+    17,
+    17
+  ],
+  "native_protocol_runtime_tests": {
+    "passed": 37,
+    "ignored": 11
+  },
+  "native_cli_build": {
+    "workaround": "WSL protector, Windows native fixture execution",
+    "exit_code": 101,
+    "issue": "Unix-only imports in src/agent/serve.rs"
+  }
+}

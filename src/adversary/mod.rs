@@ -103,6 +103,26 @@ mod tests {
     }
 
     #[test]
+    fn research_budget_sweep_reports_owned_fixture() {
+        let func = mix_ir();
+        let (_, image) = protect(&func);
+        for budget in [64u32, 256, 1024, 4096] {
+            let open = search::run_ir(&func, budget);
+            let protected = search::run_bytecode(&image, budget);
+            println!("budget={budget} open_steps={} open_recovered={} protected_steps={} protected_recovered={}",
+                open.steps, open.recovered.is_some(), protected.steps, protected.recovered.is_some());
+            assert_eq!(
+                mba::simplify(&open.recovered.expect("open formula")),
+                expr::reference()
+            );
+            if let Some(recovered) = &protected.recovered {
+                assert_eq!(mba::simplify(recovered), expr::reference());
+            }
+            assert!(protected.steps <= budget);
+        }
+    }
+
+    #[test]
     fn input_independent_simplifier_misses_the_sample_formula() {
         let func = mix_ir();
         let open = search::run_ir(&func, STEP_BUDGET);

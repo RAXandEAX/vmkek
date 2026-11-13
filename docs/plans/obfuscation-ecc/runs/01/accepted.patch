@@ -1,0 +1,969 @@
+diff --git a/evaluation/README.md b/evaluation/README.md
+index b1800e6..dde29dc 100644
+--- a/evaluation/README.md
++++ b/evaluation/README.md
+@@ -91,27 +91,63 @@ outside the observed results above. [KLEE testing tutorial](https://klee-se.org/
+ 
+ The optional probe applies only to the repository's `affine_xor` fixture. It fits
+ the parameters of a declared modular-affine XOR model from six public return
+-observations. Target-free scoring in the same Python process compares the model's
+-full predictions with 73 private cases, including state, buffer, canaries and
+-effects. The scoring function receives the fitted parameters and cases without
+-opening or running either target. The probe fits independently
++observations. The evaluator launches the fixed arithmetic candidate in a separate
++Python process with a fresh working directory, passing the model and cases on
++standard input. It compares the candidate's full predictions with 73 private
++cases, including state, buffer, canaries and effects. The candidate program
++runs in a separate systemd user service with Landlock restricting file access to
++`/usr`, `/etc/ld.so.cache`, and the candidate file. Target ELF files and the
++candidate must be outside `/usr`; do not place targets in `/usr` or expose them
++there through a hard link. The sandbox is scoped to this fixed Python candidate,
++not a guarantee for arbitrary untrusted code. Each service is limited to 8 GiB with zero swap and 1 MiB per output file.
++The per-cell wall budget is selected from 60, 600 and 3600 seconds. It inherits only standard I/O.
++An unavailable user manager or Landlock is reported rather than silently bypassed.
++The probe fits independently
+ on each of ten protected seeds. Transfer uses the fixed donor's fitted parameters
+ with zero target queries. The original fixture provides a separate control.
+ 
+-Run the batch inside a transient user scope. The driver verifies the scope's
+-one-minute lifetime and 8 GiB memory limit before building or probing.
++Build the baseline using `evaluate.py build` and run the per-cell controls below.
++The former `build --affine-probe` option is retired because its enclosing scope
++excluded separately launched scoring services. Historical results can be
++reproduced using their recorded source revision and retain their original limits.
++
++### Per-cell affine controls
++
++`affine_cells.py` reuses an existing complete `affine_xor` ELF baseline. It
++verifies the baseline hashes before executing any target. Run a separate report
++for each budget with a private pack outside the checkout:
+ 
+ ```sh
+-systemd-run --user --scope --quiet --property=MemoryMax=8589934592 --property=RuntimeMaxSec=60 -- /usr/bin/python3 "$PWD/evaluation/evaluate.py" build --fixture affine_xor --affine-probe --holdout "$private_pack" --output "$run/affine-probe" --signer "$signer" --pin "$pin"
++python3 evaluation/affine_cells.py --baseline "$run/affine-baseline" --pack "$private_pack" --budget 60 --output "$run/cells-60.json"
++python3 evaluation/affine_cells.py --baseline "$run/affine-baseline" --pack "$private_pack" --budget 600 --output "$run/cells-600.json"
++python3 evaluation/affine_cells.py --baseline "$run/affine-baseline" --pack "$private_pack" --budget 3600 --output "$run/cells-3600.json"
+ ```
+ 
+-The result uses `hypothesis_match` and records one batch memory peak, elapsed time
+-per attempt, exact artifact and donor hashes, and the hidden oracle digest. This
+-measurement covers the declared function family and the one-minute budget. The
+-ten- and sixty-minute cells and broader protected recovery remain `not_run`.
++For fresh, the fit and isolated scoring run in two sequential user services.
++The scorer receives the remaining wall budget after fitting, rounded down to
++whole seconds. Each service has the same 8 GiB limit, swap disabled and reports
++its own memory peak. Elapsed time includes the orchestration between services,
++while the orchestrator is not included in those service memory measurements.
++Transfer reuses the fixed predecessor seed model and performs zero target
++queries. Each cell reports its status, hashes, limits and separate timings.
++This evaluates the declared affine hypothesis, not arbitrary binary recovery.
+ 
+ ## Result protocol
+ 
++Create a machine-readable coverage manifest before running a campaign:
++
++```sh
++python3 evaluation/coverage_manifest.py --output "$run/coverage.json"
++```
++
++Pass `--baseline "$run/training/baseline.json"` to bind an existing complete
++baseline. The manifest records the training and holdout fixture names, hashes
++of the catalog, source inputs and manifest generator, Python and tool versions,
++Git HEAD when available, and the complete planned fresh/transfer matrix. Git
++HEAD identifies the checked-out commit and does not account for uncommitted changes. Every row remains `not_run`; the manifest is a plan,
++not a record of completed experiments. Its exclusive output creation protects
++previous evidence from accidental replacement.
++
+ The version 1 JSONL plan has one row per fixture, platform, adapter, mode, target
+ seed and budget. Fresh uses seeds `0x0401` through `0x040a` independently.
+ Transfer uses the previous seed in the fixed cycle as donor, including the
+diff --git a/evaluation/evaluate.py b/evaluation/evaluate.py
+index f73581d..3dc23a4 100644
+--- a/evaluation/evaluate.py
++++ b/evaluation/evaluate.py
+@@ -11,11 +11,14 @@ import random
+ import resource
+ import shutil
+ import subprocess
++import sys
+ import tempfile
+ import time
+ from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+ from pathlib import Path
+ 
++import owned_scope
++
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parent
+ SOURCE = HERE / "fixtures.c"
+@@ -344,19 +347,14 @@ def save_baseline_progress(path, manifest):
+ 
+ 
+ def build_baselines(args):
++    if args.affine_probe:
++        raise ValueError("--affine-probe is retired; build a baseline and use evaluation/affine_cells.py for per-cell measurements")
+     selected = tuple(dict.fromkeys(args.fixture))
+     pack = private_pack(args.holdout) if args.holdout else None
+     if any(name in HOLDOUT for name in selected) and pack is None:
+         raise ValueError("holdout fixtures require the evaluator's private pack")
+     parameters = pack["parameters"] if pack else []
+     cases = held_cases(pack["vector_seed"], parameters) if pack else public_cases()
+-    probe_group = None
+-    if args.affine_probe:
+-        if selected != ("affine_xor",) or pack is None:
+-            raise ValueError("affine probe requires only affine_xor and an evaluator pack")
+-        if args.oracle_workers != 1:
+-            raise ValueError("affine probe requires serial oracle comparisons")
+-        probe_group = capped_scope()
+     output = new_output(args.output)
+     progress = output / "baseline-progress.json"
+     manifest = {
+@@ -409,6 +407,8 @@ def build_baselines(args):
+                     row.update(status="pass", cases=len(selected_cases), observations_sha256=observations)
+             except subprocess.TimeoutExpired:
+                 row.update(status="timeout")
++            except ScopeFailure as error:
++                row.update(status=error.status, reason=str(error))
+             except (OSError, ValueError) as error:
+                 row.update(status="error", reason=str(error))
+             manifest["rows"].append(row)
+@@ -416,24 +416,11 @@ def build_baselines(args):
+     manifest["run_config_sha256"] = baseline_config_digest(manifest, selected)
+     publish_json(output / "baseline.json", manifest)
+     progress.unlink()
+-    if probe_group is not None:
+-        affine_probe(output, manifest, pack, probe_group)
+     print(json.dumps({"output": str(output), "rows": len(manifest["rows"]),
+                       "passing": sum(row["status"] == "pass" for row in manifest["rows"])}))
+     return 0 if any(row["status"] == "pass" for row in manifest["rows"]) else 1
+ 
+ 
+-def capped_scope():
+-    current = Path("/proc/self/cgroup").read_text().partition("::")[2].strip()
+-    group = Path("/sys/fs/cgroup") / current.lstrip("/")
+-    if not group.name.endswith(".scope") or (group / "memory.max").read_text().strip() != str(CATALOG["memory_bytes"]):
+-        raise ValueError("affine probe requires a user scope with an 8 GiB memory.max")
+-    limit = command(["systemctl", "--user", "show", group.name, "-p", "RuntimeMaxUSec", "--value"], timeout=5)
+-    if limit.returncode or limit.stdout.strip() != "1min":
+-        raise ValueError("affine probe requires a user scope with a one-minute runtime limit")
+-    return group
+-
+-
+ def fit_affine(observations):
+     zero, one = observations[:2]
+     if (zero[0], one[0]) != (0, 1):
+@@ -461,15 +448,39 @@ def predict_affine(model, case):
+ 
+ 
+ def score_affine(model, cases, expected):
+-    predicted = [predict_affine(model, case) for case in cases]
++    candidate = HERE / "affine_candidate.py"
++    run = owned_scope.run(
++        ["/usr/bin/python3", "-B", str(candidate)], budget=60,
++        input_data=json.dumps({"model": model, "cases": cases}).encode(),
++        isolate_file=str(candidate),
++    )
++    if run["status"] == "timeout":
++        raise subprocess.TimeoutExpired(run["command"], 60)
++    if run["status"] in ("unsupported", "oom"):
++        raise ScopeFailure(run["status"], run.get("reason", run.get("systemd_result", "")))
++    if run["status"] != "pass":
++        raise ValueError(f"affine candidate failed: {run.get('stderr', run.get('reason', ''))}")
++    predicted = json.loads(run["stdout"])
++    if not isinstance(predicted, list) or any(not isinstance(item, dict) for item in predicted):
++        raise ValueError("affine candidate output must be a list of observations")
+     mismatches = sum(canonical(left) != canonical(right) for left, right in zip(predicted, expected, strict=True))
+     return {
+         "status": "hypothesis_match" if not mismatches else "mismatch",
+-        "candidate_sha256": digest_json(model), "hidden_cases": len(cases),
++        "candidate_sha256": digest(candidate), "model_sha256": digest_json(model), "hidden_cases": len(cases),
++        "runner_sha256": digest(HERE / "owned_scope.py"),
+         "hidden_oracle_sha256": digest_json(expected), "mismatches": mismatches,
++        "candidate_scope": {key: run[key] for key in ("budget_seconds", "memory_limit_bytes",
++                                                       "memory_peak", "elapsed_seconds", "systemd_result")},
++        "filesystem_restriction": "landlock-usr-candidate",
+     }
+ 
+ 
++class ScopeFailure(Exception):
++    def __init__(self, status, reason):
++        self.status = status
++        super().__init__(reason)
++
++
+ def fresh_affine(artifact, cases, expected):
+     start = time.monotonic()
+     try:
+@@ -478,52 +489,13 @@ def fresh_affine(artifact, cases, expected):
+                            target_queries=len(public_cases()), elapsed_seconds=time.monotonic() - start)
+     except subprocess.TimeoutExpired:
+         status = {"status": "timeout"}
++    except ScopeFailure as error:
++        status = {"status": error.status, "reason": str(error)}
+     except (OSError, ValueError) as error:
+         status = {"status": "error", "reason": str(error)}
+     return None, dict(status, elapsed_seconds=time.monotonic() - start)
+ 
+ 
+-def affine_probe(output, manifest, pack, group):
+-    cases = held_cases(pack["vector_seed"], pack["parameters"])[len(public_cases()):]
+-    expected = [oracle("affine_xor", case) for case in cases]
+-    _, original = fresh_affine(output / "affine_xor-original.elf", cases, expected)
+-    seeds = CATALOG["seeds"]
+-    baseline = {row["seed"]: row for row in manifest["rows"]}
+-    models = {}
+-    rows = []
+-    for seed in seeds:
+-        artifact = baseline[seed]
+-        row = {"mode": "fresh", "source_seed": None, "target_seed": seed,
+-               "artifact_sha256": artifact.get("artifact_sha256"), "wall_seconds": 60}
+-        if artifact["status"] == "pass" and original["status"] == "hypothesis_match":
+-            models[seed], outcome = fresh_affine(output / f"affine_xor-{seed}.elf", cases, expected)
+-            row.update(outcome)
+-        else:
+-            row.update(status="not_run", reason="original or protected baseline control unavailable")
+-        rows.append(row)
+-    for index, target in enumerate(seeds):
+-        source = seeds[index - 1]
+-        row = {"mode": "transfer", "source_seed": source, "target_seed": target,
+-               "artifact_sha256": baseline[target].get("artifact_sha256"),
+-               "donor_sha256": baseline[source].get("artifact_sha256"),
+-               "wall_seconds": 60, "target_queries": 0}
+-        model = models.get(source)
+-        if model is not None and baseline[target]["status"] == "pass":
+-            start = time.monotonic()
+-            row.update(score_affine(model, cases, expected), elapsed_seconds=time.monotonic() - start)
+-        else:
+-            row.update(status="not_run", reason="fixed donor or target baseline unavailable")
+-        rows.append(row)
+-    evidence = {
+-        "version": 1, "fixture": "affine_xor", "scope": "declared modular-affine XOR hypothesis",
+-        "baseline_config_sha256": manifest["run_config_sha256"],
+-        "original_control": original, "rows": rows,
+-        "batch_wall_cap_seconds": 60, "batch_memory_max_bytes": CATALOG["memory_bytes"],
+-        "batch_memory_peak_bytes": int((group / "memory.peak").read_text()),
+-    }
+-    (output / "affine-hypothesis.json").write_text(json.dumps(evidence, indent=2) + "\n")
+-
+-
+ def baseline_config_digest(manifest, fixtures):
+     inputs = (
+         "catalog_sha256", "fixtures_sha256", "linker_script_sha256", "startup_sha256",
+diff --git a/evaluation/test_evaluate.py b/evaluation/test_evaluate.py
+index ffa97b6..dc5cec8 100644
+--- a/evaluation/test_evaluate.py
++++ b/evaluation/test_evaluate.py
+@@ -1,5 +1,6 @@
+ import json
+ import subprocess
++import sys
+ import tempfile
+ import threading
+ import unittest
+@@ -315,13 +316,53 @@ class CorpusTests(unittest.TestCase):
+             with patch.object(Path, "read_text", side_effect=PermissionError("unreadable")):
+                 self.assertIsNone(evaluate.normalized_listing(listing))
+ 
++    def test_affine_candidate_rejects_non_list_json(self):
++        response = {"status": "pass", "stdout": "null"}
++        with patch.object(evaluate.owned_scope, "run", return_value=response):
++            with self.assertRaises(ValueError):
++                evaluate.score_affine((12, 11), [(1, 2, 3, 0, ())], [{}])
++
++    def test_legacy_affine_probe_rejected_before_creating_output(self):
++        with tempfile.TemporaryDirectory() as directory:
++            output = Path(directory) / "out"
++            run = subprocess.run([
++                sys.executable, str(evaluate.HERE / "evaluate.py"), "build",
++                "--fixture", "affine_xor", "--output", str(output),
++                "--signer", "missing-signer", "--pin", "missing-pin", "--affine-probe",
++            ], capture_output=True, text=True)
++            self.assertNotEqual(run.returncode, 0)
++            self.assertIn("affine_cells.py", run.stderr)
++            self.assertFalse(output.exists())
++
++    def test_affine_candidate_fails_closed_without_isolation(self):
++        unavailable = {"status": "unsupported", "reason": "user bus unavailable"}
++        with patch.object(evaluate.owned_scope, "run", return_value=unavailable):
++            with self.assertRaises(evaluate.ScopeFailure) as failure:
++                evaluate.score_affine((12, 11), [], [])
++        self.assertEqual(failure.exception.status, "unsupported")
++
+     def test_declared_affine_hypothesis_fits_and_grades_detached(self):
+         rows = [(0, 0, 11), (1, 2, 21), (2, 3, 32)]
+         model = evaluate.fit_affine(rows)
+         self.assertEqual(model, (12, 11))
+         private_case = (3, 0, 8, 0, (7,) * 16)
+         expected = evaluate.result(47, 8, private_case[-1])
+-        self.assertEqual(evaluate.score_affine(model, [private_case], [expected])["status"], "hypothesis_match")
++        def run_candidate(argv, *, budget, input_data, isolate_file):
++            self.assertEqual(budget, 60)
++            self.assertEqual(Path(isolate_file), evaluate.HERE / "affine_candidate.py")
++            completed = subprocess.run(argv, input=input_data, capture_output=True, check=True)
++            return {"status": "pass", "stdout": completed.stdout.decode(),
++                    "budget_seconds": budget, "memory_limit_bytes": 8 * 1024**3,
++                    "memory_peak": None, "elapsed_seconds": 0, "systemd_result": "success"}
++
++        with patch.object(evaluate.owned_scope, "run", side_effect=run_candidate):
++            matching = evaluate.score_affine(model, [private_case], [expected])
++            self.assertEqual(matching["status"], "hypothesis_match")
++            self.assertEqual(matching["runner_sha256"], evaluate.digest(evaluate.HERE / "owned_scope.py"))
++            corrupted_buffer = dict(expected, buffer="00" * 16)
++            self.assertEqual(evaluate.score_affine(model, [private_case], [corrupted_buffer])["status"], "mismatch")
++            extra_effect = dict(expected, effects=[1], effect_count=1)
++            self.assertEqual(evaluate.score_affine(model, [private_case], [extra_effect])["status"], "mismatch")
+         rows[-1] = (2, 3, 33)
+         with self.assertRaises(ValueError):
+             evaluate.fit_affine(rows)
+diff --git a/evaluation/affine_candidate.py b/evaluation/affine_candidate.py
+new file mode 100644
+index 0000000..c4c6424
+--- /dev/null
++++ b/evaluation/affine_candidate.py
+@@ -0,0 +1,27 @@
++#!/usr/bin/env python3
++"""Execute an owned affine-XOR hypothesis on JSON input."""
++
++import json
++import sys
++
++
++def main():
++    request = json.load(sys.stdin)
++    multiplier, offset = request["model"]
++    output = []
++    for a, b, state, _size, buffer in request["cases"]:
++        value = ((a * multiplier + offset) & ((1 << 64) - 1)) ^ b
++        output.append({
++            "status": 0,
++            "value": value,
++            "state": state,
++            "buffer": bytes(buffer).hex(),
++            "canaries": [165, 90],
++            "effect_count": 0,
++            "effects": [],
++        })
++    json.dump(output, sys.stdout)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/evaluation/affine_cells.py b/evaluation/affine_cells.py
+new file mode 100644
+index 0000000..5203d08
+--- /dev/null
++++ b/evaluation/affine_cells.py
+@@ -0,0 +1,169 @@
++#!/usr/bin/env python3
++"""Evaluate the owned affine fixture with per-cell resource budgets."""
++
++import argparse
++import hashlib
++import json
++import math
++import sys
++import time
++from pathlib import Path
++
++import evaluate
++import owned_scope
++
++HERE = Path(__file__).resolve().parent
++CANDIDATE = HERE / "affine_candidate.py"
++
++
++def file_sha(path):
++    with path.open("rb") as handle:
++        return hashlib.file_digest(handle, "sha256").hexdigest()
++
++
++def restricted_score(model, cases, expected, budget, remaining):
++    result = owned_scope.run(
++        ["/usr/bin/python3", "-B", str(CANDIDATE)], budget=budget,
++        _limits=(remaining, owned_scope.MEMORY), isolate_file=str(CANDIDATE),
++        input_data=json.dumps({"model": model, "cases": cases}).encode(),
++    )
++    receipt = {key: result.get(key) for key in
++               ("status", "systemd_result", "elapsed_seconds", "memory_peak", "exit_code")}
++    if result["status"] != "pass":
++        return result["status"], receipt
++    try:
++        predictions = json.loads(result["stdout"])
++        if not isinstance(predictions, list) or len(predictions) != len(expected):
++            raise ValueError("wrong result count")
++        if any(not isinstance(item, dict) for item in predictions):
++            raise ValueError("invalid observation")
++        mismatches = sum(evaluate.canonical(a) != evaluate.canonical(b)
++                         for a, b in zip(predictions, expected, strict=True))
++    except (ValueError, TypeError) as error:
++        receipt["reason"] = str(error)
++        return "error", receipt
++    receipt["mismatches"] = mismatches
++    receipt["oracle_sha256"] = evaluate.digest_json(expected)
++    return ("mismatch" if mismatches else "hypothesis_match"), receipt
++
++
++def fresh_cell(artifact, cases, expected, budget):
++    start = time.monotonic()
++    fit = owned_scope.run(
++        ["/usr/bin/python3", "-B", str(Path(__file__).resolve()), "--worker", str(artifact)],
++        budget=budget,
++    )
++    fit_receipt = {key: fit.get(key) for key in
++                   ("status", "systemd_result", "elapsed_seconds", "memory_peak", "exit_code")}
++    if fit["status"] != "pass":
++        return None, {"status": fit["status"], "fit": fit_receipt,
++                      "elapsed_seconds": time.monotonic() - start}
++    try:
++        learned = json.loads(fit["stdout"])
++        model = learned["model"]
++        if not isinstance(model, list) or len(model) != 2 or any(type(x) is not int or not 0 <= x <= evaluate.MASK for x in model):
++            raise ValueError("invalid fitted model")
++        if not evaluate.is_sha256(learned["observations_sha256"]):
++            raise ValueError("invalid observations digest")
++    except (ValueError, TypeError, KeyError) as error:
++        return None, {"status": "error", "reason": str(error), "fit": fit_receipt,
++                      "elapsed_seconds": time.monotonic() - start}
++    remaining = math.floor(budget - (time.monotonic() - start))
++    if remaining < 1:
++        return None, {"status": "timeout", "fit": fit_receipt,
++                      "elapsed_seconds": time.monotonic() - start}
++    status, score = restricted_score(model, cases, expected, budget, remaining)
++    return model, {"status": status, "fit": fit_receipt, "score": score,
++                   "target_queries": len(evaluate.public_cases()),
++                   "observations_sha256": learned["observations_sha256"],
++                   "model_sha256": evaluate.digest_json(model),
++                   "elapsed_seconds": time.monotonic() - start}
++
++
++def transfer_cell(model, cases, expected, budget):
++    start = time.monotonic()
++    status, score = restricted_score(model, cases, expected, budget, budget)
++    return {"status": status, "score": score, "target_queries": 0,
++            "model_sha256": evaluate.digest_json(model), "elapsed_seconds": time.monotonic() - start}
++
++
++def run(baseline_dir, pack_path, budget):
++    baseline_dir = baseline_dir.resolve(strict=True)
++    if baseline_dir.is_relative_to("/usr"):
++        raise ValueError("targets must be outside trusted /usr")
++    manifest_path = baseline_dir / "baseline.json"
++    manifest = evaluate.read_baseline(manifest_path)
++    pack = evaluate.load_json(pack_path)
++    cases = evaluate.held_cases(pack["vector_seed"], pack["parameters"])[len(evaluate.public_cases()):]
++    expected = [evaluate.oracle("affine_xor", case) for case in cases]
++    seeds = evaluate.CATALOG["seeds"]
++    baselines = {row["seed"]: row for row in manifest["rows"] if row["fixture"] == "affine_xor"}
++    original_record = next((row for row in manifest.get("controls", [])
++                            if row.get("fixture") == "affine_xor"), {})
++    original_path = baseline_dir / "affine_xor-original.elf"
++    if original_record.get("status") != "pass" or not original_path.is_file() or file_sha(original_path) != original_record.get("original_sha256"):
++        raise ValueError("original control unavailable or hash mismatch")
++    _, original = fresh_cell(original_path, cases, expected, budget)
++    models = {}
++    rows = []
++    for seed in seeds:
++        row = baselines.get(seed, {})
++        artifact = baseline_dir / f"affine_xor-{seed}.elf"
++        base = {"mode": "fresh", "target_seed": seed, "artifact_sha256": row.get("artifact_sha256"),
++                "budget_seconds": budget, "memory_bytes": owned_scope.MEMORY}
++        if original.get("status") != "hypothesis_match":
++            base.update(status="not_run", reason="original control unavailable")
++        elif row.get("status") != "pass":
++            base.update(status="not_run", reason="baseline unavailable")
++        elif not artifact.is_file() or file_sha(artifact) != row["artifact_sha256"]:
++            base.update(status="error", reason="artifact hash mismatch or missing")
++        else:
++            model, result = fresh_cell(artifact, cases, expected, budget)
++            base.update(result)
++            if model is not None:
++                models[seed] = model
++        rows.append(base)
++    for index, seed in enumerate(seeds):
++        source = seeds[index - 1]
++        target = baselines.get(seed, {})
++        donor = baselines.get(source, {})
++        artifact = baseline_dir / f"affine_xor-{seed}.elf"
++        base = {"mode": "transfer", "source_seed": source, "target_seed": seed,
++                "artifact_sha256": target.get("artifact_sha256"),
++                "donor_sha256": donor.get("artifact_sha256"),
++                "budget_seconds": budget, "memory_bytes": owned_scope.MEMORY, "target_queries": 0}
++        if source not in models or target.get("status") != "pass":
++            base.update(status="not_run", reason="donor or target baseline unavailable")
++        elif not artifact.is_file() or file_sha(artifact) != target["artifact_sha256"]:
++            base.update(status="error", reason="artifact hash mismatch or missing")
++        else:
++            base.update(transfer_cell(models[source], cases, expected, budget))
++        rows.append(base)
++    return {"version": 1, "fixture": "affine_xor", "scope": "owned declared affine hypothesis",
++            "baseline_sha256": file_sha(manifest_path), "run_config_sha256": manifest["run_config_sha256"],
++            "pack_sha256": file_sha(pack_path), "candidate_sha256": file_sha(CANDIDATE),
++            "worker_sha256": file_sha(Path(__file__).resolve()),
++            "evaluator_sha256": file_sha(HERE / "evaluate.py"),
++            "runner_sha256": file_sha(HERE / "owned_scope.py"),
++            "budget_seconds": budget, "original_control": original, "rows": rows}
++
++
++def main():
++    if len(sys.argv) == 3 and sys.argv[1] == "--worker":
++        model, digest = evaluate.learn_affine(Path(sys.argv[2]))
++        print(json.dumps({"model": model, "observations_sha256": digest}))
++        return
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--baseline", type=Path, required=True)
++    parser.add_argument("--pack", type=Path, required=True)
++    parser.add_argument("--budget", type=int, choices=owned_scope.BUDGETS, required=True)
++    parser.add_argument("--output", type=Path, required=True)
++    args = parser.parse_args()
++    result = run(args.baseline, args.pack, args.budget)
++    with args.output.open("x", encoding="utf-8") as handle:
++        json.dump(result, handle, indent=2)
++        handle.write("\n")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/evaluation/coverage_manifest.py b/evaluation/coverage_manifest.py
+new file mode 100644
+index 0000000..ae9e6a6
+--- /dev/null
++++ b/evaluation/coverage_manifest.py
+@@ -0,0 +1,68 @@
++#!/usr/bin/env python3
++"""Record the planned owned-fixture evaluation and its local provenance."""
++
++import argparse
++import hashlib
++import json
++import platform
++import subprocess
++import sys
++from collections import Counter
++from pathlib import Path
++
++import evaluate
++
++
++def sha256(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def git_head():
++    try:
++        completed = subprocess.run(
++            ["git", "-C", str(evaluate.HERE), "rev-parse", "--verify", "HEAD"],
++            capture_output=True, text=True, check=True, timeout=5,
++        )
++    except (OSError, subprocess.SubprocessError):
++        return None
++    revision = completed.stdout.strip()
++    return revision if len(revision) == 40 and all(c in "0123456789abcdef" for c in revision) else None
++
++
++def manifest(baseline_path=None):
++    baseline = evaluate.read_baseline(baseline_path) if baseline_path else None
++    rows = list(evaluate.planned_rows(evaluate.TRAIN + evaluate.HOLDOUT, baseline))
++    inputs = ("catalog.json", "fixtures.c", "fixtures.ld", "start.S", "evaluate.py",
++              "affine_candidate.py", "owned_scope.py")
++    return {
++        "version": 1,
++        "git_head": git_head(),
++        "python_version": sys.version.split()[0],
++        "generator_sha256": sha256(Path(__file__)),
++        "scope": "planned authenticated ELF laboratory evaluation",
++        "host": platform.uname()._asdict(),
++        "inputs_sha256": {name: sha256(evaluate.HERE / name) for name in inputs},
++        "baseline_manifest_sha256": sha256(baseline_path) if baseline_path else None,
++        "training": list(evaluate.TRAIN),
++        "holdout": list(evaluate.HOLDOUT),
++        "tool_versions": evaluate.doctor()["tools"],
++        "planned_rows": len(rows),
++        "status_counts": dict(sorted(Counter(row["status"] for row in rows).items())),
++        "reason_counts": dict(sorted(Counter(row["reason"] for row in rows).items())),
++        "rows": rows,
++    }
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--baseline", type=Path, help="complete baseline.json")
++    parser.add_argument("--output", type=Path, required=True, help="new output JSON path")
++    args = parser.parse_args()
++    record = manifest(args.baseline)
++    with args.output.open("x", encoding="utf-8") as handle:
++        json.dump(record, handle, indent=2, sort_keys=True)
++        handle.write("\n")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/evaluation/owned_scope.py b/evaluation/owned_scope.py
+new file mode 100644
+index 0000000..abd6ad0
+--- /dev/null
++++ b/evaluation/owned_scope.py
+@@ -0,0 +1,162 @@
++#!/usr/bin/env python3
++"""Bounded systemd execution for owned evaluation fixtures on Linux."""
++
++import ctypes
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import time
++import uuid
++from pathlib import Path
++
++BUDGETS = (60, 600, 3600)
++MEMORY = 8 * 1024**3
++OUTPUT_LIMIT = 1024 * 1024
++
++
++def _systemctl(*args):
++    return subprocess.run(["systemctl", "--user", *args], capture_output=True, text=True, timeout=10)
++
++
++def run(argv, *, budget, input_data=b"", isolate_file=None, _limits=None):
++    """Run a fixture in a transient user service; return observed process outcome.
++
++    _limits is reserved for resource-control tests. Ordinary callers use the
++    public budgets and the fixed 8 GiB limit.
++    """
++    if budget not in BUDGETS:
++        raise ValueError("unsupported budget")
++    if not argv or not all(isinstance(x, str) and x for x in argv):
++        raise ValueError("argv must contain nonempty strings")
++    if not isinstance(input_data, bytes) or len(input_data) > OUTPUT_LIMIT:
++        raise ValueError("input must be bytes of at most 1 MiB")
++    if sys.platform != "linux" or not shutil.which("systemd-run") or not shutil.which("systemctl"):
++        return {"status": "unsupported", "reason": "Linux systemd user manager unavailable"}
++    if isolate_file is not None:
++        candidate = Path(isolate_file).resolve(strict=True)
++        if candidate.is_relative_to("/usr"):
++            raise ValueError("candidate must be outside the trusted /usr tree")
++        isolate_file = str(candidate)
++    wall, memory = _limits if _limits else (budget, MEMORY)
++    unit = "vmkek-eval-" + uuid.uuid4().hex + ".service"
++    start = time.monotonic()
++    with tempfile.TemporaryDirectory(prefix="vmkek-scope-") as directory:
++        root = Path(directory)
++        (root / "stdin").write_bytes(input_data)
++        request = {"argv": argv, "directory": directory, "isolate_file": isolate_file}
++        request_file = root / "request.json"
++        request_file.write_text(json.dumps(request), encoding="utf-8")
++        cmd = ["systemd-run", "--user", "--quiet", "--unit=" + unit,
++               "--property=Type=exec", "--property=RemainAfterExit=yes",
++               "--property=MemoryMax=" + str(memory), "--property=MemorySwapMax=0",
++               "--property=RuntimeMaxSec=" + str(wall), "--property=KillMode=control-group",
++               "--", sys.executable, str(Path(__file__).resolve()), "--child", str(request_file)]
++        try:
++            launched = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
++        except (OSError, subprocess.TimeoutExpired) as error:
++            try:
++                _systemctl("stop", unit)
++                _systemctl("reset-failed", unit)
++            except (OSError, subprocess.TimeoutExpired):
++                pass
++            return {"status": "error", "reason": str(error), "command": cmd}
++        if launched.returncode:
++            reason = launched.stderr.strip()
++            unavailable = ("Failed to connect to bus", "No medium found")
++            status = "unsupported" if any(item in reason for item in unavailable) else "error"
++            return {"status": status, "reason": reason, "command": cmd}
++        properties = {}
++        try:
++            deadline = time.monotonic() + wall + 15
++            while time.monotonic() < deadline:
++                result = _systemctl("show", unit, "--property=ActiveState,SubState,Result,ExecMainCode,ExecMainStatus,MemoryPeak")
++                if result.returncode:
++                    return {"status": "error", "reason": result.stderr.strip(), "command": cmd}
++                properties = dict(line.split("=", 1) for line in result.stdout.splitlines() if "=" in line)
++                if properties.get("ActiveState") == "failed" or properties.get("SubState") == "exited":
++                    break
++                time.sleep(0.05)
++            else:
++                return {"status": "error", "reason": "systemd did not complete by deadline", "command": cmd}
++            unit_result = properties.get("Result")
++            code = properties.get("ExecMainStatus")
++            status = {"success": "pass", "timeout": "timeout", "oom-kill": "oom"}.get(unit_result, "error")
++            if status == "pass" and code != "0":
++                status = "error"
++            stdout = (root / "stdout").read_bytes() if (root / "stdout").exists() else b""
++            stderr = (root / "stderr").read_bytes() if (root / "stderr").exists() else b""
++            if len(stdout) >= OUTPUT_LIMIT or len(stderr) >= OUTPUT_LIMIT:
++                status = "error"
++            return {"status": status, "systemd_result": unit_result, "exit_code": code,
++                    "signal_or_exit": properties.get("ExecMainCode"),
++                    "memory_peak": properties.get("MemoryPeak"), "elapsed_seconds": time.monotonic()-start,
++                    "stdout": stdout.decode("utf-8", "replace"), "stderr": stderr.decode("utf-8", "replace"),
++                    "output_limit_bytes": OUTPUT_LIMIT, "budget_seconds": budget, "memory_limit_bytes": memory,
++                    "command": cmd}
++        finally:
++            try:
++                _systemctl("stop", unit)
++                _systemctl("reset-failed", unit)
++            except (OSError, subprocess.TimeoutExpired):
++                pass
++
++
++def _restrict_file_access(candidate):
++    """Permit reads only in /usr, the loader cache and the owned candidate."""
++    libc = ctypes.CDLL(None, use_errno=True)
++    abi = libc.syscall(444, 0, 0, 1)
++    if abi < 1:
++        raise OSError(ctypes.get_errno(), "Landlock unavailable")
++    # Rights introduced in ABI 1, plus REFER (ABI 2) and TRUNCATE (ABI 3).
++    handled = (1 << 13) - 1
++    if abi >= 2:
++        handled |= 1 << 13
++    if abi >= 3:
++        handled |= 1 << 14
++    class Ruleset(ctypes.Structure):
++        _fields_ = [("handled_access_fs", ctypes.c_uint64)]
++    class PathBeneath(ctypes.Structure):
++        _fields_ = [("allowed_access", ctypes.c_uint64), ("parent_fd", ctypes.c_int32)]
++    ruleset = Ruleset(handled)
++    fd = libc.syscall(444, ctypes.byref(ruleset), ctypes.sizeof(ruleset), 0)
++    if fd < 0:
++        raise OSError(ctypes.get_errno(), "landlock_create_ruleset")
++    try:
++        for path, rights in (("/usr", (1 << 0) | (1 << 2) | (1 << 3)),
++                             ("/etc/ld.so.cache", 1 << 2), (candidate, 1 << 2)):
++            path_fd = os.open(path, os.O_PATH | os.O_CLOEXEC)
++            try:
++                rule = PathBeneath(rights, path_fd)
++                if libc.syscall(445, fd, 1, ctypes.byref(rule), 0) != 0:
++                    raise OSError(ctypes.get_errno(), "landlock_add_rule")
++            finally:
++                os.close(path_fd)
++        if libc.prctl(38, 1, 0, 0, 0) != 0:
++            raise OSError(ctypes.get_errno(), "PR_SET_NO_NEW_PRIVS")
++        if libc.syscall(446, fd, 0) != 0:
++            raise OSError(ctypes.get_errno(), "landlock_restrict_self")
++    finally:
++        os.close(fd)
++
++
++def _child(request_path):
++    import resource
++
++    request = json.loads(Path(request_path).read_text(encoding="utf-8"))
++    root = Path(request["directory"])
++    with (root / "stdin").open("rb") as inp, (root / "stdout").open("wb") as out, (root / "stderr").open("wb") as err:
++        os.dup2(inp.fileno(), 0)
++        os.dup2(out.fileno(), 1)
++        os.dup2(err.fileno(), 2)
++        resource.setrlimit(resource.RLIMIT_FSIZE, (OUTPUT_LIMIT, OUTPUT_LIMIT))
++        os.chdir(root)
++        if request["isolate_file"] is not None:
++            _restrict_file_access(request["isolate_file"])
++        os.execvp(request["argv"][0], request["argv"])
++
++
++if __name__ == "__main__" and len(sys.argv) == 3 and sys.argv[1] == "--child":
++    _child(sys.argv[2])
+diff --git a/evaluation/test_affine_cells.py b/evaluation/test_affine_cells.py
+new file mode 100644
+index 0000000..16f4a7e
+--- /dev/null
++++ b/evaluation/test_affine_cells.py
+@@ -0,0 +1,47 @@
++import json
++import unittest
++from pathlib import Path
++from unittest.mock import patch
++
++import affine_cells
++
++
++class AffineCellsTests(unittest.TestCase):
++    def test_fit_timeout_never_scores_and_preserves_status(self):
++        with patch.object(affine_cells.owned_scope, "run", return_value={"status": "timeout"}), \
++             patch.object(affine_cells, "restricted_score") as score:
++            model, row = affine_cells.fresh_cell(Path("/fixture"), [], [], 600)
++        self.assertIsNone(model)
++        self.assertEqual(row["status"], "timeout")
++        score.assert_not_called()
++
++    def test_fresh_scoring_receives_remaining_budget(self):
++        fit = {"status": "pass", "stdout": json.dumps({"model": [12, 11], "observations_sha256": "a" * 64})}
++        with patch.object(affine_cells.owned_scope, "run", return_value=fit), \
++             patch.object(affine_cells, "restricted_score", return_value=("hypothesis_match", {})) as score:
++            model, row = affine_cells.fresh_cell(Path("/fixture"), [], [], 600)
++        self.assertEqual(model, [12, 11])
++        self.assertEqual(row["status"], "hypothesis_match")
++        self.assertLess(score.call_args.args[-1], 600)
++        self.assertGreater(score.call_args.args[-1], 0)
++
++    def test_missing_or_invalid_observation_digest_is_error_without_scoring(self):
++        for learned in ({"model": [12, 11]}, {"model": [12, 11], "observations_sha256": "h"}):
++            with self.subTest(learned=learned):
++                fit = {"status": "pass", "stdout": json.dumps(learned)}
++                with patch.object(affine_cells.owned_scope, "run", return_value=fit), \
++                     patch.object(affine_cells, "restricted_score") as score:
++                    model, row = affine_cells.fresh_cell(Path("/fixture"), [], [], 600)
++                self.assertIsNone(model)
++                self.assertEqual(row["status"], "error")
++                score.assert_not_called()
++
++    def test_transfer_has_zero_target_queries(self):
++        with patch.object(affine_cells, "restricted_score", return_value=("hypothesis_match", {})) as score:
++            row = affine_cells.transfer_cell([12, 11], [], [], 3600)
++        self.assertEqual(row["target_queries"], 0)
++        self.assertEqual(score.call_args.args[-1], 3600)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/evaluation/test_coverage_manifest.py b/evaluation/test_coverage_manifest.py
+new file mode 100644
+index 0000000..a9ac96b
+--- /dev/null
++++ b/evaluation/test_coverage_manifest.py
+@@ -0,0 +1,49 @@
++import hashlib
++import json
++import subprocess
++import sys
++import tempfile
++import unittest
++from pathlib import Path
++from unittest.mock import patch
++
++import coverage_manifest
++import evaluate
++
++
++class CoverageTests(unittest.TestCase):
++    def test_manifest_keeps_every_planned_cell_and_held_out_partition(self):
++        data = coverage_manifest.manifest()
++        self.assertEqual(data["planned_rows"], 24 * 3 * 10 * 3 * 2)
++        self.assertEqual(data["status_counts"], {"not_run": data["planned_rows"]})
++        self.assertEqual(set(data["training"]), set(evaluate.TRAIN))
++        self.assertEqual(set(data["holdout"]), set(evaluate.HOLDOUT))
++        self.assertFalse(set(data["training"]) & set(data["holdout"]))
++        self.assertEqual(len(data["rows"]), data["planned_rows"])
++        self.assertEqual(len(data["inputs_sha256"]["fixtures.c"]), 64)
++        self.assertEqual(data["inputs_sha256"]["owned_scope.py"],
++                         hashlib.sha256((evaluate.HERE / "owned_scope.py").read_bytes()).hexdigest())
++        self.assertEqual(data["generator_sha256"],
++                         hashlib.sha256(Path(coverage_manifest.__file__).read_bytes()).hexdigest())
++        self.assertEqual(data["python_version"], sys.version.split()[0])
++        self.assertTrue(data["git_head"] is None or len(data["git_head"]) == 40)
++
++    def test_git_unavailable_is_explicit(self):
++        with patch.object(coverage_manifest.subprocess, "run", side_effect=OSError("missing git")):
++            self.assertIsNone(coverage_manifest.git_head())
++
++    def test_cli_never_overwrites_an_existing_manifest(self):
++        with tempfile.TemporaryDirectory() as directory:
++            output = Path(directory) / "coverage.json"
++            script = Path(coverage_manifest.__file__)
++            args = [sys.executable, str(script), "--output", str(output)]
++            subprocess.run(args, check=True, capture_output=True, text=True)
++            first = output.read_bytes()
++            self.assertEqual(json.loads(first)["planned_rows"], 4320)
++            again = subprocess.run(args, capture_output=True, text=True)
++            self.assertNotEqual(again.returncode, 0)
++            self.assertEqual(output.read_bytes(), first)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/evaluation/test_owned_scope.py b/evaluation/test_owned_scope.py
+new file mode 100644
+index 0000000..782955b
+--- /dev/null
++++ b/evaluation/test_owned_scope.py
+@@ -0,0 +1,88 @@
++import os
++import subprocess
++import sys
++import tempfile
++import time
++import unittest
++from pathlib import Path
++
++import owned_scope
++
++
++class ScopeTests(unittest.TestCase):
++    def run_case(self, code, *, limits=None):
++        result = owned_scope.run(["/usr/bin/python3", "-c", code], budget=60, _limits=limits)
++        if result["status"] == "unsupported":
++            self.skipTest(result["reason"])
++        return result
++
++    def test_configured_budgets_and_output_cap(self):
++        for budget in owned_scope.BUDGETS:
++            with self.subTest(budget=budget):
++                result = owned_scope.run(["/usr/bin/python3", "-c", "print(42)"], budget=budget)
++                if result["status"] == "unsupported":
++                    self.skipTest(result["reason"])
++                self.assertEqual(result["status"], "pass", result)
++                self.assertEqual(result["stdout"], "42\n")
++                self.assertIn("--property=RuntimeMaxSec=" + str(budget), result["command"])
++                self.assertIn("--property=MemoryMax=8589934592", result["command"])
++                self.assertIn("--property=MemorySwapMax=0", result["command"])
++        result = self.run_case("import os; os.write(1,b'x'*2000000)")
++        self.assertEqual(result["status"], "error")
++        self.assertLessEqual(len(result["stdout"].encode()), owned_scope.OUTPUT_LIMIT)
++
++    def test_child_has_fresh_working_directory(self):
++        result = self.run_case("import os; print(os.getcwd())")
++        self.assertEqual(result["status"], "pass", result)
++        self.assertTrue(Path(result["stdout"].strip()).name.startswith("vmkek-scope-"))
++        self.assertNotEqual(result["stdout"].strip(), os.getcwd())
++
++    def test_kernel_scope_limits(self):
++        code = ("from pathlib import Path; p=Path('/sys/fs/cgroup') / "
++                "Path('/proc/self/cgroup').read_text().partition('::')[2].strip().lstrip('/'); "
++                "print((p/'memory.max').read_text().strip(), (p/'memory.swap.max').read_text().strip())")
++        result = self.run_case(code)
++        self.assertEqual(result["status"], "pass", result)
++        self.assertEqual(result["stdout"].strip(), "8589934592 0")
++
++    def test_timeout_and_descendant_are_terminated(self):
++        with tempfile.TemporaryDirectory() as directory:
++            marker = str(Path(directory) / "late")
++            code = ("import subprocess,time; subprocess.Popen([" + repr(sys.executable) +
++                    ",'-c'," + repr("import time,pathlib;time.sleep(4);pathlib.Path(" + repr(marker) + ").touch()") +
++                    "]); time.sleep(30)")
++            result = self.run_case(code, limits=(1, 64 * 1024 * 1024))
++            self.assertEqual(result["status"], "timeout", result)
++            time.sleep(4)
++            self.assertFalse(Path(marker).exists())
++
++    def test_child_memory_limit_and_error(self):
++        code = ("import subprocess,sys; p=subprocess.run([sys.executable,'-c',"
++                "'x=bytearray(128*1024*1024); print(len(x))']); sys.exit(p.returncode)")
++        result = self.run_case(code, limits=(5, 64 * 1024 * 1024))
++        self.assertEqual(result["status"], "oom", result)
++        result = self.run_case("raise RuntimeError('test error')")
++        self.assertEqual(result["status"], "error", result)
++
++    def test_landlock_denies_file_but_runs_candidate(self):
++        with tempfile.TemporaryDirectory() as directory:
++            root = Path(directory)
++            forbidden = root / "target"
++            forbidden.write_text("hidden")
++            candidate = root / "candidate.py"
++            candidate.write_text("import pathlib\ntry:\n pathlib.Path(" + repr(str(forbidden)) +
++                                 ").read_text()\n print('exposed')\nexcept PermissionError:\n print('denied')\n")
++            result = owned_scope.run(["/usr/bin/python3", str(candidate)], budget=60,
++                                     isolate_file=str(candidate))
++            if result["status"] == "unsupported":
++                self.skipTest(result["reason"])
++            self.assertEqual(result["status"], "pass", result)
++            self.assertEqual(result["stdout"], "denied\n")
++
++    def test_rejects_unknown_budget(self):
++        with self.assertRaises(ValueError):
++            owned_scope.run(["/usr/bin/true"], budget=10)
++
++
++if __name__ == "__main__":
++    unittest.main()

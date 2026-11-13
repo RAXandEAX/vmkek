@@ -1,0 +1,157 @@
+{
+  "host": {
+    "system": "Linux",
+    "node": "DESKTOP-C4O3AN5",
+    "release": "6.18.58.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Tue Oct 27 00:24:11 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "scope": "owned synthetic register-only interpreter, single straight-line expression",
+  "rustc": "1.95.0",
+  "clang": "18.1.3",
+  "source_sha256": "952678dab0db0f488974fd2cc265f1f09306f2b6dd5e52f342561dbbbe77a536",
+  "c_source_sha256": "45d6c6cad3586256d88a8835ebe1febe887d781d5f5ff0da95e683c902126fc7",
+  "binary_sha256": "ac0f2b20a05632caea9dee1c0945c3b0930c6221c98e374514a083fad1c9b169",
+  "llvm_sha256": "6a1ef8ee9d2c7a267a9e95704316e4b0b6a07d677040100046b0503bc204c760",
+  "normalized_distinct_bodies": 1,
+  "runs": [
+    [
+      {
+        "mode": "Separate",
+        "bytes": "6",
+        "dispatches": "2",
+        "iterations": "500000",
+        "elapsed_ns": "1636080",
+        "checksum": "0"
+      },
+      {
+        "mode": "Pair",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1110517",
+        "checksum": "0"
+      },
+      {
+        "mode": "Fused",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1156439",
+        "checksum": "0"
+      }
+    ],
+    [
+      {
+        "mode": "Separate",
+        "bytes": "6",
+        "dispatches": "2",
+        "iterations": "500000",
+        "elapsed_ns": "1738244",
+        "checksum": "0"
+      },
+      {
+        "mode": "Pair",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1301669",
+        "checksum": "0"
+      },
+      {
+        "mode": "Fused",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1158760",
+        "checksum": "0"
+      }
+    ],
+    [
+      {
+        "mode": "Separate",
+        "bytes": "6",
+        "dispatches": "2",
+        "iterations": "500000",
+        "elapsed_ns": "1885379",
+        "checksum": "0"
+      },
+      {
+        "mode": "Pair",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1298380",
+        "checksum": "0"
+      },
+      {
+        "mode": "Fused",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1087909",
+        "checksum": "0"
+      }
+    ],
+    [
+      {
+        "mode": "Separate",
+        "bytes": "6",
+        "dispatches": "2",
+        "iterations": "500000",
+        "elapsed_ns": "1806217",
+        "checksum": "0"
+      },
+      {
+        "mode": "Pair",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1381305",
+        "checksum": "0"
+      },
+      {
+        "mode": "Fused",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1097422",
+        "checksum": "0"
+      }
+    ],
+    [
+      {
+        "mode": "Separate",
+        "bytes": "6",
+        "dispatches": "2",
+        "iterations": "500000",
+        "elapsed_ns": "1787268",
+        "checksum": "0"
+      },
+      {
+        "mode": "Pair",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1424813",
+        "checksum": "0"
+      },
+      {
+        "mode": "Fused",
+        "bytes": "5",
+        "dispatches": "1",
+        "iterations": "500000",
+        "elapsed_ns": "1105999",
+        "checksum": "0"
+      }
+    ]
+  ],
+  "median_elapsed_ns": {
+    "Separate": 1787268,
+    "Pair": 1301669,
+    "Fused": 1105999
+  },
+  "decision": "INCONCLUSIVE",
+  "decision_reason": "Synthetic source-level equality and local timings do not measure resistance of native handlers or cross-seed reuse."
+}

@@ -1,0 +1,32 @@
+{
+  "baseline_path": "/home/rax/.cache/codex-evaluation/ecc-08/all-fixtures/baseline.json",
+  "baseline_sha256": "6682e6442dbea19310cac57d6d153b977e4e7e67c85aa0b4e06aa56c98684baf",
+  "controls": 24,
+  "protected": 240,
+  "pass": 240,
+  "protector_sha256": "3687a7f15308a4a57d56389cbe0f2e7ffdeb05d783658f6201598923c1e8ebf5",
+  "run_config_sha256": "4197618b8b1f4a99d535ef00aa2223b4bafac9c7dcbcb1075b28a990dfbcfbcd",
+  "cells": {
+    "60": {
+      "file": "cells-final-60.json",
+      "sha256": "25d1462311c28c139af0f7665fb722fae036422ba20212ac89f501d02f8dd83f",
+      "fresh": 10,
+      "transfer": 10,
+      "status": "hypothesis_match"
+    },
+    "600": {
+      "file": "cells-final-600.json",
+      "sha256": "1c3be2e91b446d433374aeb3663f3d121a23f60c13daafd784ebd7efbe85f38a",
+      "fresh": 10,
+      "transfer": 10,
+      "status": "hypothesis_match"
+    },
+    "3600": {
+      "file": "cells-final-3600.json",
+      "sha256": "d7f71e4487262554ac2ed78f3204236755fb535e7e6bdcab794100cc7e9db0dd",
+      "fresh": 10,
+      "transfer": 10,
+      "status": "hypothesis_match"
+    }
+  }
+}

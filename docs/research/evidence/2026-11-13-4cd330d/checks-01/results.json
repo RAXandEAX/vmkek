@@ -1,0 +1,130 @@
+{
+  "revision": "4cd330d0ba73b6a912506c3c83c2ee1331af262d",
+  "date_context": "2026-11-13 Europe/Moscow",
+  "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "scope": "correctness and source-level controls; not protected-binary recovery",
+  "source_files_verified": 451,
+  "commands": [
+    {
+      "command": [
+        "/home/rax/.cargo/bin/cargo",
+        "+1.95.0",
+        "--version"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 0.049
+    },
+    {
+      "command": [
+        "/home/rax/.cargo/bin/rustc",
+        "+1.95.0",
+        "--version"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 0.109
+    },
+    {
+      "command": [
+        "/home/rax/.cargo/bin/cargo",
+        "+1.95.0",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "vmkek",
+        "--lib",
+        "obf::"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 18.535
+    },
+    {
+      "command": [
+        "/home/rax/.cargo/bin/cargo",
+        "+1.95.0",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "vmkek",
+        "--lib",
+        "adversary::"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 0.267
+    },
+    {
+      "command": [
+        "/home/rax/.cargo/bin/cargo",
+        "+1.95.0",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "vmkek",
+        "--lib",
+        "vm::"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 104.286
+    },
+    {
+      "command": [
+        "/home/rax/.cargo/bin/cargo",
+        "+1.95.0",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "vmkek-protocol",
+        "--features",
+        "r06-experimental",
+        "--test",
+        "lab"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 2.448
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "evaluation",
+        "-p",
+        "test_evaluate.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 1.632
+    },
+    {
+      "command": [
+        "python3",
+        "evaluation/r06_normalize.py",
+        "/mnt/c/Users/rax/Documents/ChatGPT/vmkek/docs/research/evidence/2026-11-13-4cd330d/checks-01/r06-normalize"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "elapsed_seconds": 0.13
+    }
+  ],
+  "constant_predicate_probe": {
+    "source_sha256": "57da20dadf24a432913844274957057da984c70509c37dc5a40291ced04257c4",
+    "input": "0xc30b150000007a11",
+    "result": "0xfe5d",
+    "matches_source_assertion_0xfe5d": true,
+    "scope": "concrete evaluation of the source formula; no preimage search required"
+  },
+  "checks_log_sha256": "f6c12291f094a622788f9b118c407c6991e8d537dc1976f9055342df11afd592"
+}

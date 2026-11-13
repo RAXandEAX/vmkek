@@ -1,0 +1,538 @@
+{
+  "version": 1,
+  "fixture": "affine_xor",
+  "scope": "owned declared affine hypothesis",
+  "baseline_sha256": "6682e6442dbea19310cac57d6d153b977e4e7e67c85aa0b4e06aa56c98684baf",
+  "run_config_sha256": "4197618b8b1f4a99d535ef00aa2223b4bafac9c7dcbcb1075b28a990dfbcfbcd",
+  "pack_sha256": "2b275a96d5b69b6cf4d470cf1fc76501765b76c79327c85fde9571d2177b5a84",
+  "candidate_sha256": "08af19fd2a85a300faa64e18dd263bde88b8de9667d9306004609c445b56ac99",
+  "worker_sha256": "d06edb83dcfd86d5f024cc9fd8315bf52142826ff08aa791c9bd4ad8ece43fd8",
+  "evaluator_sha256": "ce2e5f2415ba54111849ce3c9f462e71136b425177c01e2fe57c85aa60b19190",
+  "runner_sha256": "48871230ccb7cd0c8cefce372dbb916f88bf1cfc817e40f37a236e4a335c7571",
+  "budget_seconds": 600,
+  "original_control": {
+    "status": "hypothesis_match",
+    "fit": {
+      "status": "pass",
+      "systemd_result": "success",
+      "elapsed_seconds": 0.14347668099981092,
+      "memory_peak": "11358208",
+      "exit_code": "0"
+    },
+    "score": {
+      "status": "pass",
+      "systemd_result": "success",
+      "elapsed_seconds": 0.08708553800011032,
+      "memory_peak": "2617344",
+      "exit_code": "0",
+      "mismatches": 0,
+      "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+    },
+    "target_queries": 6,
+    "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+    "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+    "elapsed_seconds": 0.24567026399995484
+  },
+  "rows": [
+    {
+      "mode": "fresh",
+      "target_seed": 1025,
+      "artifact_sha256": "0637bf29f0772947d98479ceed9001df1bea48531d61a1a8ff66ac513b9c18bd",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.15200018400014415,
+        "memory_peak": "10461184",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.08780065399992054,
+        "memory_peak": "2879488",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.2559408270001313
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1026,
+      "artifact_sha256": "e4b17461abb2568d5f224beda64834c883b57745397d635900add4e70f8589cf",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.13790451599993503,
+        "memory_peak": "10194944",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.08985836300007577,
+        "memory_peak": "2879488",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.24335605800001758
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1027,
+      "artifact_sha256": "e31eee97d5ea11ddf7cdcfbd2317126eab38323685d9057fe7abd4a67caca7e1",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.14604435199998989,
+        "memory_peak": "10362880",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.09041763800018998,
+        "memory_peak": "2617344",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.25281416799998624
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1028,
+      "artifact_sha256": "c9b4a2a78c3cf406bcb8c28be2b9a7005f65ce526775f56b9903aca897a445c1",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.12241769199999908,
+        "memory_peak": "10248192",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.09621962400001394,
+        "memory_peak": "2879488",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.2360065630000463
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1029,
+      "artifact_sha256": "6672a2ad1410b88839727c5958332cecf154bd530d91bf44bfece831c8bc47fa",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.145445509999945,
+        "memory_peak": "10399744",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.0858206739999332,
+        "memory_peak": "2613248",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.24699407599996448
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1030,
+      "artifact_sha256": "7f5b36a97f6b546c7ab048305d45b9afd38b66d6ea9f17ee6aa313c135849f0a",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.1374566079998658,
+        "memory_peak": "10194944",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.07435473999998976,
+        "memory_peak": "2617344",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.22735635499998352
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1031,
+      "artifact_sha256": "3f975b9c29dddfc665a443463bb28774b89c5775e0b1685c94e038bc5c4928c8",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.14220025300005545,
+        "memory_peak": "10194944",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.08650208199992448,
+        "memory_peak": "2879488",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.24473764100002882
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1032,
+      "artifact_sha256": "40c9be5fb1626ecbaeaadb17362557f69c03be7e0e613fc8219e6a2d310c2019",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.14374111999995876,
+        "memory_peak": "10362880",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.09210574799999449,
+        "memory_peak": "2875392",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.2519363129999874
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1033,
+      "artifact_sha256": "158943e3a3aab4de1e61e5b3d588adb74e2095cfe786edc4ee2428cfd7559fae",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.1367744770000172,
+        "memory_peak": "10371072",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.09046992499997941,
+        "memory_peak": "2617344",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.24270895800009384
+    },
+    {
+      "mode": "fresh",
+      "target_seed": 1034,
+      "artifact_sha256": "d628fcc65091c68734a2af300b69220879c231a13da7a623b2518b3bab19e021",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "status": "hypothesis_match",
+      "fit": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.14653160700004264,
+        "memory_peak": "9932800",
+        "exit_code": "0"
+      },
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.07744804000003569,
+        "memory_peak": "2613248",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "target_queries": 6,
+      "observations_sha256": "4652e016a927aa276abd6defe6552daf0a1e9d95fa9284d0668fce2d4b0a7cc9",
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.24072321600010582
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1034,
+      "target_seed": 1025,
+      "artifact_sha256": "0637bf29f0772947d98479ceed9001df1bea48531d61a1a8ff66ac513b9c18bd",
+      "donor_sha256": "d628fcc65091c68734a2af300b69220879c231a13da7a623b2518b3bab19e021",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.08662397800003419,
+        "memory_peak": "2617344",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.09502595399999336
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1025,
+      "target_seed": 1026,
+      "artifact_sha256": "e4b17461abb2568d5f224beda64834c883b57745397d635900add4e70f8589cf",
+      "donor_sha256": "0637bf29f0772947d98479ceed9001df1bea48531d61a1a8ff66ac513b9c18bd",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.06772580100005143,
+        "memory_peak": "2953216",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.07564266899998984
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1026,
+      "target_seed": 1027,
+      "artifact_sha256": "e31eee97d5ea11ddf7cdcfbd2317126eab38323685d9057fe7abd4a67caca7e1",
+      "donor_sha256": "e4b17461abb2568d5f224beda64834c883b57745397d635900add4e70f8589cf",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.09215108400007921,
+        "memory_peak": "2875392",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.1005797379998512
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1027,
+      "target_seed": 1028,
+      "artifact_sha256": "c9b4a2a78c3cf406bcb8c28be2b9a7005f65ce526775f56b9903aca897a445c1",
+      "donor_sha256": "e31eee97d5ea11ddf7cdcfbd2317126eab38323685d9057fe7abd4a67caca7e1",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.07904378100010945,
+        "memory_peak": "2617344",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.08708097400017323
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1028,
+      "target_seed": 1029,
+      "artifact_sha256": "6672a2ad1410b88839727c5958332cecf154bd530d91bf44bfece831c8bc47fa",
+      "donor_sha256": "c9b4a2a78c3cf406bcb8c28be2b9a7005f65ce526775f56b9903aca897a445c1",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.0795469019999473,
+        "memory_peak": "2613248",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.08756563799988726
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1029,
+      "target_seed": 1030,
+      "artifact_sha256": "7f5b36a97f6b546c7ab048305d45b9afd38b66d6ea9f17ee6aa313c135849f0a",
+      "donor_sha256": "6672a2ad1410b88839727c5958332cecf154bd530d91bf44bfece831c8bc47fa",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.08409696900002928,
+        "memory_peak": "2879488",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.0925088430001324
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1030,
+      "target_seed": 1031,
+      "artifact_sha256": "3f975b9c29dddfc665a443463bb28774b89c5775e0b1685c94e038bc5c4928c8",
+      "donor_sha256": "7f5b36a97f6b546c7ab048305d45b9afd38b66d6ea9f17ee6aa313c135849f0a",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.08767657599992162,
+        "memory_peak": "2875392",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.09614191600007871
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1031,
+      "target_seed": 1032,
+      "artifact_sha256": "40c9be5fb1626ecbaeaadb17362557f69c03be7e0e613fc8219e6a2d310c2019",
+      "donor_sha256": "3f975b9c29dddfc665a443463bb28774b89c5775e0b1685c94e038bc5c4928c8",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.09110901000008198,
+        "memory_peak": "2920448",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.09967705400003979
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1032,
+      "target_seed": 1033,
+      "artifact_sha256": "158943e3a3aab4de1e61e5b3d588adb74e2095cfe786edc4ee2428cfd7559fae",
+      "donor_sha256": "40c9be5fb1626ecbaeaadb17362557f69c03be7e0e613fc8219e6a2d310c2019",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.07919290499989984,
+        "memory_peak": "2613248",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.08691948099999536
+    },
+    {
+      "mode": "transfer",
+      "source_seed": 1033,
+      "target_seed": 1034,
+      "artifact_sha256": "d628fcc65091c68734a2af300b69220879c231a13da7a623b2518b3bab19e021",
+      "donor_sha256": "158943e3a3aab4de1e61e5b3d588adb74e2095cfe786edc4ee2428cfd7559fae",
+      "budget_seconds": 600,
+      "memory_bytes": 8589934592,
+      "target_queries": 0,
+      "status": "hypothesis_match",
+      "score": {
+        "status": "pass",
+        "systemd_result": "success",
+        "elapsed_seconds": 0.08787747099995613,
+        "memory_peak": "2658304",
+        "exit_code": "0",
+        "mismatches": 0,
+        "oracle_sha256": "d5604a4a9b2687bbacd7e497e8da66a02f160f1e76ca731d6682cc07ed94acf1"
+      },
+      "model_sha256": "05747e55994333829602b844c354b03347f0f44def80f57e49634bdf711b8b82",
+      "elapsed_seconds": 0.09632154399992032
+    }
+  ]
+}

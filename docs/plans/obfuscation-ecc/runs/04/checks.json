@@ -1,0 +1,12 @@
+{
+  "files_sha256": {
+    "evaluation/research_data_encoding.c": "d51291161d97832a91228ad67c07bd62dd8c8a6277526b2bf194950846a00eec",
+    "evaluation/research_data_encoding.py": "6e8afc176bad13d661fe9c6731fe5b5ef62755a407a7cd80a6aaadfb6443cf2c",
+    "evaluation/test_research_data_encoding.py": "9f4b09f0bada7f7686f101e163784088b22ce4fc6bcba875b819be55f441447b"
+  },
+  "normalization_result_sha256": "138a1effbd25489493d33130da0d935c8f02b5463d8b446c5959522309c9482b",
+  "python_tests": 59,
+  "python_exit_code": 0,
+  "test_log_sha256": "e1099bb3850661899af6c5d07133b742807c9b13873a4f4cc47298aca4c08660",
+  "scope": "C source expressions, no native protector integration"
+}

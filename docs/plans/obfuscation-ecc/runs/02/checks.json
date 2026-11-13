@@ -1,0 +1,29 @@
+{
+  "base": "4cd330d0ba73b6a912506c3c83c2ee1331af262d",
+  "previous_stage_patch_sha256": "b70f9e021d9ed5072f49c001c6365d6426cd3c83631e981753e6ad12dda597f1",
+  "source_sha256": {
+    "src/obf/mod.rs": "9501a85f8a6896b53c40a5fb6a2b2b77bbfab806b5c2c413e26b3ccf7e3d0c5e",
+    "src/obf/hard.rs": "84a5520398e7a052c8787b37afc11652ce9b4fb53fbe7d8d82453fe5fe4c9b1d",
+    "src/adversary/mod.rs": "9924464716ee9ae043987462c22e5c54e68f5ca34b528c7f705f59dded38d828"
+  },
+  "logs_sha256": {
+    "research-tests.log": "49c4d57c8b90828a473278841dd9957361ff5b66481290dcb0ea1c1d85fd1a9a",
+    "obf-tests.log": "d401dcb2b2397cf2d5519984bad3af334ee1b4f4fffbe60fd30434c648980774",
+    "adversary-tests.log": "dec2adf35355312480943737cec87dfa7c1fb03d9c14a25c321fc20245da230b"
+  },
+  "commands": [
+    "cargo +1.95.0 test --locked --offline -p vmkek --lib research_ -- --nocapture",
+    "cargo +1.95.0 test --locked --offline -p vmkek --lib obf::",
+    "cargo +1.95.0 test --locked --offline -p vmkek --lib adversary::"
+  ],
+  "exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "rust_tests_passed_by_group": [
+    2,
+    24,
+    8
+  ]
+}

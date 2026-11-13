@@ -1,0 +1,86 @@
+   Compiling vmkek v0.1.0 (/home/rax/vmkek-obfuscation-ecc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.68s
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek-d88785ad57a58efe)
+
+running 2 tests
+ablation fixture=rich seed=1025 omitted=none blocks=541 operations=1337
+ablation fixture=rich seed=1025 omitted=rewrite blocks=109 operations=274
+ablation fixture=rich seed=1025 omitted=data-mix blocks=511 operations=1265
+ablation fixture=rich seed=1025 omitted=block-split blocks=13 operations=128
+ablation fixture=rich seed=1025 omitted=opaque blocks=185 operations=374
+ablation fixture=rich seed=1025 omitted=bogus blocks=535 operations=1319
+ablation fixture=rich seed=1025 omitted=flatten blocks=270 operations=705
+ablation fixture=rich seed=1025 omitted=shuffle blocks=541 operations=1337
+ablation fixture=rich seed=1026 omitted=none blocks=523 operations=1294
+ablation fixture=rich seed=1026 omitted=rewrite blocks=127 operations=326
+ablation fixture=rich seed=1026 omitted=data-mix blocks=493 operations=1220
+ablation fixture=rich seed=1026 omitted=block-split blocks=13 operations=125
+ablation fixture=rich seed=1026 omitted=opaque blocks=179 operations=362
+ablation fixture=rich seed=1026 omitted=bogus blocks=517 operations=1276
+ablation fixture=rich seed=1026 omitted=flatten blocks=261 operations=683
+ablation fixture=rich seed=1026 omitted=shuffle blocks=523 operations=1294
+ablation fixture=rich seed=1027 omitted=none blocks=463 operations=1144
+ablation fixture=rich seed=1027 omitted=rewrite blocks=127 operations=322
+ablation fixture=rich seed=1027 omitted=data-mix blocks=433 operations=1071
+ablation fixture=rich seed=1027 omitted=block-split blocks=13 operations=115
+ablation fixture=rich seed=1027 omitted=opaque blocks=159 operations=322
+ablation fixture=rich seed=1027 omitted=bogus blocks=457 operations=1126
+ablation fixture=rich seed=1027 omitted=flatten blocks=231 operations=603
+ablation fixture=rich seed=1027 omitted=shuffle blocks=463 operations=1144
+ablation fixture=carry seed=1025 omitted=none blocks=249 operations=617
+ablation fixture=carry seed=1025 omitted=rewrite blocks=75 operations=184
+ablation fixture=carry seed=1025 omitted=data-mix blocks=219 operations=542
+ablation fixture=carry seed=1025 omitted=block-split blocks=33 operations=119
+ablation fixture=carry seed=1025 omitted=opaque blocks=89 operations=178
+ablation fixture=carry seed=1025 omitted=bogus blocks=243 operations=599
+ablation fixture=carry seed=1025 omitted=flatten blocks=123 operations=327
+ablation fixture=carry seed=1025 omitted=shuffle blocks=249 operations=617
+ablation fixture=carry seed=1026 omitted=none blocks=267 operations=659
+ablation fixture=carry seed=1026 omitted=rewrite blocks=93 operations=237
+ablation fixture=carry seed=1026 omitted=data-mix blocks=219 operations=542
+ablation fixture=carry seed=1026 omitted=block-split blocks=33 operations=124
+ablation fixture=carry seed=1026 omitted=opaque blocks=95 operations=190
+ablation fixture=carry seed=1026 omitted=bogus blocks=261 operations=641
+ablation fixture=carry seed=1026 omitted=flatten blocks=132 operations=348
+ablation fixture=carry seed=1026 omitted=shuffle blocks=267 operations=659
+ablation fixture=carry seed=1027 omitted=none blocks=249 operations=617
+ablation fixture=carry seed=1027 omitted=rewrite blocks=93 operations=234
+ablation fixture=carry seed=1027 omitted=data-mix blocks=219 operations=542
+ablation fixture=carry seed=1027 omitted=block-split blocks=33 operations=122
+ablation fixture=carry seed=1027 omitted=opaque blocks=89 operations=178
+ablation fixture=carry seed=1027 omitted=bogus blocks=243 operations=599
+ablation fixture=carry seed=1027 omitted=flatten blocks=123 operations=327
+ablation fixture=carry seed=1027 omitted=shuffle blocks=249 operations=617
+ablation fixture=clear seed=1025 omitted=none blocks=249 operations=617
+ablation fixture=clear seed=1025 omitted=rewrite blocks=75 operations=184
+ablation fixture=clear seed=1025 omitted=data-mix blocks=219 operations=542
+ablation fixture=clear seed=1025 omitted=block-split blocks=33 operations=119
+ablation fixture=clear seed=1025 omitted=opaque blocks=89 operations=178
+ablation fixture=clear seed=1025 omitted=bogus blocks=243 operations=599
+ablation fixture=clear seed=1025 omitted=flatten blocks=123 operations=327
+ablation fixture=clear seed=1025 omitted=shuffle blocks=249 operations=617
+ablation fixture=clear seed=1026 omitted=none blocks=267 operations=659
+ablation fixture=clear seed=1026 omitted=rewrite blocks=93 operations=237
+ablation fixture=clear seed=1026 omitted=data-mix blocks=219 operations=542
+ablation fixture=clear seed=1026 omitted=block-split blocks=33 operations=124
+ablation fixture=clear seed=1026 omitted=opaque blocks=95 operations=190
+ablation fixture=clear seed=1026 omitted=bogus blocks=261 operations=641
+ablation fixture=clear seed=1026 omitted=flatten blocks=132 operations=348
+ablation fixture=clear seed=1026 omitted=shuffle blocks=267 operations=659
+ablation fixture=clear seed=1027 omitted=none blocks=249 operations=617
+ablation fixture=clear seed=1027 omitted=rewrite blocks=93 operations=234
+ablation fixture=clear seed=1027 omitted=data-mix blocks=219 operations=542
+ablation fixture=clear seed=1027 omitted=block-split blocks=33 operations=122
+ablation fixture=clear seed=1027 omitted=opaque blocks=89 operations=178
+ablation fixture=clear seed=1027 omitted=bogus blocks=243 operations=599
+ablation fixture=clear seed=1027 omitted=flatten blocks=123 operations=327
+ablation fixture=clear seed=1027 omitted=shuffle blocks=249 operations=617
+test obf::tests::research_pass_ablations_preserve_owned_ir_examples ... ok
+budget=64 open_steps=5 open_recovered=true protected_steps=64 protected_recovered=false
+budget=256 open_steps=5 open_recovered=true protected_steps=256 protected_recovered=false
+budget=1024 open_steps=5 open_recovered=true protected_steps=888 protected_recovered=true
+budget=4096 open_steps=5 open_recovered=true protected_steps=888 protected_recovered=true
+test adversary::tests::research_budget_sweep_reports_owned_fixture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 459 filtered out; finished in 0.34s
+

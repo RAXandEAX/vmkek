@@ -1,0 +1,11 @@
+{
+  "rust_test_passed": 2,
+  "rustc": "1.95.0",
+  "clang": "18.1.3",
+  "run_count": 5,
+  "iterations_per_mode": 500000,
+  "files_sha256": {
+    "evaluation/research_vm_handlers.rs": "952678dab0db0f488974fd2cc265f1f09306f2b6dd5e52f342561dbbbe77a536",
+    "evaluation/research_vm_handlers_normalize.c": "45d6c6cad3586256d88a8835ebe1febe887d781d5f5ff0da95e683c902126fc7"
+  }
+}

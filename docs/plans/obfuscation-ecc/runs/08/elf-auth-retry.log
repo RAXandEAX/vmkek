@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/r02_elf.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r02_elf-006d566525d8558e)
+
+running 2 tests
+test cli_authenticated_elf_calls_unselected_native_function ... ok
+test cli_authenticated_elf_runs_directly_and_fails_closed ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.46s
+

@@ -1,0 +1,165 @@
+//! Owned straight-line register fixture, separate from vmkek's VM.
+use std::hint::black_box;
+use std::time::Instant;
+
+const REGISTERS: usize = 4;
+const ADD: u8 = 1;
+const XOR: u8 = 2;
+const PAIR: u8 = 3;
+const FUSED: u8 = 4;
+
+#[derive(Clone, Copy, Debug)]
+enum Mode {
+    Separate,
+    Pair,
+    Fused,
+}
+
+fn encode(mode: Mode, a: u8, b: u8, c: u8, dst: u8) -> Vec<u8> {
+    match mode {
+        Mode::Separate => vec![ADD, a, b, XOR, c, dst],
+        Mode::Pair => vec![PAIR, a, b, c, dst],
+        Mode::Fused => vec![FUSED, a, b, c, dst],
+    }
+}
+
+fn execute(code: &[u8], regs: &mut [u64; REGISTERS], entry: usize) -> Result<usize, &'static str> {
+    if entry != 0 {
+        return Err("unsupported entry point");
+    }
+    let (a, b, c, dst) = match code {
+        [ADD, a, b, XOR, c, dst] => (*a, *b, *c, *dst),
+        [PAIR, a, b, c, dst] | [FUSED, a, b, c, dst] => (*a, *b, *c, *dst),
+        _ => return Err("malformed program"),
+    };
+    if [a, b, c, dst].iter().any(|&r| usize::from(r) >= REGISTERS) {
+        return Err("invalid register");
+    }
+    // Snapshot inputs before writing dst, including every alias case.
+    let (x, y, z) = (regs[a as usize], regs[b as usize], regs[c as usize]);
+    let mut value = 0;
+    let mut pc = 0;
+    let mut dispatches = 0;
+    while pc < code.len() {
+        dispatches += 1;
+        match code[pc] {
+            ADD => {
+                value = x.wrapping_add(y);
+                pc += 3;
+            }
+            XOR => {
+                value ^= z;
+                pc += 3;
+            }
+            PAIR => {
+                let temp = x.wrapping_add(y);
+                value = temp ^ z;
+                pc += 5;
+            }
+            FUSED => {
+                value = x.wrapping_add(y) ^ z;
+                pc += 5;
+            }
+            _ => unreachable!("the complete program was validated"),
+        }
+    }
+    regs[dst as usize] = value;
+    Ok(dispatches)
+}
+
+#[cfg(test)]
+fn oracle(regs: &[u64; REGISTERS], a: usize, b: usize, c: usize, dst: usize) -> [u64; REGISTERS] {
+    let mut out = *regs;
+    let wide = u128::from(regs[a]) + u128::from(regs[b]);
+    out[dst] = (wide as u64) ^ regs[c];
+    out
+}
+
+fn main() {
+    let modes = [Mode::Separate, Mode::Pair, Mode::Fused];
+    let iterations = 500_000u64;
+    println!("mode,bytes,dispatches,iterations,elapsed_ns,checksum");
+    for mode in modes {
+        let code = encode(mode, 0, 1, 2, 3);
+        let mut checksum = 0u64;
+        let start = Instant::now();
+        for i in 0..iterations {
+            let mut regs = [i, i.rotate_left(23), !i, 0];
+            execute(black_box(&code), black_box(&mut regs), 0).unwrap();
+            checksum ^= black_box(regs[3]);
+        }
+        let elapsed = start.elapsed().as_nanos();
+        let mut regs = [0; REGISTERS];
+        let dispatches = execute(&code, &mut regs, 0).unwrap();
+        println!(
+            "{:?},{},{},{},{},{}",
+            mode,
+            code.len(),
+            dispatches,
+            iterations,
+            elapsed,
+            checksum
+        );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn all_register_aliases_match_wide_oracle() {
+        let values = [0, 1, u64::MAX, u64::MAX - 1, 1 << 63, 0x1234_5678_9abc_def0];
+        for a in 0..4u8 {
+            for b in 0..4u8 {
+                for c in 0..4u8 {
+                    for dst in 0..4u8 {
+                        for (i, &x) in values.iter().enumerate() {
+                            let original = [
+                                x,
+                                values[(i + 1) % 6],
+                                values[(i + 2) % 6],
+                                values[(i + 3) % 6],
+                            ];
+                            let expected =
+                                oracle(&original, a as usize, b as usize, c as usize, dst as usize);
+                            for mode in [Mode::Separate, Mode::Pair, Mode::Fused] {
+                                let mut got = original;
+                                let count =
+                                    execute(&encode(mode, a, b, c, dst), &mut got, 0).unwrap();
+                                assert_eq!(got, expected, "{mode:?} {a} {b} {c} {dst}");
+                                assert_eq!(
+                                    count,
+                                    if matches!(mode, Mode::Separate) { 2 } else { 1 }
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn rejects_malformed_and_nonzero_entry_without_state_changes() {
+        for code in [
+            vec![],
+            vec![ADD],
+            vec![ADD, 0, 1, XOR, 2],
+            vec![FUSED, 0, 1, 2, 4],
+            vec![PAIR, 0, 1, 2, 3, 0],
+            vec![255, 0, 1, 2, 3],
+            vec![ADD, 0, 1, PAIR, 2, 3],
+        ] {
+            let mut regs = [1, 2, 3, 4];
+            assert!(execute(&code, &mut regs, 0).is_err());
+            assert_eq!(regs, [1, 2, 3, 4]);
+        }
+        for mode in [Mode::Separate, Mode::Pair, Mode::Fused] {
+            let code = encode(mode, 0, 1, 2, 3);
+            for entry in 1..=code.len() {
+                let mut regs = [1, 2, 3, 4];
+                assert!(execute(&code, &mut regs, entry).is_err());
+                assert_eq!(regs, [1, 2, 3, 4]);
+            }
+        }
+    }
+}

@@ -1,0 +1,522 @@
+diff --git a/src/adversary/mod.rs b/src/adversary/mod.rs
+index 03cee90..7e5d4d2 100644
+--- a/src/adversary/mod.rs
++++ b/src/adversary/mod.rs
+@@ -102,6 +102,26 @@ mod tests {
+         assert_eq!(got.steps, STEP_BUDGET, "search ended before the budget");
+     }
+ 
++    #[test]
++    fn research_budget_sweep_reports_owned_fixture() {
++        let func = mix_ir();
++        let (_, image) = protect(&func);
++        for budget in [64u32, 256, 1024, 4096] {
++            let open = search::run_ir(&func, budget);
++            let protected = search::run_bytecode(&image, budget);
++            println!("budget={budget} open_steps={} open_recovered={} protected_steps={} protected_recovered={}",
++                open.steps, open.recovered.is_some(), protected.steps, protected.recovered.is_some());
++            assert_eq!(
++                mba::simplify(&open.recovered.expect("open formula")),
++                expr::reference()
++            );
++            if let Some(recovered) = &protected.recovered {
++                assert_eq!(mba::simplify(recovered), expr::reference());
++            }
++            assert!(protected.steps <= budget);
++        }
++    }
++
+     #[test]
+     fn input_independent_simplifier_misses_the_sample_formula() {
+         let func = mix_ir();
+diff --git a/src/obf/hard.rs b/src/obf/hard.rs
+index 69de080..336ca78 100644
+--- a/src/obf/hard.rs
++++ b/src/obf/hard.rs
+@@ -4,9 +4,10 @@
+ //! program embeds a preimage of that target. Ops the S1 catalog cannot rewrite
+ //! are the multiply and the shift; deleting those, and every other op the
+ //! catalog does not match, leaves a formula whose value is 0. The target is
+-//! not 0, so that simplified formula has no preimage. Hardness of the
+-//! truncation as a preimage filter is an assumption with an explicit width.
+-//! It is not a theorem that the program stays hidden.
++//! not 0, so that simplified formula has no preimage. The original
++//! computation uses an embedded public input, so the checked outcome can be
++//! computed directly. The deleted-operation demonstration does not preserve
++//! the semantics of the original predicate.
+ //!
+ //! Algebraic S2 predicates stay in `predicates`. Those still prove that the
+ //! true arm runs. They do not prove hardness. The System channel of this stage
+@@ -18,7 +19,7 @@ use crate::proof::Claim;
+ 
+ use super::identities;
+ 
+-/// Output width of the truncated hash used as a preimage filter.
++/// Output width of the truncated hash compared by the predicate.
+ pub const HASH_BITS: u32 = 16;
+ /// Odd multiplier. Bit 31 is clear, so `ImulRi` does not sign-extend it.
+ const MUL0: u64 = 0x6C62_2725;
+@@ -38,7 +39,7 @@ pub const NON_PREIMAGE: u64 = PREIMAGE ^ 0x9E37;
+ /// JE / ZF. See [`crate::flags::cond_taken`].
+ pub const COND: u8 = 4;
+ 
+-const ASSUMPTION: &str = "стойкость усечённого хэша как фильтра прообраза, длина выхода 16 бит; это не теорема сокрытия программы";
++const ASSUMPTION: &str = "Вход встроен в программу, длина выхода 16 бит. Результат можно вычислить; поиск скрытого прообраза и стойкость не установлены.";
+ 
+ const _: () = assert!(TARGET == 0xFE5D);
+ const _: () = assert!(TARGET != 0 && TARGET <= MASK);
+@@ -47,7 +48,7 @@ const _: () = assert!(MUL0 <= i32::MAX as u64);
+ const _: () = assert!(MUL1 <= i32::MAX as u64);
+ const _: () = assert!(MASK <= i32::MAX as u64);
+ 
+-/// Green means the named test passed. Red means the channel was not run.
++/// Green marks a supported claim. Red marks an unverified or unsupported claim.
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub enum ChannelColor {
+     Green,
+@@ -62,13 +63,13 @@ pub struct HardClaim {
+     pub machine: &'static str,
+     pub color: ChannelColor,
+     pub level: Option<Claim>,
+-    /// Complexity assumption. `None` when the row does not state one.
++    /// Explanation of the assumption or limitation recorded for this row.
+     pub assumption: Option<&'static str>,
+-    /// Test that locks a green row, or why a red row was not run.
++    /// Supporting test, limitation test, or reason the channel was not run.
+     pub anchor: &'static str,
+ }
+ 
+-/// Crypto records the truncation assumption. System on M-ADV stays red until C4.
++/// Crypto describes the known input, without a hardness claim. System remains unverified.
+ #[must_use]
+ pub fn claims() -> &'static [HardClaim] {
+     const CLAIMS: &[HardClaim] = &[
+@@ -76,8 +77,8 @@ pub fn claims() -> &'static [HardClaim] {
+             id: "truncated-hash-preimage",
+             channel: "Crypto",
+             machine: "",
+-            color: ChannelColor::Green,
+-            level: Some(Claim::ReducedToAssumption),
++            color: ChannelColor::Red,
++            level: None,
+             assumption: Some(ASSUMPTION),
+             anchor: "known_preimage_executes_and_s1_does_not_fold",
+         },
+@@ -447,13 +448,13 @@ mod tests {
+     }
+ 
+     #[test]
+-    fn crypto_claim_records_the_truncation_assumption() {
++    fn crypto_claim_records_the_known_input_limit() {
+         let crypto = claims()
+             .iter()
+             .find(|row| row.channel == "Crypto")
+             .expect("crypto");
+-        assert_eq!(crypto.color, ChannelColor::Green);
+-        assert_eq!(crypto.level, Some(Claim::ReducedToAssumption));
++        assert_eq!(crypto.color, ChannelColor::Red);
++        assert_eq!(crypto.level, None);
+         assert_eq!(
+             crypto.anchor,
+             "known_preimage_executes_and_s1_does_not_fold"
+@@ -461,7 +462,8 @@ mod tests {
+         let assumption = crypto.assumption.expect("assumption");
+         let width = format!("длина выхода {HASH_BITS} бит");
+         assert!(assumption.contains(&width), "{assumption}");
+-        assert!(assumption.contains("это не теорема сокрытия программы"));
++        assert!(assumption.contains("Вход встроен в программу"));
++        assert!(assumption.contains("стойкость не установлены"));
+         assert!(!assumption.to_lowercase().contains("virtual"));
+         assert!(assumption.contains(&HASH_BITS.to_string()));
+     }
+diff --git a/src/obf/mod.rs b/src/obf/mod.rs
+index 2127649..49c0bec 100644
+--- a/src/obf/mod.rs
++++ b/src/obf/mod.rs
+@@ -443,6 +443,79 @@ mod tests {
+         }
+     }
+ 
++    // This test-only pipeline keeps production's pass order and exposes one omission.
++    fn research_pipeline(func: &FuncIr, rng: &mut ChaCha20Rng, omit: &str) -> FuncIr {
++        let mut current = if omit == "rewrite" {
++            func.clone()
++        } else {
++            rewrite_ops(func, rng).0
++        };
++        if omit != "data-mix" {
++            current = data_mix::apply(&current, rng);
++        }
++        if omit != "block-split" {
++            current = split_blocks(&current);
++        }
++        if omit != "opaque" {
++            current = wrap_opaque(&current, rng);
++        }
++        if omit != "bogus" {
++            current = add_bogus(&current, rng);
++        }
++        if omit != "flatten" {
++            current = flatten(&current);
++        }
++        if omit != "shuffle" {
++            current = shuffle(&current, rng);
++        }
++        current
++    }
++
++    #[test]
++    fn research_pass_ablations_preserve_owned_ir_examples() {
++        let variants = [
++            "none",
++            "rewrite",
++            "data-mix",
++            "block-split",
++            "opaque",
++            "bogus",
++            "flatten",
++            "shuffle",
++        ];
++        for fixture in [rich(), live(true), live(false)] {
++            let expected = run(&fixture, 0);
++            for seed in [0x401u64, 0x402, 0x403] {
++                let mut default_rng = ChaCha20Rng::seed_from_u64(seed);
++                let default = obfuscate(&fixture, &mut default_rng).func;
++                for omit in variants {
++                    let mut rng = ChaCha20Rng::seed_from_u64(seed);
++                    let result = research_pipeline(&fixture, &mut rng, omit);
++                    if omit == "none" {
++                        assert_eq!(result, default);
++                    }
++                    assert_eq!(
++                        run(&result, 0),
++                        expected,
++                        "fixture={} seed={} omit={}",
++                        fixture.name,
++                        seed,
++                        omit
++                    );
++                    let operations: usize = result.blocks.iter().map(|b| b.ops.len()).sum();
++                    println!(
++                        "ablation fixture={} seed={} omitted={} blocks={} operations={}",
++                        fixture.name,
++                        seed,
++                        omit,
++                        result.blocks.len(),
++                        operations
++                    );
++                }
++            }
++        }
++    }
++
+     #[test]
+     fn authenticated_dispatch_routes_exactly_with_logarithmic_comparisons() {
+         for count in [1usize, 2, 3, 7, 16, 65, 257] {
+diff --git a/evaluation/research_native_ablation.py b/evaluation/research_native_ablation.py
+new file mode 100644
+index 0000000..3f1eb16
+--- /dev/null
++++ b/evaluation/research_native_ablation.py
+@@ -0,0 +1,170 @@
++#!/usr/bin/env python3
++"""Run native ELF pass ablations in a disposable research-only clone."""
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import time
++
++BASE = "4cd330d0ba73b6a912506c3c83c2ee1331af262d"
++VARIANTS = ("none", "rewrite", "data-mix", "block-split", "opaque", "bogus", "flatten", "shuffle")
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def invoke(argv, **kwargs):
++    return subprocess.run([str(x) for x in argv], check=True, **kwargs)
++
++
++def replace_one(text, before, after):
++    if text.count(before) != 1:
++        raise ValueError("source seam must occur exactly once: " + before.splitlines()[0])
++    return text.replace(before, after, 1)
++
++
++def patch_source(path):
++    text = path.read_text()
++    old = text
++    text = replace_one(text, "fn prepare(func: &FuncIr, rng: &mut ChaCha20Rng) -> (FuncIr, Vec<&'static str>) {\n    let (mut func, mut passes, _) = rewrite_ops(func, rng);", """fn omitted(pass: &str) -> bool {
++    std::env::var("VMKEK_ECC_ABLATION").is_ok_and(|name| name == pass)
++}
++
++fn prepare(func: &FuncIr, rng: &mut ChaCha20Rng) -> (FuncIr, Vec<&'static str>) {
++    let (mut func, mut passes, _) = if omitted("rewrite") {
++        (func.clone(), Vec::new(), Vec::new())
++    } else { rewrite_ops(func, rng) };""")
++    for ident, call, pass_name in (("data-mix", "data_mix::apply(&func, rng)", "data-mix"),
++                                   ("block-split", "split_blocks(&func)", "block-split"),
++                                   ("opaque", "wrap_opaque(&func, rng)", "opaque-predicate"),
++                                   ("bogus", "add_bogus(&func, rng)", "bogus-control-flow")):
++        before = f'    func = {call};\n    passes.push("{pass_name}");'
++        after = f'    if !omitted("{ident}") {{ func = {call}; passes.push("{pass_name}"); }}'
++        if text.count(before) != 1:
++            raise ValueError(f"cannot locate {ident} seam")
++        text = replace_one(text, before, after)
++    text = replace_one(text, '    passes.push("template-diversity");', '    if !omitted("rewrite") { passes.push("template-diversity"); }')
++    text = replace_one(text, '    Ok(finish(flatten_balanced(&func)?, passes, rng))',
++                        '    if omitted("flatten") { Ok(finish(func, passes, rng)) } else { Ok(finish(flatten_balanced(&func)?, passes, rng)) }')
++    text = replace_one(text, '    passes.push("control-flow-flatten");\n    passes.push("block-shuffle");\n    Obfuscated {\n        func: shuffle(&func, rng),',
++                        '    if !omitted("flatten") { passes.push("control-flow-flatten"); }\n    if !omitted("shuffle") { passes.push("block-shuffle"); }\n    Obfuscated {\n        func: if omitted("shuffle") { func } else { shuffle(&func, rng) },')
++    if text == old or 'fn omitted(pass: &str)' not in text or 'if omitted("shuffle") { func }' not in text:
++        raise ValueError("source seam mismatch")
++    path.write_text(text)
++
++
++
++FIXTURES = ("affine_xor", "counter")
++SEEDS = tuple(range(0x401, 0x40b))
++
++
++def manifest_errors(data):
++    if not isinstance(data, dict) or not isinstance(data.get("rows"), list) or not isinstance(data.get("controls"), list):
++        return ["missing rows or controls"]
++    errors = []
++    expected = {(fixture, seed) for fixture in FIXTURES for seed in SEEDS}
++    identities = []
++    for row in data["rows"]:
++        if not isinstance(row, dict):
++            errors.append("invalid row")
++            continue
++        identity = (row.get("fixture"), row.get("seed"))
++        identities.append(identity)
++        if row.get("status") != "pass":
++            errors.append(f"non-passing row {identity}")
++    if len(identities) != len(expected) or set(identities) != expected:
++        errors.append("missing, duplicate or unexpected fixture/seed rows")
++    controls = data["controls"]
++    names = [row.get("fixture") for row in controls if isinstance(row, dict)]
++    if len(names) != len(FIXTURES) or set(names) != set(FIXTURES):
++        errors.append("missing, duplicate or unexpected controls")
++    if any(not isinstance(row, dict) or row.get("status") != "pass" for row in controls):
++        errors.append("non-passing control")
++    return errors
++
++
++def final_exit(variants):
++    return 0 if set(variants) == set(VARIANTS) and all(
++        item.get("exit_code") == 0 and item.get("manifest_errors") == []
++        for item in variants.values()
++    ) else 1
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument("--repository", type=Path, required=True)
++    p.add_argument("--output", type=Path, required=True)
++    p.add_argument("--signer", type=Path, required=True)
++    p.add_argument("--pin", type=Path, required=True)
++    p.add_argument("--cargo", default="/home/rax/.cargo/bin/cargo")
++    a = p.parse_args()
++    a.output.mkdir(mode=0o700, parents=True, exist_ok=False)
++    root = a.output.resolve()
++    clone = root / "scratch"
++    invoke(["git", "clone", "--quiet", "--shared", "--no-checkout", a.repository, clone])
++    invoke(["git", "-C", clone, "checkout", "--quiet", "--detach", BASE])
++    accepted = a.repository / "docs/plans/obfuscation-ecc/runs/01/accepted.patch"
++    invoke(["git", "-C", clone, "apply", accepted.resolve()])
++    original = (clone / "src/obf/mod.rs").read_bytes()
++    patch_source(clone / "src/obf/mod.rs")
++    patched = (clone / "src/obf/mod.rs").read_bytes()
++    patch = subprocess.run(["git", "-C", str(clone), "diff", "--", "src/obf/mod.rs"], capture_output=True, check=True).stdout
++    (root / "instrumentation.patch").write_bytes(patch)
++    helper_rel = "tools/elf-auth-helper/target/x86_64-unknown-linux-gnu/release/vmkek-elf-auth-helper"
++    helper = clone / helper_rel
++    helper.parent.mkdir(parents=True)
++    shutil.copy2(a.repository / helper_rel, helper)
++    env = os.environ.copy()
++    env.update(CARGO_BUILD_JOBS="4", TMPDIR="/home/rax/.cache/codex-research/obfuscation-ecc-rust/tmp")
++    env.pop("CARGO_TARGET_DIR", None)
++    build_started = time.monotonic()
++    with (root / "build.log").open("w") as log:
++        invoke([a.cargo, "+1.95.0", "build", "--locked", "--offline", "--release", "-p", "vmkek", "--bin", "vmkek"], cwd=clone, env=env, stdout=log, stderr=subprocess.STDOUT)
++    cli = clone / "target/release/vmkek"
++    record = {"base": BASE, "stage01_patch_sha256": sha(accepted), "original_obf_sha256": hashlib.sha256(original).hexdigest(),
++              "instrumented_obf_sha256": hashlib.sha256(patched).hexdigest(), "instrumentation_patch_sha256": sha(root / "instrumentation.patch"),
++              "protector_sha256": sha(cli), "helper_sha256": sha(helper), "script_sha256": sha(Path(__file__).resolve()),
++              "build_elapsed_seconds": time.monotonic() - build_started,
++              "description": "Owned authenticated ELF fixtures. Changing a pass changes later RNG draws; authenticated entropy also changes bytes.", "variants": {}}
++    for variant in VARIANTS:
++        env["VMKEK_ECC_ABLATION"] = variant
++        destination = root / ("results-" + variant)
++        command = ["python3", "-B", "evaluation/evaluate.py", "build", "--fixture", "affine_xor", "--fixture", "counter",
++                   "--output", destination, "--signer", a.signer.resolve(), "--pin", a.pin.resolve()]
++        start = time.monotonic()
++        with (root / ("run-" + variant + ".log")).open("w") as log:
++            result = subprocess.run([str(x) for x in command], cwd=clone, env=env, stdout=log, stderr=subprocess.STDOUT)
++        item = {"exit_code": result.returncode, "elapsed_seconds": time.monotonic() - start}
++        manifest = destination / "baseline.json"
++        if manifest.exists():
++            try:
++                data = json.loads(manifest.read_text())
++                item.update(manifest_sha256=sha(manifest), manifest_errors=manifest_errors(data))
++                if isinstance(data, dict) and isinstance(data.get("rows"), list):
++                    rows = [row for row in data["rows"] if isinstance(row, dict)]
++                    item["statuses"] = {
++                        status: sum(row.get("status") == status for row in rows)
++                        for status in ("pass", "error", "unsupported", "timeout")
++                    }
++                    item["observed_rows"] = len(data["rows"])
++                if not item["manifest_errors"]:
++                    item["artifact_sizes"] = {
++                        row["fixture"] + ":" + str(row["seed"]):
++                        (destination / (row["fixture"] + "-" + str(row["seed"]) + ".elf")).stat().st_size
++                        for row in data["rows"]
++                    }
++            except (OSError, ValueError, TypeError) as error:
++                item["manifest_errors"] = [str(error)]
++        else:
++            item["manifest_errors"] = ["baseline.json missing"]
++        record["variants"][variant] = item
++        (root / "summary.json").write_text(json.dumps(record, indent=2) + "\n")
++    return final_exit(record["variants"])
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/evaluation/research_native_timing.py b/evaluation/research_native_timing.py
+new file mode 100644
+index 0000000..a45e63d
+--- /dev/null
++++ b/evaluation/research_native_timing.py
+@@ -0,0 +1,66 @@
++#!/usr/bin/env python3
++"""Measure whole-process latency of owned native ELF ablation outputs."""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import random
++import statistics
++import time
++import evaluate
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--experiment", type=Path, required=True)
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--repetitions", type=int, default=10)
++    args = parser.parse_args()
++    if not 1 <= args.repetitions <= 100:
++        parser.error("repetitions must be between 1 and 100")
++    root = args.experiment.resolve(strict=True)
++    summary = json.loads((root / "summary.json").read_text())
++    jobs = []
++    cases = evaluate.public_cases()
++    for variant, info in summary["variants"].items():
++        manifest_path = root / ("results-" + variant) / "baseline.json"
++        if sha(manifest_path) != info["manifest_sha256"]:
++            raise ValueError("manifest hash mismatch")
++        for row in json.loads(manifest_path.read_text())["rows"]:
++            if row["status"] != "pass":
++                continue
++            name = row["fixture"]
++            artifact = manifest_path.parent / (name + "-" + str(row["seed"]) + ".elf")
++            if sha(artifact) != row["artifact_sha256"]:
++                raise ValueError("artifact hash mismatch")
++            jobs.extend([(variant, name, row["seed"], artifact)] * args.repetitions)
++    random.Random(0x402).shuffle(jobs)
++    durations = {}
++    for variant, name, seed, artifact in jobs:
++        case = cases[0]
++        start = time.monotonic_ns()
++        observed = evaluate.observed(artifact, name, case)
++        elapsed_ns = time.monotonic_ns() - start
++        if evaluate.canonical(observed) != evaluate.canonical(evaluate.oracle(name, case)):
++            raise ValueError("output mismatch during timing")
++        durations.setdefault((variant, name, seed), []).append(elapsed_ns)
++    rows = []
++    for (variant, fixture, seed), values in sorted(durations.items()):
++        ordered = sorted(values)
++        rows.append({"variant": variant, "fixture": fixture, "seed": seed,
++                     "samples": len(values), "median_ns": statistics.median(values),
++                     "p95_ns": ordered[(95 * len(values) + 99) // 100 - 1]})
++    record = {"scope": "warm whole process, one public input; includes startup and harness; not pure function latency",
++              "randomization_seed": 0x402, "experiment_sha256": sha(root / "summary.json"),
++              "script_sha256": sha(Path(__file__).resolve()), "rows": rows}
++    with args.output.open("x", encoding="utf-8") as output:
++        json.dump(record, output, indent=2)
++        output.write("\n")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/evaluation/test_research_native_ablation.py b/evaluation/test_research_native_ablation.py
+new file mode 100644
+index 0000000..bc43cf7
+--- /dev/null
++++ b/evaluation/test_research_native_ablation.py
+@@ -0,0 +1,53 @@
++import copy
++import tempfile
++from pathlib import Path
++import unittest
++
++import research_native_ablation as ablation
++
++
++class NativeAblationTests(unittest.TestCase):
++    def test_complete_manifest_requires_all_successful_unique_rows_and_controls(self):
++        fixtures = ("affine_xor", "counter")
++        good = {"controls": [{"fixture": f, "status": "pass"} for f in fixtures],
++                "rows": [{"fixture": f, "seed": seed, "status": "pass"}
++                         for f in fixtures for seed in range(0x401, 0x40b)]}
++        self.assertEqual(ablation.manifest_errors(good), [])
++        for change in ("error", "missing", "duplicate", "bad_control", "missing_control"):
++            case = copy.deepcopy(good)
++            if change == "error":
++                case["rows"][0]["status"] = "error"
++            elif change == "missing":
++                case["rows"].pop()
++            elif change == "duplicate":
++                case["rows"][-1] = case["rows"][0].copy()
++            elif change == "bad_control":
++                case["controls"][0]["status"] = "error"
++            else:
++                case["controls"].pop()
++            with self.subTest(change=change):
++                self.assertTrue(ablation.manifest_errors(case))
++
++    def test_missing_balanced_flatten_seam_does_not_write_partial_patch(self):
++        original = (Path(ablation.__file__).resolve().parent.parent / "src/obf/mod.rs").read_text()
++        seam = "    Ok(finish(flatten_balanced(&func)?, passes, rng))"
++        self.assertEqual(original.count(seam), 1)
++        changed = original.replace(seam, "    /* changed seam */")
++        with tempfile.TemporaryDirectory() as directory:
++            path = Path(directory) / "mod.rs"
++            path.write_text(changed)
++            with self.assertRaises(ValueError):
++                ablation.patch_source(path)
++            self.assertEqual(path.read_text(), changed)
++
++    def test_exit_status_rejects_partial_success_even_when_process_passed(self):
++        partial = {variant: {"exit_code": 0, "manifest_errors": []} for variant in ablation.VARIANTS}
++        self.assertEqual(ablation.final_exit(partial), 0)
++        partial["opaque"]["manifest_errors"] = ["missing row"]
++        self.assertEqual(ablation.final_exit(partial), 1)
++        del partial["shuffle"]
++        self.assertEqual(ablation.final_exit(partial), 1)
++
++
++if __name__ == "__main__":
++    unittest.main()

@@ -1,0 +1,27 @@
+{
+  "baseline": "4cd330d0ba73b6a912506c3c83c2ee1331af262d",
+  "rust_source_changes": false,
+  "platform": "WSL2 x86_64",
+  "toolchain": "1.95.0",
+  "jobs": 4,
+  "temp_directory": "/home/rax/.cache/codex-research/obfuscation-ecc-rust/tmp",
+  "checks": [
+    {
+      "exit_code": 0,
+      "command": "cargo +1.95.0 fmt --all -- --check"
+    },
+    {
+      "exit_code": 0,
+      "command": "cargo +1.95.0 check --workspace --all-targets --locked --offline"
+    },
+    {
+      "exit_code": 0,
+      "command": "cargo +1.95.0 clippy --workspace --all-targets --locked --offline -- -D warnings"
+    },
+    {
+      "exit_code": 0,
+      "command": "cargo +1.95.0 --config profile.test.package.vmkek.opt-level=2 test --workspace --locked --offline"
+    }
+  ],
+  "windows_evidence": "windows-t4.json"
+}

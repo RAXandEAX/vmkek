@@ -1,0 +1,138 @@
+{
+  "base_commit": "4cd330d0ba73b6a912506c3c83c2ee1331af262d",
+  "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "files_sha256": {
+    "src/vm/inner.rs": "288d1d9c032b5fdf44fc9353a71d025ca52e419c30c50d1aaa51c3ae21b512ec",
+    "crates/protocol/src/lab/layers.rs": "bc60c4fbe4ad7d061c03d1216def4c69bbaa17813dafd86af18fa5344780ac73"
+  },
+  "logs_sha256": {
+    "native-timing.log": "cc67b1e8b56c32f4077571eabe8f3d5eea57e0df0c308db8852fe417a1e5c8ee",
+    "lab-timing.log": "48faec88508750b8aa7a70072ad322248ba6046c13169c5a155301a970bd8e04"
+  },
+  "native_samples": [
+    {
+      "sample": 0,
+      "calls": 5400000,
+      "direct_ns": 3776153,
+      "inner_ns": 19249512,
+      "checksum": 220000000,
+      "program_bytes": 258
+    },
+    {
+      "sample": 1,
+      "calls": 5400000,
+      "direct_ns": 3717307,
+      "inner_ns": 19789759,
+      "checksum": 220000000,
+      "program_bytes": 258
+    },
+    {
+      "sample": 2,
+      "calls": 5400000,
+      "direct_ns": 3733002,
+      "inner_ns": 19728223,
+      "checksum": 220000000,
+      "program_bytes": 258
+    },
+    {
+      "sample": 3,
+      "calls": 5400000,
+      "direct_ns": 3762164,
+      "inner_ns": 18842883,
+      "checksum": 220000000,
+      "program_bytes": 258
+    },
+    {
+      "sample": 4,
+      "calls": 5400000,
+      "direct_ns": 3658165,
+      "inner_ns": 19076712,
+      "checksum": 220000000,
+      "program_bytes": 258
+    }
+  ],
+  "lab_samples": [
+    {
+      "sample": 0,
+      "calls": 20000,
+      "setup_both_ns": 16227,
+      "direct_ns": 15225,
+      "depth3_ns": 28509860,
+      "depth4_ns": 52229540,
+      "word_open_ns": 24159308,
+      "limb_open_ns": 24391051,
+      "checksum": 99980000,
+      "layer_struct_bytes": 199,
+      "call_estimate_bytes": 82,
+      "code_bytes_each": 7
+    },
+    {
+      "sample": 1,
+      "calls": 20000,
+      "setup_both_ns": 16227,
+      "direct_ns": 12199,
+      "depth3_ns": 26123469,
+      "depth4_ns": 61991187,
+      "word_open_ns": 26395765,
+      "limb_open_ns": 26442965,
+      "checksum": 99980000,
+      "layer_struct_bytes": 199,
+      "call_estimate_bytes": 82,
+      "code_bytes_each": 7
+    },
+    {
+      "sample": 2,
+      "calls": 20000,
+      "setup_both_ns": 16227,
+      "direct_ns": 12209,
+      "depth3_ns": 28010553,
+      "depth4_ns": 56360676,
+      "word_open_ns": 26301960,
+      "limb_open_ns": 26174390,
+      "checksum": 99980000,
+      "layer_struct_bytes": 199,
+      "call_estimate_bytes": 82,
+      "code_bytes_each": 7
+    },
+    {
+      "sample": 3,
+      "calls": 20000,
+      "setup_both_ns": 16227,
+      "direct_ns": 12209,
+      "depth3_ns": 28733800,
+      "depth4_ns": 56484778,
+      "word_open_ns": 24572885,
+      "limb_open_ns": 25122805,
+      "checksum": 99980000,
+      "layer_struct_bytes": 199,
+      "call_estimate_bytes": 82,
+      "code_bytes_each": 7
+    },
+    {
+      "sample": 4,
+      "calls": 20000,
+      "setup_both_ns": 16227,
+      "direct_ns": 50554,
+      "depth3_ns": 29685650,
+      "depth4_ns": 70928570,
+      "word_open_ns": 25213327,
+      "limb_open_ns": 25110728,
+      "checksum": 99980000,
+      "layer_struct_bytes": 199,
+      "call_estimate_bytes": 82,
+      "code_bytes_each": 7
+    }
+  ],
+  "native_median_ns_total": {
+    "direct_ns": 3733002,
+    "inner_ns": 19249512
+  },
+  "lab_median_ns_total": {
+    "direct_ns": 12209,
+    "depth3_ns": 28509860,
+    "depth4_ns": 56484778,
+    "word_open_ns": 25213327,
+    "limb_open_ns": 25122805
+  }
+}

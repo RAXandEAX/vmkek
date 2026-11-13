@@ -1,0 +1,31 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek-d88785ad57a58efe)
+
+running 24 tests
+test obf::hard::tests::algebraic_s2_predicates_stay_in_the_catalog ... ok
+test obf::hard::tests::crypto_claim_records_the_known_input_limit ... ok
+test obf::hard::tests::ir_hash_matches_trunc_hash ... ok
+test obf::hard::tests::known_preimage_executes_and_s1_does_not_fold ... ok
+test obf::hard::tests::multiply_and_shift_stay_outside_the_s1_catalog ... ok
+test obf::hard::tests::simplified_formula_has_no_preimage ... ok
+test obf::data_mix::tests::data_mix_roundtrip_matches_the_oracle ... ok
+test obf::hard::tests::system_channel_on_m_adv_stays_red ... ok
+test obf::data_mix::tests::odd_multiplier_roundtrips_every_u8 ... ok
+test obf::identities::tests::every_identity_has_an_anchor_and_the_families_are_populated ... ok
+test obf::tests::authenticated_dispatch_routes_exactly_with_logarithmic_comparisons ... ok
+test obf::tests::obfuscate_records_data_mix_and_template_diversity ... ok
+test obf::tests::obfuscation_keeps_the_function_name_and_rva ... ok
+test obf::tests::live_flags_only_use_preserved_add_identities ... ok
+test obf::predicates::tests::predicates_are_true_for_every_u8 ... ok
+test obf::tests::obfuscation_preserves_carry_branch ... ok
+test obf::tests::rewrite_uses_at_least_three_identities_across_seeds ... ok
+test obf::tests::obfuscation_preserves_straight_line ... ok
+test obf::tests::obfuscation_emits_the_hard_predicate ... ok
+test obf::tests::opaque_predicates_vary_across_seeds ... ok
+test obf::identities::tests::preserved_identities_match_the_oracle_and_dead_ones_keep_the_value ... ok
+test obf::data_mix::tests::data_mix_pairs_restore_input_rax_and_flags ... ok
+test obf::tests::research_pass_ablations_preserve_owned_ir_examples ... ok
+test obf::tests::catalog_rewrite_matches_the_oracle ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 437 filtered out; finished in 0.07s
+

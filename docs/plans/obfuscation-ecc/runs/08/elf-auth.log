@@ -1,0 +1,29 @@
+   Compiling vmkek v0.1.0 (/home/rax/vmkek-obfuscation-ecc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.16s
+     Running tests/r02_elf.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r02_elf-006d566525d8558e)
+
+running 2 tests
+test cli_authenticated_elf_runs_directly_and_fails_closed ... FAILED
+test cli_authenticated_elf_calls_unselected_native_function ... FAILED
+
+failures:
+
+---- cli_authenticated_elf_runs_directly_and_fails_closed stdout ----
+
+thread 'cli_authenticated_elf_runs_directly_and_fails_closed' (7131) panicked at tests/r02_elf.rs:240:9:
+assertion failed: String::from_utf8_lossy(&rejected.stderr).contains("rejects executable exports")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- cli_authenticated_elf_calls_unselected_native_function stdout ----
+
+thread 'cli_authenticated_elf_calls_unselected_native_function' (7130) panicked at tests/r02_elf.rs:65:5:
+[105, 111, 58, 32, 78, 111, 32, 115, 117, 99, 104, 32, 102, 105, 108, 101, 32, 111, 114, 32, 100, 105, 114, 101, 99, 116, 111, 114, 121, 32, 40, 111, 115, 32, 101, 114, 114, 111, 114, 32, 50, 41, 10]
+
+
+failures:
+    cli_authenticated_elf_calls_unselected_native_function
+    cli_authenticated_elf_runs_directly_and_fails_closed
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p vmkek --test r02_elf`

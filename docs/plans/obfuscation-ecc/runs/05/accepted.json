@@ -1,0 +1,9 @@
+{
+  "base_stage04_patch_sha256": "80b2a3bf0546a7ac1dfbdf679c4c74d990a5da3886cf515541bef456d9d7a5d9",
+  "patch_sha256": "94df6d03a8dcf58cfc234bbb21d8e23fbb96b3fb83ef0087943712e9ab062d16",
+  "files_sha256": {
+    "evaluation/research_vm_handlers.rs": "952678dab0db0f488974fd2cc265f1f09306f2b6dd5e52f342561dbbbe77a536",
+    "evaluation/research_vm_handlers_normalize.c": "45d6c6cad3586256d88a8835ebe1febe887d781d5f5ff0da95e683c902126fc7"
+  },
+  "decision": "INCONCLUSIVE"
+}

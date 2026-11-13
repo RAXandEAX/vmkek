@@ -1,0 +1,1074 @@
+   Compiling vmkek-protocol v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/protocol)
+   Compiling vmkek v0.1.0 (/home/rax/vmkek-obfuscation-ecc)
+   Compiling vmkek-client v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/client)
+   Compiling vmkek-runtime v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/runtime)
+   Compiling vmkek-packager v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/packager)
+   Compiling vmkek-server v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/server)
+   Compiling vmkek-gui v0.1.0 (/home/rax/vmkek-obfuscation-ecc/gui)
+   Compiling vmkek-online-sample v0.1.0 (/home/rax/vmkek-obfuscation-ecc/samples/online)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 20.27s
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek-8edc3f89ffe7ab5e)
+
+running 463 tests
+test adversary::mba::tests::simplifier_folds_every_s1_identity ... ok
+test adversary::mba::tests::simplifier_leaves_the_sample_formula ... ok
+test adversary::tests::claim_measures_this_adversary_on_m_adv ... ok
+test agent::tests::a_wrong_measurement_releases_nothing ... ok
+test agent::tests::a_nested_call_cannot_extend_the_outer_deadline ... ok
+test agent::tests::an_invalid_terminal_prevents_the_package_from_opening ... ok
+test agent::tests::recursive_calls_share_sequence_but_own_their_active_frame ... ok
+test agent::wire::tests::a_wrong_magic_is_refused ... ok
+test agent::wire::tests::appending_the_next_ticket_does_not_reallocate_plaintext ... ok
+test agent::wire::tests::roundtrip_keeps_the_measurement_and_body ... ok
+test agent::tests::rejection_and_drop_release_the_shared_context_quota ... ok
+test agent::tests::a_block_from_another_build_is_refused_without_plaintext ... ok
+test antidebug::tests::armed_tick_jump_crosses_the_limit ... ok
+test agent::tests::the_open_matches_plain_insn_and_a_modified_block_is_refused_before_release ... ok
+test agent::tests::shared_salt_selects_the_function_by_rva ... ok
+test antidebug::linux::tests::loader_exit_xors_the_block_key ... ok
+test adversary::tests::open_ir_recovers_the_sample_formula ... ok
+test adversary::tests::protected_ir_uses_a_c3_predicate ... ok
+test adversary::tests::protected_bytecode_stays_inside_the_step_budget ... ok
+test adversary::tests::input_independent_simplifier_misses_the_sample_formula ... ok
+test antidebug::tests::live_windows_protocol_stays_open ... ok
+test adversary::tests::research_budget_sweep_reports_owned_fixture ... ok
+test antidebug::tests::nt_global_flag_alone_fails_closed ... ok
+test antidebug::tests::being_debugged_alone_fails_closed ... ok
+test antidebug::tests::debug_object_alone_fails_closed ... ok
+test antidebug::tests::debug_port_alone_fails_closed ... ok
+test antidebug::tests::protected_handle_alone_fails_closed ... ok
+test antidebug::tests::hardware_dr_alone_fails_closed ... ok
+test antidebug::tests::kernel_debugger_alone_fails_closed ... ok
+test antidebug::tests::parent_debugger_alone_fails_closed ... ok
+test antidebug::tests::instrumentation_callback_alone_fails_closed ... ok
+test antidebug::tests::armed_detector_poisons_the_block_key ... ok
+test antidebug::tests::vm_probe_fails_closed_when_the_peb_is_set ... ok
+test antidebug::tests::vm_probe_poisons_the_key_when_heap_force_flags_are_set ... ok
+test check::tests::every_s1_identity_is_in_the_checker ... ok
+test check::tests::math_channel_cites_the_kani_artifact ... ok
+test check::tests::new_functions_stay_within_fifty_lines ... ok
+test check::tests::obfuscation_passes_keep_an_empty_channel_string ... ok
+test check::tests::samples_match_the_direct_operation ... ok
+test check::tests::sequences_match_catalog_expand ... ok
+test cli::tests::bad_seed_and_unknown_flags_are_errors ... ok
+test cli::tests::help_is_available_in_both_languages ... ok
+test antidebug::tests::heap_flags_alone_fails_closed ... ok
+test cli::tests::run_allows_an_unprotected_sample_without_a_key ... ok
+test cli::tests::run_does_not_ignore_a_key_on_an_unrecognized_image ... ok
+test cli::tests::run_keeps_resolve_public_error_text ... ok
+test cli::tests::run_rejects_a_renamed_section_whose_entry_is_the_loader ... ok
+test cli::tests::run_rejects_corrupt_vmkek_magic_before_emulation ... ok
+
+running 1 test
+test cli::tests::standalone_protect_disables_core_dumps_before_opening_input ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 462 filtered out; finished in 0.00s
+
+test cli::tests::standalone_protect_disables_core_dumps_before_opening_input ... ok
+test crypto::authenticated::bootstrap::tests::bootstrap_rejects_non_payload_scope ... ok
+test crypto::authenticated::bootstrap::tests::canonical_core_and_ciphertext_match_independent_vector ... ok
+test crypto::authenticated::bootstrap::tests::corrupt_metadata_ciphertext_tag_and_signature_are_refused ... ok
+test crypto::authenticated::bootstrap::tests::invalid_trusted_payload_extents_fail_before_encryption ... ok
+test crypto::authenticated::bootstrap::tests::lab_handoff_is_per_artifact_and_rejects_online_embedding ... ok
+test crypto::authenticated::bootstrap::tests::repeat_reads_and_restarted_sealing_use_the_expected_coordinates ... ok
+test crypto::authenticated::bootstrap::tests::wrong_pin_and_changed_trusted_scope_are_refused ... ok
+test crypto::authenticated::tests::each_scope_field_and_block_coordinate_separates_keys ... ok
+test crypto::authenticated::tests::fresh_build_secrets_are_independent_for_the_same_scope ... ok
+test crypto::authenticated::tests::new_artifacts_get_independent_build_and_generation_ids ... ok
+test crypto::tests::aead_binding_rejects_a_substituted_entry_or_base ... ok
+test crypto::tests::aead_matches_rfc8439_vector ... ok
+test crypto::tests::aead_roundtrip_rejects_a_flipped_byte ... ok
+test crypto::tests::chacha_matches_documented_vector ... ok
+test crypto::tests::header_roundtrip_has_no_key_halves ... ok
+test crypto::tests::hkdf_sha256_accepts_the_rfc5869_maximum_and_rejects_one_more_byte ... ok
+test crypto::tests::hkdf_sha256_matches_rfc5869_case_1 ... ok
+test crypto::tests::lzss_rejects_oversized_and_inconsistent_output ... ok
+test crypto::tests::lzss_roundtrip ... ok
+test crypto::tests::payload_key_reuses_hkdf_sha256 ... ok
+test crypto::tests::tag_compare_does_not_depend_on_the_first_byte ... ok
+test antidebug::tests::process_debug_flags_alone_fails_closed ... ok
+test driver::tests::minimal_sys_roundtrip_keeps_the_driver_image ... ok
+test driver::tests::console_image_keeps_windows_cui ... ok
+test driver::tests::protect_drops_aslr_bits_the_image_cannot_honor ... ok
+test driver::tests::system_channel_on_m_kern_stays_red ... ok
+test elf::sample::tests::carrier_parses_and_names_libc_imports ... ok
+test elf::sample::tests::carrier_prints_the_sample_line ... ok
+test elf::tests::dynamic_address_zero_is_legal_when_it_matches ... ok
+test elf::tests::extended_header_counts_match_the_plain_image ... ok
+test elf::tests::format_errors_are_explicit ... ok
+test elf::tests::gnu_hash_counts_dynamic_symbols_without_sections ... ok
+test antidebug::tests::int2d_alone_fails_closed ... ok
+test elf::tests::got_virtual_address_overflow_is_an_error ... ok
+test elf::tests::implicit_rel_addend_comes_from_the_instruction ... ok
+test elf::tests::minimal_executable_without_sections ... ok
+test elf::tests::non_utf8_symbol_names_stay_distinct_bytes ... ok
+test elf::tests::got_reloc_matching_stays_linear ... ok
+test elf::tests::plt_rip_relative_displacement_wraps ... ok
+test elf::tests::plt_virtual_address_overflow_is_an_error ... ok
+test elf::tests::relocation_entirely_in_bss_keeps_zero_addend ... ok
+test elf::tests::relocation_split_across_file_and_bss_is_rejected ... ok
+test elf::tests::relr_base_overflow_is_an_error ... ok
+test elf::tests::relr_bitmap_expands_to_relative_slots ... ok
+test elf::tests::section_address_zero_must_match_pltgot ... ok
+test elf::tests::section_address_zero_must_match_strtab ... ok
+test elf::tests::section_address_zero_must_match_symtab ... ok
+test elf::tests::sectionless_dynamic_uses_hash_and_program_headers ... ok
+test elf::tests::synthetic_object_matches_relocations ... ok
+test elf::tests::plt_entry_count_is_capped ... ok
+test elf::tests::synthetic_shared_object_matches_authored_fields ... ok
+test elf::tests::unmapped_relocation_is_rejected ... ok
+test elf::tests::version_chain_beyond_essential_window_is_rejected ... ok
+test elf::tests::virtual_read_stops_at_load_filesz ... ok
+test emu::branch::tests::a_not_taken_conditional_is_omitted ... ok
+test emu::branch::tests::an_immediate_is_not_a_branch_target ... ok
+test emu::branch::tests::m_trace_name_matches_the_census ... ok
+test emu::branch::tests::ring_bytes_follow_target_order ... ok
+test emu::branch::tests::ring_keeps_the_newest_targets ... ok
+test driver::tests::protect_hides_ntoskrnl_names_and_keeps_the_trampoline ... ok
+test emu::branch::tests::ring_records_taken_call_conditional_jump_and_return_targets ... ok
+test emu::instrument::tests::arm_instrument_sets_one_switch ... ok
+test emu::instrument::tests::claims_are_system_on_m_emu ... ok
+test antidebug::tests::is_debugger_present_alone_fails_closed ... ok
+test antidebug::tests::int3_page_alone_fails_closed ... ok
+test emu::instrument::tests::data_byte_is_not_an_executable_page ... ok
+test emu::branch::tests::secret_byte_does_not_select_a_tag_branch ... ok
+test emu::instrument::tests::foreign_thread_is_a_different_thread ... ok
+test elf::tests::system_image_and_compiler_output_match ... ok
+test emu::instrument::tests::foreign_write_is_not_a_hash_miss ... ok
+test emu::instrument::tests::hash_miss_is_not_a_foreign_write ... ok
+test emu::instrument::tests::new_functions_stay_within_fifty_lines ... ok
+test emu::instrument::tests::outside_store_marks_a_foreign_write ... ok
+test emu::instrument::tests::own_store_after_the_snapshot_is_not_a_hash_miss ... ok
+test emu::instrument::tests::poison_touches_only_this_chain ... ok
+test antidebug::tests::thread_hide_alone_fails_closed ... ok
+test antidebug::tests::remote_debugger_alone_fails_closed ... ok
+test emu::startup::tests::startup_manifest_accepts_a_terminated_nine_callback_table ... ok
+test emu::startup::tests::startup_manifest_is_opt_in_and_accepts_the_expected_loader ... ok
+test emu::startup::tests::startup_manifest_refuses_changed_lists_before_guest_execution ... ok
+test emu::startup::tests::startup_manifest_refuses_malformed_callback_directories ... ok
+test emu::tests::read_and_write_near_the_top_of_the_address_space_are_unmapped ... ok
+test emu::tests::reads_and_writes_honor_the_end_of_a_region ... ok
+test emu::tests::the_last_representable_address_stays_readable ... ok
+test emu::tests::unprotected_sample_prints_the_reference_line ... ok
+test flags::tests::adc_sbb_and_narrow_add_match_cpu ... ok
+test flags::tests::arithmetic_matches_cpu ... ok
+test flags::tests::cond_codes_cover_jcc ... ok
+test flags::tests::narrow_shifts_do_not_panic_when_count_exceeds_width ... ok
+test gp::diff_l1::carrier_mov_matches_linux ... ok
+test gp::diff_l1::cmpxchg_wide_keeps_flags_except_zf ... ok
+test gp::diff_l1::every_l1_mnemonic_is_run_or_ud ... ok
+test antidebug::tests::remote_breakin_alone_fails_closed ... ok
+test gp::diff_l1::lock_prefix_requires_memory_destination ... ok
+test gp::diff_l1::undefined_opcodes_match_sigill ... ok
+test ir::tests::build_ir_wipe_clears_control_flow_payloads ... ok
+test ir::tests::data_ops_that_reach_scalar_dispatch_are_rejected ... ok
+test ir::tests::integer_view_reports_x87_at_the_function_rva ... ok
+test ir::tests::program_call_depth_is_refused ... ok
+test ir::tests::program_call_returns_registers_and_auxiliary_flags ... ok
+test ir::tests::program_indirect_call_updates_registers_only ... ok
+test ir::tests::short_memory_read_is_an_error ... ok
+test isa::census::tests::avx512_aes_and_pclmul_stay_out_of_late_sse ... ok
+test isa::census::tests::decoder_census_covers_every_mnemonic ... ok
+test isa::census::tests::flag_policy_and_machines_are_recorded ... ok
+test isa::census::tests::foreign_mnemonics_stay_out_of_batch_proof_groups ... ok
+test isa::census::tests::groups_follow_the_l0_partition ... ok
+test isa::census::tests::l6_sentinel_kmovw_needs_only_avx512f ... ok
+test isa::census::tests::lifter_mnemonics_record_l1_and_closed_control ... ok
+test isa::census::tests::refuse_is_only_privileged_io_or_hypervisor_exit ... ok
+test lift::l1::tests::arithmetic_and_shifts_match_gp ... ok
+test lift::l1::tests::cmpxchg_wide_af_reaches_lahf_and_pushfq ... ok
+test lift::l1::tests::data_motion_and_string_ops_match_gp ... ok
+test lift::l1::tests::fast_alu_af_reaches_lahf_and_pushfq ... ok
+test lift::l1::tests::memory_address_math_keeps_auxiliary_carry ... ok
+test lift::l1::tests::multiply_and_divide_match_gp ... ok
+test lift::tests::direct_call_below_image_is_rejected ... ok
+test lift::tests::imul_uses_encoded_source_and_sets_overflow_flags ... ok
+test lift::tests::lifted_functions_match_the_reference ... ok
+test lift::tests::narrow_mov_zero_extends_and_shr_jl_are_lifted ... ok
+test loader::auth::tests::authenticating_pe_fixture ... ok
+test loader::sysv::tests::sysv_loader_keeps_a_stable_size_and_the_aead_prefix ... ok
+test loader::tests::loader_embeds_the_aead_key_at_a_fixed_offset ... ok
+test loader::tests::native_entry_preserves_the_windows_call_frame ... ok
+test loader::tests::native_loader_rebases_decrypted_runtime_fields ... ok
+test mutate::cave::tests::cave_move_matches_the_emulator ... ok
+test mutate::cave::tests::external_rel8_that_does_not_fit_is_an_error ... ok
+test mutate::cave::tests::int3_then_rip_relative_keeps_its_absolute_target ... ok
+test mutate::cave::tests::missing_cave_names_the_function ... ok
+test mutate::cave::tests::seeds_change_the_mutated_bytes ... ok
+test mutate::cave::tests::short_function_is_an_error ... ok
+test mutate::desync::tests::linear_decoder_diverges_from_the_trace ... ok
+test mutate::desync::tests::nop_junk_is_neutral_on_the_emulator ... ok
+test mutate::dict::tests::div_and_idiv_do_not_kill_status_flags ... ok
+test mutate::dict::tests::double_shift_count_must_fit_the_operand ... ok
+test mutate::dict::tests::fallthrough_out_of_fragment_keeps_flags_live ... ok
+test mutate::dict::tests::flag_readers_still_block_rewrites ... ok
+test mutate::dict::tests::immediate_double_shift_still_kills_flags ... ok
+test mutate::dict::tests::immediate_shift_and_return_still_end_a_flag ... ok
+test mutate::dict::tests::jo_reaching_a_carry_consumer_is_not_rewritten ... ok
+test mutate::dict::tests::jrcxz_reaching_a_carry_consumer_is_not_rewritten ... ok
+test mutate::dict::tests::loop_back_to_a_carry_consumer_is_not_rewritten ... ok
+test mutate::dict::tests::mul_carry_kill_still_rewrites_inc ... ok
+test antidebug::tests::trap_flag_alone_fails_closed ... ok
+test mutate::dict::tests::one_operand_mul_does_not_kill_status_flags ... ok
+test mutate::dict::tests::other_variable_counts_do_not_kill_flags ... ok
+test mutate::dict::tests::rep_string_op_does_not_kill_a_live_flag ... ok
+test mutate::dict::tests::two_operand_imul_still_writes_status ... ok
+test mutate::dict::tests::variable_shift_does_not_kill_a_live_flag ... ok
+test mutate::dict::tests::mutation_rules_match_the_emulator ... ok
+test obf::data_mix::tests::data_mix_roundtrip_matches_the_oracle ... ok
+test obf::data_mix::tests::odd_multiplier_roundtrips_every_u8 ... ok
+test obf::hard::tests::algebraic_s2_predicates_stay_in_the_catalog ... ok
+test obf::hard::tests::crypto_claim_records_the_known_input_limit ... ok
+test obf::hard::tests::ir_hash_matches_trunc_hash ... ok
+test obf::hard::tests::known_preimage_executes_and_s1_does_not_fold ... ok
+test obf::hard::tests::multiply_and_shift_stay_outside_the_s1_catalog ... ok
+test obf::hard::tests::simplified_formula_has_no_preimage ... ok
+test obf::hard::tests::system_channel_on_m_adv_stays_red ... ok
+test obf::identities::tests::every_identity_has_an_anchor_and_the_families_are_populated ... ok
+test obf::data_mix::tests::data_mix_pairs_restore_input_rax_and_flags ... ok
+test obf::predicates::tests::predicates_are_true_for_every_u8 ... ok
+test obf::tests::authenticated_dispatch_routes_exactly_with_logarithmic_comparisons ... ok
+test obf::identities::tests::preserved_identities_match_the_oracle_and_dead_ones_keep_the_value ... ok
+test obf::tests::live_flags_only_use_preserved_add_identities ... ok
+test obf::tests::obfuscate_records_data_mix_and_template_diversity ... ok
+test obf::tests::obfuscation_emits_the_hard_predicate ... ok
+test obf::tests::obfuscation_keeps_the_function_name_and_rva ... ok
+test obf::tests::obfuscation_preserves_carry_branch ... ok
+test obf::tests::obfuscation_preserves_straight_line ... ok
+test obf::tests::catalog_rewrite_matches_the_oracle ... ok
+test obf::tests::opaque_predicates_vary_across_seeds ... ok
+test obf::tests::rewrite_uses_at_least_three_identities_across_seeds ... ok
+test pe::native::tests::guarded_dynamic_pe_preserves_gfids_and_adds_only_generated_tls_fixups ... ok
+test pe::native_reloc::tests::pe_relocation_blocks_require_unique_mapped_dir64_sites ... ok
+test pe::native_unwind::tests::native_bridge_publishes_a_sorted_table_and_keeps_unrelated_unwind ... ok
+test pe::native_unwind::tests::native_bridge_refuses_source_handlers_and_forged_unwind ... ok
+test pe::native_unwind::tests::native_cfg_rejects_unwind_for_a_selected_function ... ok
+test pe::tests::emit_parse_roundtrip ... ok
+test pe::tests::hostile_headers_are_errors ... ok
+test pe::tests::image_kind_restores_a_native_subsystem ... ok
+test pe::tests::image_span_follows_the_highest_rva ... ok
+test antidebug::tests::tick_jump_alone_fails_closed ... ok
+test proof::tests::attacker_model_names_the_user_mode_boundary ... ok
+test proof::tests::claim_levels_match_existing_anchors ... ok
+test proof::tests::empty_pass_list_yields_no_claims ... ok
+test proof::tests::external_key_names_a_software_measurement ... ok
+test proof::tests::linux_detectors_are_system_on_m_linux ... ok
+test proof::tests::registry_covers_every_pass_protect_can_emit ... ok
+test obf::tests::research_pass_ablations_preserve_owned_ir_examples ... ok
+test proof::tests::unknown_pass_has_no_proof_claim ... ok
+test gp::diff_l1::linux_matches_ten_thousand_integer_blocks ... ok
+test proof::tests::user_mode_detectors_are_system_on_m_emu ... ok
+test protect::hygiene::hygiene_review_tests::pe_header_cleanup_preserves_application_section_bytes ... ok
+test protect::payload::tests::authenticated_elf_runtime_enforces_signed_and_native_limits_before_opening ... ok
+test protect::payload::tests::authenticated_elf_runtime_preserves_fixed_slot_bytes_when_they_fit ... ok
+test protect::payload::tests::authenticated_elf_runtime_uses_ordered_nonoverlapping_slots ... ok
+test protect::payload::tests::oversized_runtime_is_rejected_before_opening_instructions ... ok
+test protect::payload::tests::runtime_payload_keeps_the_entry_checksum_and_rejects_a_wrong_entry ... ok
+test proof::tests::api_and_peb_fixture_has_a_system_anchor_on_m_emu ... ok
+test proof::tests::sample_report_projects_registry_claims ... ok
+test proof::tests::unreachable_boundaries_are_not_protection_passes ... ok
+test protect::tests::aead_inspect_rejects_tamper_and_forged_key ... ok
+test protect::tests::code_layout_is_stable_within_one_build ... ok
+test protect::tests::inspect_rejects_a_flipped_signature_byte ... ok
+test protect::tests::layout_import_offset_points_at_the_import_count ... ok
+test protect::tests::missing_cave_is_an_error_for_that_function ... ok
+test protect::tests::mutation_keeps_live_flags_and_uses_the_seed ... ok
+test protect::tests::native_direct_calls_preserve_an_image_relative_target ... ok
+test protect::tests::payload_past_the_address_space_is_outside_the_file ... ok
+test protect::tests::payload_write_before_the_buffer_is_an_error ... ok
+test protect::tests::inspect_rejects_a_substituted_entry_and_image_base ... ok
+test protect::tests::deterministic_seed_is_byte_identical_and_stays_out_of_the_report ... ok
+test protect::tests::sample_mutation_fires_and_the_report_records_it ... ok
+test protect::tests::two_seeds_change_the_mutated_function_bytes ... ok
+test protect::tests::undecodable_export_is_an_error ... ok
+test sample::tests::missing_rip_placeholder_is_an_error ... ok
+test secret::tests::copy_vector_wipe_zeroes_its_backing_storage ... ok
+test secret::tests::fork_child_does_not_inherit_the_key ... ok
+test secret::tests::key_page_is_marked_dont_dump ... ok
+test secret::tests::key_page_tail_stays_zero ... ok
+test secret::tests::merged_vma_uses_the_containing_range ... ok
+test secret::tests::wipe_volatile_regs_clears_rsi_and_rdi ... ok
+test sse::diff::address_forms_match_linux ... ok
+test sse::diff::every_l3_mnemonic_matches_linux ... ok
+test sse::diff::gpr_moves_and_comiss_update_the_visible_state ... ok
+test sse::diff::high_xmm_registers_round_trip ... ok
+test sse::diff::l4_proof::every_l4_mnemonic_matches_linux_or_records_why_not ... ok
+test sse::diff::l5_proof::every_l5_mnemonic_matches_linux_or_records_why_not ... ok
+test sse::diff::l5_proof::vex_upper_zeroing_matches_linux ... ok
+test sse::diff::l6_proof::census_encodes_and_prefers_the_zmm_or_mask_form ... ok
+test sse::diff::l6_proof::every_l6_mnemonic_matches_linux_or_records_why_not ... ok
+test sse::diff::l6_proof::high_zmm_is_distinct_from_the_low_bank ... ok
+test sse::diff::l6_proof::legacy_sse_preserves_zmm_hi256_for_a_later_evex_read ... ok
+test sse::diff::l6_proof::merge_and_zeroing_match_linux_and_the_mask_model ... ok
+test sse::diff::l6_proof::vex_writes_still_zero_zmm_hi256 ... ok
+test sse::diff::ldmxcsr_and_stmxcsr_move_the_control_register ... ok
+test sse::diff::misaligned_movaps_faults ... ok
+test sse::diff::mixed_integer_and_sse_block_matches_linux ... ok
+test sse::diff::mxcsr_flags_record_invalid_and_precision ... ok
+test sse::diff::prefetch_unmapped_is_a_nop_and_clflush_faults ... ok
+test sse::diff::rounding_mode_changes_scalar_and_packed_raw_bytes ... ok
+test sse::diff::scalar_keeps_upper_bytes_and_packed_writes_every_lane ... ok
+test sse::diff::unmasked_precision_faults_on_linux_and_both_interpreters ... ok
+test sse::evex::tests::f_only_kmovw_save_lets_vaddps_retire ... ok
+test sse::evex::tests::mask_save_width_follows_avx512bw ... ok
+test sse::evex::tests::zmm_and_mask_moves_decode ... ok
+test sse::host::clear_operand_covers_the_aligned_ymm_tail ... ok
+test sse::host::evex_replay_restores_host_zmm31 ... ok
+test sse::host::save_mark_matches_the_assembler ... ok
+test sse::host::ymm_encoding_matches_the_assembler ... ok
+test sse::host::ymm_save_ud_returns_sse_fault_and_guest_ud_restores_uppers ... ok
+test sse::kat::fips180_4_sha256_and_sha1_match_the_published_digests ... ok
+test sse::kat::fips197_aes128_matches_the_published_vectors ... ok
+test sse::kat::late_sse_stays_out_of_the_integer_ir ... ok
+test sse::kat::vex_fma_runs_and_plans_a_host_ymm_save ... ok
+test sse::mask::tests::merge_keeps_clear_lanes_and_zeroing_stores_zeros ... ok
+test sse::tests::directed_rounding_changes_the_divss_bits ... ok
+test sse::tests::integer_view_rejects_sse_and_keeps_string_movsd ... ok
+test sse::tests::prefetch_miss_leaves_state_and_clflush_still_faults ... ok
+test sse::tests::prefetch_noncanonical_is_general_protection ... ok
+test sse::tests::stub_page_drops_write_before_the_call ... ok
+test sse::tests::trailing_opcode_after_sse_is_not_executed ... ok
+test sse::tests::word_mask_image_keeps_sixteen_bits ... ok
+test sse::tests::xmm_file_is_sixteen_raw_registers ... ok
+test stub::chain::tests::gs_chain_ops_match_the_decoder ... ok
+test stub::chain::tests::native_pe_trampoline_reads_os_tls_without_raw_syscalls ... ok
+test stub::chain::tests::nested_call_restores_the_outer_chain ... ok
+test stub::chain::tests::parallel_threads_keep_a_corrupt_block_local ... ok
+test stub::chain::tests::thread_state_is_not_in_the_result ... ok
+test stub::chain::tests::trampoline_claims_one_slot_per_context ... ok
+test emu::instrument::tests::code_page_hash_alone_fails_closed ... ok
+test stub::chain::tests::trampoline_reentry_restores_the_outer_key ... ok
+test stub::dispatch::tests::slot_mask_differs_for_the_anchor_seeds ... ok
+test stub::external::tests::external_bind_rejects_zero_extent_before_reading_the_length_table ... ok
+test stub::external::tests::external_block_bounds_reject_before_writing_a_destination ... ok
+test stub::chain::tests::two_contexts_keep_a_corrupt_block_local ... ok
+test stub::morph::tests::adjacent_seeds_change_every_immediate_byte ... ok
+test stub::pe_unwind::tests::bridge_has_a_precise_non_epilogue_return_pc ... ok
+test stub::pe_unwind::tests::cleanup_only_drops_the_tls_frame_during_phase_two ... ok
+test stub::pe_unwind::tests::failure_returns_to_the_native_caller_after_a_guest_prologue ... ok
+test stub::external::tests::sha256_matches_the_crate_digest ... ok
+test emu::instrument::tests::foreign_exec_write_alone_fails_closed ... ok
+test stub::tests::call_reg_returns_every_architectural_register ... ok
+test stub::tests::call_rva_leaves_rsp_unchanged_for_the_callee ... ok
+test stub::tests::call_rva_private_slots_follow_the_arch_map ... ok
+test stub::tests::chacha_xor_uses_bounded_steps_for_a_full_chunk ... ok
+test stub::tests::call_depth_stops_at_the_same_limit_as_exec_image ... ok
+test stub::tests::code_layout_offsets_stay_stable_within_a_seed ... ok
+test emu::instrument::tests::foreign_thread_write_alone_fails_closed ... ok
+test stub::tests::emit_chacha_helpers_keep_the_stub_image ... ok
+test stub::tests::handler_selection_is_computed_without_a_pointer_table ... ok
+test stub::tests::each_handler_variant_matches_the_oracle ... ok
+test stub::tests::handler_window_differs_and_dispatcher_has_no_shared_anchor ... ok
+test stub::tests::cleared_inner_stream_stops_the_sample ... ok
+test stub::tests::metamorphic_seeds_match_the_oracle ... ok
+test protect::tests::entry_point_is_virtualized_even_without_an_export ... ok
+test stub::tests::native_vm_runs_plain_and_obfuscated_mix ... ok
+test stub::tests::handlers_cover_lifter_opcodes_and_every_condition ... ok
+test stub::tests::push_rsp_and_pop_rsp_match_both_interpreters ... ok
+test stub::tests::resolver_finds_write_file ... ok
+test stub::tests::runtime_holds_the_sealed_inner_dispatcher ... ok
+test stub::tests::second_call_on_the_other_jcc_arm_matches_the_interpreter ... ok
+test stub::tests::second_external_entry_on_the_other_arm_matches_the_interpreter ... ok
+test stub::tests::stub_chacha_checks_unaligned_edges_in_place_and_disjoint ... ok
+test stub::tests::stub_chacha_matches_rust_across_a_block_boundary ... ok
+test stub::tests::stub_size_is_stable_across_origins ... ok
+test stub::tests::window_len_is_the_percent_denominator ... ok
+test stub::tests::both_interpreters_match_ir ... ok
+test stub::tests::protected_gate_matches_the_image_address ... ok
+test stub::window::tests::scoped_vm_masks_do_not_follow_the_layout_seed ... ok
+test stub::window::tests::one_open_block_at_each_boundary ... ok
+test syscall::tests::direct_slots_are_not_name_hashes ... ok
+test syscall::tests::each_stub_is_its_own_syscall ... ok
+test trace::tests::keyed_hash_depends_on_the_key_and_not_on_djb2 ... ok
+test trace::tests::resolver_finds_a_keyed_export ... ok
+test trace::tests::resolver_lengths_do_not_depend_on_the_key_address ... ok
+test trace::tests::resolver_still_finds_an_unkeyed_export ... ok
+test unwind::eh::tests::eh_frame_expression_is_not_supported ... ok
+test unwind::eh::tests::host_binary_eh_frame_holds_offset_zero ... ok
+test unwind::eh::tests::preserve_elf_rewrites_the_parsed_section ... ok
+test unwind::eh::tests::synthetic_eh_frame_trampoline_matches_original_frame ... ok
+test unwind::eh::tests::unknown_augmentation_letter_is_an_error ... ok
+test unwind::pdata::tests::absent_exception_directory_is_unchanged ... ok
+test unwind::pdata::tests::chain_stays_on_the_offset_zero_row ... ok
+test unwind::pdata::tests::machframe_is_not_rewritten ... ok
+test unwind::pdata::tests::offset_zero_code_stays_active_across_the_trampoline ... ok
+test unwind::pdata::tests::push_setfp_alloc_rows ... ok
+test unwind::pdata::tests::save_nonvol_slot_is_rsp_relative ... ok
+test unwind::pdata::tests::shared_unwind_info_is_left_for_the_other_function ... ok
+test unwind::pdata::tests::synthetic_pe_trampoline_matches_original_frame ... ok
+test unwind::pdata::tests::unwind_range_far_past_the_trampoline_is_an_error ... ok
+test unwind::pdata::tests::unwind_range_that_overlaps_a_neighbor_is_an_error ... ok
+test unwind::tests::green_claims_name_a_machine_and_an_anchor ... ok
+test unwind::tests::protect_keeps_the_trampoline_on_the_entry_row ... ok
+test unwind::tests::win_seh_channels_preserve_the_tested_scope ... ok
+test vm::balance::tests::lea_shapes_keep_the_address ... ok
+test vm::balance::tests::opcode_class_memory_accesses_match ... ok
+test vm::balance::tests::unary_not_preserves_flags ... ok
+test vm::cipher::runtime_extent_enforces_the_exact_window_and_address_bounds ... ok
+test vm::cipher::tests::block_index_and_seed_change_the_ciphertext ... ok
+test vm::cipher::tests::block_nonce_does_not_repeat_for_the_process ... ok
+test vm::cipher::tests::channel_name_is_crypto ... ok
+test vm::cipher::tests::keystream_matches_the_crate_across_a_block_boundary ... ok
+test vm::cipher::tests::quarter_round_matches_rfc8439 ... ok
+test vm::cipher::tests::reseal_is_chacha20_with_a_new_block_nonce ... ok
+test vm::cipher::tests::rfc8439_chacha20_block ... ok
+test vm::cipher::tests::second_block_opens_with_the_woven_key_not_the_master_key ... ok
+test vm::cipher::tests::weave_next_moves_when_any_plaintext_byte_changes ... ok
+test vm::cipher::tests::window_proofs_name_system_and_crypto ... ok
+test vm::cipher::tests::xor_keystream_rejects_a_different_key_for_the_same_nonce ... ok
+test vm::cipher::tests::xor_keystream_rejects_a_different_plaintext_for_the_same_nonce ... ok
+test vm::exec::tests::a_failed_run_does_not_stick_to_the_next_call ... ok
+test vm::exec::tests::exec_pins_the_interpreter_key_on_a_nondumpable_page ... ok
+test vm::exec::tests::nest_uses_one_frame_buffer_and_the_span_decode_read ... ok
+test vm::exec::tests::two_open_blocks_raise_the_high_water ... ok
+test vm::guard::tests::call_and_nested_keep_one_plaintext_block ... ok
+test vm::guard::tests::containment_proofs_name_system_and_crypto_only ... ok
+test vm::guard::tests::curved_operands_fail_closed_on_m_emu ... ok
+test vm::guard::tests::inverted_crc_decision_refuses_the_synthetic_guest ... ok
+test vm::guard::tests::register_index_still_fails_before_a_guest_write ... ok
+test vm::guard::tests::startup_does_not_decrypt_the_whole_image ... ok
+test vm::inner::tests::inner_stream_opens_under_the_s3b_primitive ... ok
+test stub::window::tests::scoped_window_reopens_immutable_blocks_and_clears_plaintext ... ok
+test vm::inner::tests::lookup_and_compare_agree_on_every_outer_tag ... ok
+test vm::inner::tests::n1_claims_name_the_three_channels ... ok
+test vm::inner::tests::research_layer_lookup_matches_direct_table_for_all_codes ... ok
+test vm::inner::tests::research_layer_lookup_timing ... ignored, release-only research timing
+test vm::inner::tests::second_level_does_not_add_a_third ... ok
+test vm::slots::tests::identity_arch_map_is_widened_without_dropping_a_slot ... ok
+test vm::tests::arch_slots_differ_across_seeds_and_leave_the_identity ... ok
+test vm::tests::crc32_known_answer ... ok
+test vm::tests::every_ir_op_lowers_to_a_handled_opcode ... ok
+test vm::tests::lowered_bytecode_contains_neutral_junk_on_the_entry_path ... ok
+test vm::tests::nest_longer_than_255_bytes_is_an_error ... ok
+test vm::tests::nest_of_255_bytes_roundtrips ... ok
+test vm::tests::obfuscated_bytecode_matches_and_tamper_fails ... ok
+test vm::tests::permuted_plaintext_decodes_with_inv_without_chacha ... ok
+test vm::tests::register_index_past_the_file_is_an_error ... ok
+test vm::tests::salt_for_func_mixes_the_full_index ... ok
+test vm::tests::sample_ciphertext_is_not_a_linear_opcode_sequence ... ok
+test vm::tests::short_memory_read_is_an_error ... ok
+test vm::tests::vm_matches_ir_and_changes_with_seed ... ok
+test watermark::tests::signed_watermark_is_bound_to_build_and_customer ... ok
+test x87::diff::address_size_override_matches_linux ... ok
+test x87::diff::control_word_selects_precision_and_rounding ... ok
+test x87::diff::every_l2_mnemonic_matches_linux ... ok
+test x87::diff::ffree_keeps_the_raw_register_bytes ... ok
+test x87::diff::fld1_keeps_the_eighty_bit_encoding ... ok
+test x87::diff::linux_matches_mixed_x87_blocks ... ok
+test x87::diff::stack_overflow_sets_invalid_and_c1 ... ok
+test x87::diff::stack_underflow_sets_invalid_and_clears_c1 ... ok
+test x87::tests::gs_address_matches_the_cpu ... ok
+test x87::tests::gs_base_is_added_on_both_paths ... ok
+test x87::tests::lifted_x87_address_matches_the_emulator ... ok
+test x87::tests::stack_is_eight_registers_of_ten_bytes ... ok
+test x87::tests::stub_page_drops_write_before_the_call ... ok
+test x87::tests::tag_word_is_indexed_by_physical_register ... ok
+test x87::tests::trailing_opcode_after_x87_is_not_executed ... ok
+test stub::tests::process_gate_is_aligned_after_placement ... ok
+test stub::tests::woven_flip_of_every_block_byte_fails_closed_across_ten_seeds ... ok
+test vm::inner::tests::ir_level1_and_level2_agree_on_sample_and_l1 ... ok
+test antidebug::tests::detectors_off_print_the_sample_line has been running for over 60 seconds
+test antidebug::tests::legacy_kernel_module_does_not_color_the_channel has been running for over 60 seconds
+test antidebug::tests::loader_copies_do_not_silence_vm_or_cave has been running for over 60 seconds
+test antidebug::tests::detectors_off_print_the_sample_line ... ok
+test antidebug::tests::legacy_kernel_module_does_not_color_the_channel ... ok
+test protect::tests::report_names_the_handler_window_and_the_varying_elements ... ok
+test antidebug::tests::tick_delta_without_a_jump_prints_the_sample_line ... ok
+test cli::tests::run_accepts_a_protected_image_when_the_key_matches ... ok
+test stub::tests::native_vm_runs_the_lifted_sample ... ok
+test antidebug::tests::loader_copies_do_not_silence_vm_or_cave ... ok
+test emu::instrument::tests::clean_run_prints_the_sample_line ... ok
+test antidebug::tests::substituted_api_and_peb_still_fail_closed has been running for over 60 seconds
+test emu::instrument::tests::substituted_byte_without_the_switch_prints_the_sample_line ... ok
+test emu::instrument::tests::switches_without_a_sign_print_the_sample_line ... ok
+test antidebug::tests::substituted_api_and_peb_still_fail_closed ... ok
+test protect::tests::protected_sample_matches_and_hides_plaintext ... ok
+
+test result: ok. 462 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 71.63s
+
+     Running unittests src/main.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek-5b0692222466f125)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/c6_early.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/c6_early-1522a022ae781e4f)
+
+running 4 tests
+test excising_the_original_entry_fails_closed ... ok
+test excising_the_elf_entry_fails_closed ... ok
+test early_init_runs_before_the_original_entry ... ok
+test early_tls_runs_before_the_original_entry ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 29.01s
+
+     Running tests/c7_syscall.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/c7_syscall-d89076b8f06262e5)
+
+running 2 tests
+test linux_direct_syscall_matches_the_import ... ok
+test direct_syscall_matches_the_import ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.71s
+
+     Running tests/c8_linux.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/c8_linux-bee4c290213e05a5)
+
+running 8 tests
+test recursive_socket_calls_resume_the_parent_and_refuse_a_foreign_inner_block ... ok
+test a_connection_from_an_exited_thread_cannot_resume_its_call ... ok
+test agent_does_not_remove_existing_or_replacement_socket_paths ... ok
+test oversized_requests_and_wrong_thread_or_call_never_release_a_body ... ok
+test a_consumed_ticket_cannot_release_another_block ... ok
+test guest_snapshot_misses_the_key_and_finds_the_sample ... ok
+test offline_and_external_print_one_sample_line ... ok
+test concurrent_sessions_survive_a_stalled_peer_and_reject_fresh_ticket_replay ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.47s
+
+     Running tests/e2_linux.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/e2_linux-bccf8d27ffd48d91)
+
+running 1 test
+test protected_elf_matches_the_carrier_on_linux ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.98s
+
+     Running tests/e3_linux.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/e3_linux-63101aa4455fb90f)
+
+running 10 tests
+test clock_delta_alone_fails_closed ... ok
+test loader_stub_does_not_hide_a_clock_hit ... ok
+early
+entry
+early
+entry
+early
+early
+early
+entry
+test ptrace_alone_fails_closed ... ok
+test tracer_pid_alone_fails_closed ... ok
+test traced_child_fails_closed ... ok
+test loader_stub_does_not_keep_the_traced_result ... ok
+test loader_stub_still_prints_when_clean ... ok
+test clock_alone_under_a_tracer_prints ... ok
+test ptrace_alone_prints_when_clean ... ok
+test clean_run_prints_the_sample_line ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.78s
+
+     Running tests/l7_linux.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/l7_linux-31e698373dca3104)
+
+running 2 tests
+test panic_and_sigfpe_reach_the_same_handler ... ok
+test setjmp_longjmp_observable_state_matches_through_trampoline ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/l8_isa.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/l8_isa-39f944a8d0fb19f6)
+
+running 4 tests
+test e2_functions_stay_within_fifty_lines ... ok
+test reviewed_functions_stay_within_fifty_lines ... ok
+test inventory_is_proven_or_has_an_absent_cpuid_protocol ... ok
+test e3_functions_stay_within_fifty_lines ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/quality_contract.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/quality_contract-10ad00a726270fae)
+
+running 1 test
+test integer_pe_core_meets_the_quality_contract has been running for over 60 seconds
+test integer_pe_core_meets_the_quality_contract ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 75.96s
+
+     Running tests/r01_claims.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r01_claims-b630e35a45f66740)
+
+running 4 tests
+test pass_requires_approved_evidence_for_the_expected_commit_and_build ... ok
+test reads_legacy_and_rejects_unknown_version_and_required_values ... ok
+test cli_protection_emits_v2_for_the_actual_artifact ... ok
+test external_key_report_identifies_its_lab_profile_and_elf ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/r02_cli.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r02_cli-0653ae714957b39d)
+
+running 3 tests
+test opt_in_requires_exact_external_credentials_and_cng_imports ... ok
+test legacy_inspect_without_a_key_does_not_open_a_fifo ... ok
+test cli_writes_a_lab_report_and_legacy_readers_refuse_the_bootstrap ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/r02_elf.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r02_elf-29d48841d1b6604f)
+
+running 3 tests
+test cli_authenticated_elf_calls_unselected_native_function ... ignored, requires the trusted helper built by tools/elf-auth-helper/build.sh
+test cli_authenticated_elf_runs_directly_and_fails_closed ... ignored, requires the trusted helper built by tools/elf-auth-helper/build.sh
+test cli_legacy_elf_calls_unselected_native_function ... ok
+
+test result: ok. 1 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/r02_process.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r02_process-29e3045c9bb6642b)
+R02 process checks passed: inherited sealer after fork and two fresh executions
+     Running tests/r03_native_c8.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r03_native_c8-7fd950f391e1b829)
+
+running 5 tests
+test external_native_full_carrier_budget_probe ... ignored, manual native workload timing for whole-image Lab virtualization
+test external_native_two_thread_leaf_calls ... ok
+test external_native_selected_function_repeats_cleanly ... ok
+test external_native_nested_vm_calls ... ok
+test external_native_rejects_bad_reply_length_and_disconnect ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 6.17s
+
+     Running tests/t10_toolchain.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t10_toolchain-9b581dfc5609dc2d)
+
+running 6 tests
+test build_secret_buffer_is_zeroed ... ok
+test oversized_sparse_input_is_rejected ... ok
+test truncated_or_inconsistent_executable_headers_are_rejected ... ok
+test excessive_elf_program_header_count_is_rejected ... ok
+test emitted_loader_does_not_embed_build_paths ... ok
+test protect_cli_output_keeps_build_paths_and_secrets_out ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/t11_trace.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t11_trace-36daf7d62de2edd1)
+
+running 2 tests
+test trace_claims_name_m_trace_and_leave_live_pt_red ... ok
+test sample_branch_ring_holds_no_key_bytes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.63s
+
+     Running tests/t2_data.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t2_data-8d3504ac7bcac24d)
+
+running 8 tests
+test t2_claims_name_system_channels ... ok
+test dispatch_depends_on_computed_data ... ok
+test handler_edge_is_not_a_constant_signature ... ok
+test native_gate_depends_on_the_input ... ok
+test next_handler_address_depends_on_the_input ... ok
+test register_and_stack_forms_match_the_ir_oracle ... ok
+test single_path_functions_are_marked ... ok
+test stack_budget_keeps_a_form_for_sample_seeds ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/t3_trace.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t3_trace-2845484f1e3f2a3d)
+
+running 3 tests
+test volatile_regs_are_scrubbed_after_the_call ... ok
+test name_hash_key_is_absent_from_the_file ... ok
+test between_calls_snapshot_is_clean ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.39s
+
+     Running tests/t4_hygiene.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t4_hygiene-9f9d6ae03f31b5b3)
+
+running 3 tests
+test pe_rewrite_refuses_unsupported_cfi_and_reports_resigning ... ok
+test virtualized_pools_and_rtti_are_sealed ... ok
+test synthetic_and_sample_drop_fixed_metadata ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.96s
+
+     Running tests/t5_mitigations.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t5_mitigations-5f52a7b28ccb6b8a)
+
+running 11 tests
+test guard_configuration_is_not_discarded_when_header_bit_is_clear ... ok
+test native_debug_cleanup_refuses_os_metadata_aliases ... ok
+test rejects_existing_rwx_and_unsupported_section_alignment ... ok
+test native_pe_refuses_unsupported_relocs_cfg_and_extended_cfi ... ok
+test rejects_section_tables_that_would_extend_into_first_page ... ok
+test trampoline_uses_jumps_instead_of_push_return_transfers ... ok
+test native_pe_keeps_other_unwind_and_refuses_unsupported_rewritten_frames ... ok
+test rejects_unwind_growth_into_an_existing_section ... ok
+test protected_pe_separates_executable_code_from_writable_state ... ok
+test generated_pe_code_starts_after_grown_unwind_section ... ok
+test native_pe_retains_supported_cet_and_os_directories ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/t7_linux.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t7_linux-e480ceb9f0d109ef)
+
+running 3 tests
+test native_startup_rejects_digest_mismatch_and_shared_write_access ... ok
+test native_startup_rejects_loader_overrides_before_executing_target ... ok
+test native_startup_is_opt_in_and_runs_the_pinned_elf ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.67s
+
+     Running tests/t8_diversity.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/t8_diversity-db2fc2730283e007)
+
+running 2 tests
+test a_payload_edit_at_another_build_offset_does_not_verify_or_run ... ok
+test protected_artifact_watermark_verifies_with_external_manufacturer_key ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 35.25s
+
+     Running tests/windows_native.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/windows_native-75a2256bc6469f88)
+
+running 4 tests
+test windows_native_rejects_existing_tls_instead_of_replacing_it ... ok
+test windows_native_profile_rejects_elf_input ... ok
+test native_vm_reenters_the_same_function_through_a_host_call ... ok
+test native_pe_keeps_windows_imports_and_runs_in_the_model has been running for over 60 seconds
+test native_pe_keeps_windows_imports_and_runs_in_the_model ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 146.97s
+
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_client-9658c7a7d1f3396e)
+
+running 16 tests
+test operation::tests::default_call_tie_is_network_timeout_but_lease_or_shorter_call_is_local ... ok
+test renewal_ready_at_old_expiry_is_rejected ... ok
+test tls::tests::monotonic_lease_counts_request_time_and_never_admits_expiry ... ok
+test tls::tests::bounds_both_request_and_response ... ok
+test tls::tests::tls12_only_peer_is_rejected ... ok
+test tls::tests::receipt_response_limit_rejects_one_extra_byte_before_collection ... ok
+test tls::tests::tls13_authenticates_root_and_dns ... ok
+test tls::tests::tls13_rejects_wrong_root ... ok
+test tls::tests::tls13_rejects_wrong_dns ... ok
+test tls::tests::grant_pin_is_independent_of_tls_trust ... ok
+test tls::tests::generation_no_choice_preserves_lease_but_denial_clears_it ... ok
+test tls::tests::unreachable_peer_clears_prior_authority ... ok
+test tls::tests::session_open_and_renew_verify_device_and_pin_grant ... ok
+test tls::tests::tls13_leaf_rotation_rejects_expiry_and_restores_authority ... ok
+test tls::tests::bad_challenge_and_signed_wrong_grant_clear_authority ... ok
+test tls::tests::stalled_key_tls_distinguishes_local_cutoff_from_network_timeout ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.25s
+
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_gui-52ad3d8c8cb281e4)
+
+running 3 tests
+test view::tests::russian_labels_follow_the_language_field ... ok
+test view::tests::open_report_displays_legacy_without_legacy_strength_labels ... ok
+test view::tests::protect_sample_shows_report_and_matches_library ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running unittests src/main.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_gui-7dda68136f75c4e8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/r18_fixture.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r18_fixture-b7aec37fb0b59778)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_online_sample-32483e967a897076)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_packager-4e2b4afd972e7a16)
+
+running 5 tests
+test tests::verification_requires_online_stack_valid_bytecode_and_known_fields ... ok
+test tests::fresh_seals_get_distinct_ciphertexts_and_keys ... ok
+test tests::release_version_fits_signed_database_boundary ... ok
+test tests::canonical_seal_matches_independent_python_cryptography_vector ... ok
+test tests::tamper_unknown_signer_wrong_scope_and_lengths_are_rejected ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_protocol-3a972cf3c0058124)
+
+running 11 tests
+test lab::fusion::tests::fusion_never_rewrites_a_branch_target_inside_the_window ... ok
+test lab::layers::tests::research_layer_arithmetic_timing ... ignored, release-only research timing
+test lab::regions::tests::region_moves_typed_slots_and_clears_the_outgoing_storage ... ok
+test lab::verify::tests::v1_conservative_estimate_keeps_the_old_long_input_limit ... ok
+test lab::wipe::tests::wiped_instruction_allocation_includes_live_and_spare_slots ... ok
+test lab::verify::tests::v1_stack_keeps_its_verification_and_call_cutoffs ... ok
+test lab::layers::tests::os_generated_handles_have_independent_private_keys ... ok
+test lab::fusion::tests::rule_selection_binds_function_and_generation ... ok
+test lab::layers::tests::ciphertext_scope_and_inner_format_fail_before_a_result ... ok
+test lab::fusion::tests::rule_forms_match_an_independent_widened_oracle ... ok
+test lab::layers::tests::authenticated_word_and_limb_programs_match_a_widened_oracle ... ok
+
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/anti_analysis_contract.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/anti_analysis_contract-db5505d2bcfbc0ee)
+
+running 6 tests
+test only_a_fresh_exact_signed_code_mismatch_can_request_a_stop ... ok
+test stale_foreign_or_duplicate_samples_cannot_grant_admission_or_stop ... ok
+test legacy_policy_and_session_wire_keep_their_existing_layout ... ok
+test linux_policy_is_bound_to_exact_release_and_distinct_from_windows ... ok
+test signed_policy_binds_build_profile_time_and_rollback_state ... ok
+test decision_table_preserves_outcomes_reasons_and_freshness ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/canonical.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/canonical-16fbb7b08101120e)
+
+running 5 tests
+test descriptor_roundtrip_preserves_the_independent_v1_vector ... ok
+test version_mandatory_optional_order_and_extent_are_checked ... ok
+test manifest_and_grant_signatures_have_distinct_domains ... ok
+test independent_grant_checks_binding_sequence_permissions_and_expiry ... ok
+test independent_manifest_binds_pin_descriptor_purpose_and_aead_data ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/generation.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/generation-c56b1961804eb5b5)
+
+running 1 test
+test negotiation_wire_and_signature_domains_are_fixed ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/lab.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/lab-bbee526aef98e8d3)
+
+running 5 tests
+test runtime_enforces_fuel_cancel_deadline_and_staged_output_capacity ... ok
+test independent_typed_program_preserves_signed_values_and_copies_only_on_the_taken_path ... ok
+test verifier_rejects_host_operations_undeclared_copy_and_wrong_program_digest ... ok
+test verifier_rejects_bad_indices_stack_effects_joins_and_fallthrough ... ok
+test zero_length_and_maximum_local_buffers_are_bounded ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/operation.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/operation-c8a33016cc078efc)
+
+running 1 test
+test typed_operation_receipt_is_canonical_and_bound ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/packages.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/packages-6b723b869053eb9e)
+
+running 2 tests
+test module_fetch_and_package_frame_have_canonical_bounded_layouts ... ok
+test trust_envelope_has_pinned_scope_and_fail_closed_rotation ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/r17_access.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r17_access-22e93e0052e7453c)
+
+running 4 tests
+test observation_wire_limits_order_and_stop_eligibility ... ok
+test administrative_restore_requires_explicit_prior_decision_and_reason ... ok
+test observation_proof_binds_target_action_and_policy ... ok
+test administrative_proof_requires_pinned_role_scope_and_current_policy ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/recovery.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/recovery-9f2a73266ec1e90f)
+
+running 1 test
+test checkpoint_wire_is_versioned_pinned_and_exact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/session.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/session-d2b1d4608e138b5c)
+
+running 2 tests
+test signed_permission_superset_is_rejected_for_session ... ok
+test canonical_session_exchange_matches_independent_vector ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_runtime-0656efba59a07646)
+
+running 34 tests
+test observations::linux::tests::proc_status_uses_one_exact_tracer_field ... ok
+test observations::scheduler::tests::elapsed_gap_is_one_due_scan_without_catch_up ... ok
+test observations::tests::release::staged_policy_rollout_recovers_with_a_higher_epoch ... ignored, runs the native release rollout and signed policy fixture
+test online::tests::lifecycle::native_ffi_owned_allocations_clear_on_cancel_and_captured_lease_expiry ... ignored, requires a private copy-input Online fixture over loopback TLS and isolated PostgreSQL
+test online::tests::native_ffi_initializes_and_invokes_online ... ignored, requires the explicitly provisioned R12 TLS/PostgreSQL fixture
+test online::tests::native_ffi_key_timeout_clears_authority ... ignored, requires an isolated R14 fixture and key-open stall control
+test online::tests::native_ffi_negotiates_distinct_launches_and_swaps_generation ... ignored, requires the explicitly provisioned R13 generation catalog and TLS/PostgreSQL fixture
+test online::tests::native_ffi_no_choice_renews_ciphertext_generation ... ignored, requires the final free generation in an isolated R14 catalog
+test online::tests::native_ffi_requests_new_key_and_denies_after_revoke ... ignored, requires a live isolated R14 fixture with revoke control
+test online::tests::native_runtime_receipt_uses_current_session_without_opening_module ... ignored, requires the native R15 hybrid TLS/PostgreSQL fixture
+test r13_swap::native_ffi_pins_active_generation_during_live_swap_and_cancels_old_call ... ignored, requires the private Linux swap fixture over loopback TLS and isolated PostgreSQL
+test state::tests::dropped_observation_notice_does_not_undo_local_stop ... ok
+test state::tests::expired_online_lease_cancels_active_calls_and_forbids_publication ... ok
+test state::tests::cancelled_old_frame_and_network_failure_cannot_publish_or_install ... ok
+test state::tests::local_observation_stops_pending_swap_and_cancels_held_call_before_notification ... ok
+test online::tests::initialization_reserves_process_quota_before_touching_configuration ... ok
+test online::tests::retained_ciphertext_permits_limit_frames_and_aggregate_bytes ... ok
+test state::tests::no_choice_resumes_original_generation_after_renewal ... ok
+test tests::rust_panic_returns_a_stable_status ... ok
+test state::tests::planned_swap_pins_old_frame_and_retires_after_drain ... ok
+test online::platform::linux::tests::linux_key_requires_exact_owner_only_regular_storage_without_aliases ... ok
+test state::tests::fork_child_returns_before_the_inherited_registry_lock ... ok
+test state::tests::shutdown_closes_before_other_lookups_can_see_a_missing_handle ... ok
+test observations::tests::cached_expired_code_does_not_drop_fresh_debugger_sample ... ok
+test observations::tests::observed_offline_launcher_rejects_an_expired_gate ... ok
+test online::tests::renewal_does_not_extend_lease_with_a_wrong_key_or_different_identity ... ok
+test online::tests::owned_key_and_plaintext_wipe_before_free_on_completion_and_unwind ... ok
+test observations::tests::response::response_offline_stop_discards_admitted_work_and_latches_for_the_activation ... ok
+test observations::tests::observed_offline_launcher_applies_policy_before_vmk_invoke ... ok
+test observations::tests::observation_sample_time_uses_one_process_clock ... ok
+test observations::tests::observation_samples_are_bound_to_the_exact_signed_revision ... ok
+test online::tests::online_runtime_independently_rejects_signed_bad_tag_wrong_key_and_wrong_grant ... ok
+test observations::scheduler::tests::cancellation_wakes_idle_worker_and_bounds_blocked_worker ... ok
+test observations::scheduler::tests::cancelled_blocking_work_retains_the_last_process_slot ... ok
+
+test result: ok. 25 passed; 0 failed; 9 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/ffi.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/ffi-2a4076155adf08bf)
+
+running 11 tests
+test invalid_initialization_keeps_the_handle_untouched ... ok
+test r06_ablation ... ignored, manual baseline/candidate timing on the local C ABI
+test c_layout_and_copy_semantics ... ok
+test fuel_exhaustion_discards_previously_staged_output ... ok
+test invalid_output_ranges_and_capacity_do_not_change_caller_memory ... ok
+test overlapping_metadata_is_rejected_before_its_prefix_is_read ... ok
+test r06_preserves_branch_ingress_and_cancels_a_live_fused_loop ... ok
+test r06_preserves_signed_results_and_exact_fuel_through_the_abi ... ok
+test cancel_a_live_c_call_and_reuse_the_runtime ... ok
+test unsigned_results_preserve_all_64_bits ... ok
+test verifier_failures_return_without_publishing_a_handle ... ok
+
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/r07.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r07-7ab183657e251222)
+
+running 6 tests
+test r07_compare_forms ... ignored, manual three-form timing with owned C ABI fixture
+test invalid_calls_versions_and_depth_never_publish_outputs ... ok
+test cancellation_cleans_a_mixed_invocation_before_reentry ... ok
+test parent_failure_discards_output_prepared_by_the_nested_call ... ok
+test same_v1_and_v2_bytes_execute_across_three_forms ... ok
+test same_handle_concurrent_and_repeated_calls_keep_private_frames ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/r08.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r08-97468e1d5d23ed3b)
+
+running 4 tests
+test r08_compare_depths ... ignored, manual per-call latency ablation on the local ABI
+test cancellation_during_a_deep_loop_preserves_the_result_and_allows_reentry ... ok
+test typed_research_recursion_shares_fuel_and_preserves_old_formats ... ok
+test all_depths_match_the_same_program_and_exact_fuel ... ok
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/r16_observations.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r16_observations-d70faa85945f9aa0)
+
+running 2 tests
+test inventory_evidence_stays_in_source_and_benign_scope ... ok
+test signed_policy_rejects_wrong_context_and_noncanonical_wire ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek_server-26cfac5e0dff9873)
+
+running 3 tests
+test access::tests::migration_consumes_legacy_choices_in_revoked_scope_only ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test access::tests::negotiated_choice_stays_consumed_after_restore ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test http::tests::token_is_dropped_when_a_later_json_field_fails ... ok
+
+test result: ok. 1 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/postgres.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/postgres-a6289b77ee1cabf0)
+
+running 6 tests
+test http_end_to_end_and_sanitized_errors ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test invalid_proof_replay_and_expiry ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test issuance_rate_and_trust_are_enforced ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test parallel_replay_limit_and_reinstall ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test revocation_survives_migration_and_rejects_inflight_enrollment ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test canonical_enrollment_is_fixed_and_bound ... ok
+
+test result: ok. 1 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/r10_sessions.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r10_sessions-2b3454474280c6f5)
+
+running 4 tests
+test live_listener_loss_during_renew_requires_fresh_authority ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test live_loopback_connection_and_device_admission_recovers ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test real_client_tls_session_and_disconnect ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+test replay_concurrency_restart_and_atomic_revoke ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+
+test result: ok. 0 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/r11_packages.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r11_packages-5981addc3b76481c)
+
+running 1 test
+test tls_fetch_enforces_rotation_rollback_replay_and_revocation ... ignored, requires a fresh explicitly provisioned isolated R11 PostgreSQL database
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/r12_modules.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r12_modules-8b745e31309be5f4)
+
+running 1 test
+test key_open_is_one_shot_live_bound_and_revocable ... ignored, requires a fresh isolated vmkek_r12_* PostgreSQL database
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/r15_operations.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r15_operations-cd6362ddce3182c2)
+
+running 1 test
+test live_hybrid_receipt_idempotency_and_revocation ... ignored, requires an explicitly provisioned fresh vmkek_r15_* PostgreSQL database
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/r17_access.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r17_access-e9a21758ed76713c)
+
+running 1 test
+test signed_admin_scope_transitions_and_sessions ... ignored, requires an explicitly provisioned isolated PostgreSQL database
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/r20_recovery.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/r20_recovery-b0f67753ab06f547)
+
+running 1 test
+test recovery_uses_real_archives_and_preserves_revocation_and_replay ... ignored, requires the private disposable PostgreSQL 16 archive fixture
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vmkek
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vmkek_client
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vmkek_gui
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vmkek_packager
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vmkek_protocol
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vmkek_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vmkek_server
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

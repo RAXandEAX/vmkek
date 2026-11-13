@@ -1,0 +1,12 @@
+{
+  "base_stage01_patch_sha256": "b70f9e021d9ed5072f49c001c6365d6426cd3c83631e981753e6ad12dda597f1",
+  "patch_sha256": "b43d90eab123c4d63e6403707bfef821b19cc06ffd9b7eec7ab0f8d35c13accb",
+  "files_sha256": {
+    "src/adversary/mod.rs": "9924464716ee9ae043987462c22e5c54e68f5ca34b528c7f705f59dded38d828",
+    "src/obf/hard.rs": "1cfd0f4b1f59ab2463fb87d5bf74d1e650cb702eda2b1f376c772cadf66a1ae2",
+    "src/obf/mod.rs": "9501a85f8a6896b53c40a5fb6a2b2b77bbfab806b5c2c413e26b3ccf7e3d0c5e",
+    "evaluation/research_native_ablation.py": "d6d3eb6fbc9f0e9b6a103c80c392f9937661c0e73574f5be79730ac27ea010d0",
+    "evaluation/research_native_timing.py": "663689a2db18a08445f857236c535ebb8110ab0cadcda075bf4497c7ec815da7",
+    "evaluation/test_research_native_ablation.py": "e387ed93326abf438c565a893328d8b9890333b04c5754fda891868868182b96"
+  }
+}

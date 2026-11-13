@@ -1,0 +1,8 @@
+............................................................
+----------------------------------------------------------------------
+Ran 60 tests in 9.705s
+
+OK
+{"llvm-normalization": "error", "z3-bitvector-control": "pass", "llvm-adce-projection": "error", "dfsan": "error", "symbolic": "not_run", "slicing": "not_run"}
+{"output": "/home/rax/.cache/codex-research/obfuscation-ecc-rust/tmp/tmpnwg6sve6/completed", "rows": 10, "passing": 0}
+{"llvm-normalization": "error", "z3-bitvector-control": "pass", "llvm-adce-projection": "error", "dfsan": "error", "symbolic": "not_run", "slicing": "not_run"}

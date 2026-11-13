@@ -1,0 +1,9 @@
+    Checking vmkek-protocol v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/protocol)
+    Checking vmkek v0.1.0 (/home/rax/vmkek-obfuscation-ecc)
+    Checking vmkek-client v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/client)
+    Checking vmkek-packager v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/packager)
+    Checking vmkek-server v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/server)
+    Checking vmkek-runtime v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/runtime)
+    Checking vmkek-online-sample v0.1.0 (/home/rax/vmkek-obfuscation-ecc/samples/online)
+    Checking vmkek-gui v0.1.0 (/home/rax/vmkek-obfuscation-ecc/gui)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.01s

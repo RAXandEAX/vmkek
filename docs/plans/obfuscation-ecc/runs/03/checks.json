@@ -1,0 +1,12 @@
+{
+  "base_stage02_patch_sha256": "b43d90eab123c4d63e6403707bfef821b19cc06ffd9b7eec7ab0f8d35c13accb",
+  "source_sha256": {
+    "evaluation/research_arithmetic.py": "00eb367fcf4952887ebec2ba01ebeb674c83ec01cd812f85bd80df172535b9bb",
+    "evaluation/test_research_arithmetic.py": "686841b4c236d48f5711a0ce6c901a59c9a7c0676685085e670454905f5933ac"
+  },
+  "experiment_result_sha256": "7630dec4fc9fc58cbb3c20ab64175700202c179d25eb8851de6c73baa5577484",
+  "llvm_sha256": "7af5392457dffcdc34bef07faa4de453dcf1c0695d20d417a1e7f47df94fcd6f",
+  "python_unittest_discover": "54 passed",
+  "clang": "18.1.3",
+  "solver": "Z3 4.8.12.0"
+}

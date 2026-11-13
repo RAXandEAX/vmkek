@@ -1,0 +1,49 @@
+diff --git a/src/obf/mod.rs b/src/obf/mod.rs
+index 2127649..c75202a 100644
+--- a/src/obf/mod.rs
++++ b/src/obf/mod.rs
+@@ -24,28 +24,30 @@ pub(crate) fn obfuscate_for_authenticated_elf(
+     rng: &mut ChaCha20Rng,
+ ) -> Result<Obfuscated> {
+     let (func, passes) = prepare(func, rng);
+-    Ok(finish(flatten_balanced(&func)?, passes, rng))
++    if omitted("flatten") { Ok(finish(func, passes, rng)) } else { Ok(finish(flatten_balanced(&func)?, passes, rng)) }
++}
++
++fn omitted(pass: &str) -> bool {
++    std::env::var("VMKEK_ECC_ABLATION").is_ok_and(|name| name == pass)
+ }
+ 
+ fn prepare(func: &FuncIr, rng: &mut ChaCha20Rng) -> (FuncIr, Vec<&'static str>) {
+-    let (mut func, mut passes, _) = rewrite_ops(func, rng);
+-    passes.push("template-diversity");
+-    func = data_mix::apply(&func, rng);
+-    passes.push("data-mix");
+-    func = split_blocks(&func);
+-    passes.push("block-split");
+-    func = wrap_opaque(&func, rng);
+-    passes.push("opaque-predicate");
+-    func = add_bogus(&func, rng);
+-    passes.push("bogus-control-flow");
++    let (mut func, mut passes, _) = if omitted("rewrite") {
++        (func.clone(), Vec::new(), Vec::new())
++    } else { rewrite_ops(func, rng) };
++    if !omitted("rewrite") { passes.push("template-diversity"); }
++    if !omitted("data-mix") { func = data_mix::apply(&func, rng); passes.push("data-mix"); }
++    if !omitted("block-split") { func = split_blocks(&func); passes.push("block-split"); }
++    if !omitted("opaque") { func = wrap_opaque(&func, rng); passes.push("opaque-predicate"); }
++    if !omitted("bogus") { func = add_bogus(&func, rng); passes.push("bogus-control-flow"); }
+     (func, passes)
+ }
+ 
+ fn finish(func: FuncIr, mut passes: Vec<&'static str>, rng: &mut ChaCha20Rng) -> Obfuscated {
+-    passes.push("control-flow-flatten");
+-    passes.push("block-shuffle");
++    if !omitted("flatten") { passes.push("control-flow-flatten"); }
++    if !omitted("shuffle") { passes.push("block-shuffle"); }
+     Obfuscated {
+-        func: shuffle(&func, rng),
++        func: if omitted("shuffle") { func } else { shuffle(&func, rng) },
+         passes,
+     }
+ }

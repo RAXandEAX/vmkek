@@ -1,0 +1,10 @@
+{
+  "base_stage05_patch_sha256": "94df6d03a8dcf58cfc234bbb21d8e23fbb96b3fb83ef0087943712e9ab062d16",
+  "stage06": "NOT_APPLICABLE (no source changes)",
+  "patch_sha256": "2ce99fc02047fe7532e16b9aa47999dc7b16bb30763c882d97dc8a211041c187",
+  "files_sha256": {
+    "src/vm/inner.rs": "288d1d9c032b5fdf44fc9353a71d025ca52e419c30c50d1aaa51c3ae21b512ec",
+    "crates/protocol/src/lab/layers.rs": "bc60c4fbe4ad7d061c03d1216def4c69bbaa17813dafd86af18fa5344780ac73"
+  },
+  "decision": "INCONCLUSIVE"
+}

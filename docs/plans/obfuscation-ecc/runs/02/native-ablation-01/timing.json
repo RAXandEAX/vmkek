@@ -1,0 +1,1288 @@
+{
+  "scope": "warm whole process, one public input; includes startup and harness; not pure function latency",
+  "randomization_seed": 1026,
+  "experiment_sha256": "e43b126c1474fd296d78807fe09ef7175935263d10b08a79929a866be941929f",
+  "script_sha256": "663689a2db18a08445f857236c535ebb8110ab0cadcda075bf4497c7ec815da7",
+  "rows": [
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 1848170.5,
+      "p95_ns": 2065331
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 1897617.0,
+      "p95_ns": 2248500
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 1880896.0,
+      "p95_ns": 2109184
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 2059192.5,
+      "p95_ns": 2143258
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 1845870.5,
+      "p95_ns": 2080906
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 1854417.0,
+      "p95_ns": 2109006
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 1753213.0,
+      "p95_ns": 2045454
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 2027188.5,
+      "p95_ns": 2170767
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 1941428.0,
+      "p95_ns": 2102409
+    },
+    {
+      "variant": "block-split",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 1702586.0,
+      "p95_ns": 2157386
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 2036028.5,
+      "p95_ns": 2095720
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 1922093.0,
+      "p95_ns": 2221644
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 1828046.0,
+      "p95_ns": 2136151
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 1851286.0,
+      "p95_ns": 2071043
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 1999959.5,
+      "p95_ns": 2160217
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 2028328.0,
+      "p95_ns": 2136873
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 2015842.0,
+      "p95_ns": 2491633
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 2100846.0,
+      "p95_ns": 2310413
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 2059678.5,
+      "p95_ns": 2727441
+    },
+    {
+      "variant": "block-split",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 2084577.0,
+      "p95_ns": 2140290
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 4840249.5,
+      "p95_ns": 5069067
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 4825485.5,
+      "p95_ns": 5129242
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 4991472.5,
+      "p95_ns": 6371822
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 4969165.0,
+      "p95_ns": 5584772
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 4912919.5,
+      "p95_ns": 5346008
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 5041535.5,
+      "p95_ns": 5297814
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 4701366.5,
+      "p95_ns": 5264164
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 4972092.0,
+      "p95_ns": 5287771
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 5163386.5,
+      "p95_ns": 5617828
+    },
+    {
+      "variant": "bogus",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 4874402.5,
+      "p95_ns": 5850523
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 5733457.0,
+      "p95_ns": 5961830
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 5734312.0,
+      "p95_ns": 6428248
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 5877027.5,
+      "p95_ns": 6513874
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 5891762.0,
+      "p95_ns": 6191061
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 5797866.5,
+      "p95_ns": 6447316
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 5586479.5,
+      "p95_ns": 6004823
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 5726683.0,
+      "p95_ns": 6276249
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 5929988.0,
+      "p95_ns": 6306811
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 5834997.5,
+      "p95_ns": 8060060
+    },
+    {
+      "variant": "bogus",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 5778533.5,
+      "p95_ns": 6047504
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 4586553.5,
+      "p95_ns": 5016995
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 4426381.0,
+      "p95_ns": 4942624
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 4576327.5,
+      "p95_ns": 6515220
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 4694742.0,
+      "p95_ns": 4961154
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 4647173.5,
+      "p95_ns": 5059673
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 4531887.0,
+      "p95_ns": 5458635
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 4608284.0,
+      "p95_ns": 4920470
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 4454390.5,
+      "p95_ns": 5075075
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 4328173.5,
+      "p95_ns": 4850739
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 4610818.0,
+      "p95_ns": 5325328
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 5428152.0,
+      "p95_ns": 6075066
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 5652263.0,
+      "p95_ns": 6026916
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 5354947.0,
+      "p95_ns": 6040942
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 5643618.5,
+      "p95_ns": 6309269
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 5468291.5,
+      "p95_ns": 5697522
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 5500174.0,
+      "p95_ns": 5769572
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 5427852.0,
+      "p95_ns": 6327395
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 5476871.0,
+      "p95_ns": 5750224
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 5500808.0,
+      "p95_ns": 6187220
+    },
+    {
+      "variant": "data-mix",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 5469070.5,
+      "p95_ns": 6086175
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 2417799.0,
+      "p95_ns": 2995655
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 2322720.0,
+      "p95_ns": 2664528
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 2674395.0,
+      "p95_ns": 3084941
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 2585136.5,
+      "p95_ns": 2893661
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 2656854.5,
+      "p95_ns": 2812819
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 2477080.5,
+      "p95_ns": 2988548
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 2654124.0,
+      "p95_ns": 3015563
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 2550674.0,
+      "p95_ns": 3199728
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 2514885.5,
+      "p95_ns": 2825635
+    },
+    {
+      "variant": "flatten",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 2626723.5,
+      "p95_ns": 3047731
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 2845002.0,
+      "p95_ns": 3144429
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 2805044.0,
+      "p95_ns": 3201953
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 2826395.5,
+      "p95_ns": 3083715
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 2851593.0,
+      "p95_ns": 3062887
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 2913638.0,
+      "p95_ns": 3849288
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 2722531.0,
+      "p95_ns": 3546314
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 2801092.5,
+      "p95_ns": 3859701
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 2851259.0,
+      "p95_ns": 3148721
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 2862267.0,
+      "p95_ns": 3124503
+    },
+    {
+      "variant": "flatten",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 2846292.5,
+      "p95_ns": 3063493
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 4759674.5,
+      "p95_ns": 6284856
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 4735745.5,
+      "p95_ns": 5104162
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 5069087.5,
+      "p95_ns": 5326042
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 5014413.5,
+      "p95_ns": 5372334
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 4811712.0,
+      "p95_ns": 5427930
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 5120723.5,
+      "p95_ns": 5663836
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 4809376.0,
+      "p95_ns": 5204023
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 4689022.5,
+      "p95_ns": 5127298
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 4975297.0,
+      "p95_ns": 5400043
+    },
+    {
+      "variant": "none",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 4698449.5,
+      "p95_ns": 6616621
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 5745017.0,
+      "p95_ns": 6179796
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 6040134.5,
+      "p95_ns": 6513345
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 5740196.5,
+      "p95_ns": 6206434
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 5814577.0,
+      "p95_ns": 6059116
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 5653835.0,
+      "p95_ns": 6084380
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 5674938.5,
+      "p95_ns": 6684840
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 5663147.5,
+      "p95_ns": 5941882
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 6191146.5,
+      "p95_ns": 8021038
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 5652755.5,
+      "p95_ns": 6160695
+    },
+    {
+      "variant": "none",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 5719084.5,
+      "p95_ns": 6222672
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 3762664.0,
+      "p95_ns": 3978891
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 3770482.5,
+      "p95_ns": 4237069
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 3737949.0,
+      "p95_ns": 3950764
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 4093290.5,
+      "p95_ns": 4316068
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 3827254.5,
+      "p95_ns": 4068541
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 4033823.0,
+      "p95_ns": 5621142
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 3794522.5,
+      "p95_ns": 4227006
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 3747034.5,
+      "p95_ns": 5416705
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 3649048.5,
+      "p95_ns": 3999585
+    },
+    {
+      "variant": "opaque",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 3741222.5,
+      "p95_ns": 4012612
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 4299477.0,
+      "p95_ns": 4782030
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 4525364.5,
+      "p95_ns": 4991717
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 4516994.0,
+      "p95_ns": 4749385
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 4294747.0,
+      "p95_ns": 4633743
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 4243151.0,
+      "p95_ns": 4934116
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 4480973.0,
+      "p95_ns": 4910878
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 4384517.5,
+      "p95_ns": 6468734
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 4553070.5,
+      "p95_ns": 4870819
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 4224708.0,
+      "p95_ns": 4625417
+    },
+    {
+      "variant": "opaque",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 4427923.5,
+      "p95_ns": 4717696
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 2905164.5,
+      "p95_ns": 4217661
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 3083400.0,
+      "p95_ns": 3402633
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 3270287.5,
+      "p95_ns": 3599624
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 3231825.0,
+      "p95_ns": 3592183
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 3445043.0,
+      "p95_ns": 3727828
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 3181219.0,
+      "p95_ns": 5529720
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 3173290.5,
+      "p95_ns": 3594177
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 3211288.0,
+      "p95_ns": 3675573
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 3176315.5,
+      "p95_ns": 3395741
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 3128750.5,
+      "p95_ns": 3369877
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 3375364.0,
+      "p95_ns": 3529785
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 3347620.0,
+      "p95_ns": 4796312
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 3683758.0,
+      "p95_ns": 3963523
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 3522396.0,
+      "p95_ns": 3832356
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 3325302.5,
+      "p95_ns": 3896755
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 3250600.5,
+      "p95_ns": 3712065
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 3431025.5,
+      "p95_ns": 3627583
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 3370495.0,
+      "p95_ns": 3740627
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 3240625.5,
+      "p95_ns": 3548112
+    },
+    {
+      "variant": "rewrite",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 3451649.5,
+      "p95_ns": 5661663
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 4743494.5,
+      "p95_ns": 5176395
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 4702780.5,
+      "p95_ns": 5061169
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 4756307.5,
+      "p95_ns": 5187395
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 4753271.5,
+      "p95_ns": 5525702
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 4758700.0,
+      "p95_ns": 5218173
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 4959891.5,
+      "p95_ns": 5484377
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 4861530.5,
+      "p95_ns": 5170846
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 4370755.0,
+      "p95_ns": 5533945
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 4978771.5,
+      "p95_ns": 5412444
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "affine_xor",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 4831686.5,
+      "p95_ns": 5226132
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1025,
+      "samples": 10,
+      "median_ns": 5760605.0,
+      "p95_ns": 6477096
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1026,
+      "samples": 10,
+      "median_ns": 6151102.5,
+      "p95_ns": 6565965
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1027,
+      "samples": 10,
+      "median_ns": 5881980.5,
+      "p95_ns": 6311557
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1028,
+      "samples": 10,
+      "median_ns": 5664832.5,
+      "p95_ns": 8723692
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1029,
+      "samples": 10,
+      "median_ns": 5662841.5,
+      "p95_ns": 6105445
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1030,
+      "samples": 10,
+      "median_ns": 5588215.5,
+      "p95_ns": 6016967
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1031,
+      "samples": 10,
+      "median_ns": 6136311.5,
+      "p95_ns": 6497292
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1032,
+      "samples": 10,
+      "median_ns": 5837652.0,
+      "p95_ns": 9108704
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1033,
+      "samples": 10,
+      "median_ns": 5642495.0,
+      "p95_ns": 6347897
+    },
+    {
+      "variant": "shuffle",
+      "fixture": "counter",
+      "seed": 1034,
+      "samples": 10,
+      "median_ns": 5743981.0,
+      "p95_ns": 8712660
+    }
+  ]
+}

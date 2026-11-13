@@ -1,0 +1,46 @@
+{
+  "base": "4cd330d0ba73b6a912506c3c83c2ee1331af262d",
+  "accepted_git_tree": "270ce09eeb1dd7e4046424ce04d4eac0e9a9cf54",
+  "toolchain": "1.95.0",
+  "jobs": 4,
+  "cargo_target_dir": "/home/rax/.cache/codex-research/obfuscation-ecc-rust",
+  "tmpdir": "/home/rax/.cache/codex-research/obfuscation-ecc-rust/tmp",
+  "workspace_test_exit": 0,
+  "workspace_test_totals": {
+    "passed": 657,
+    "failed": 0,
+    "ignored": 33,
+    "test_groups": 60
+  },
+  "fmt_exit": 0,
+  "check_exit": 0,
+  "clippy_exit": 0,
+  "python_test_exit": 0,
+  "python_tests_passed": 60,
+  "elf_auth_first_exit": 1,
+  "elf_auth_absolute_path_retry_exit": 0,
+  "elf_auth_retry_passed": 2,
+  "elf_baseline_exit": 0,
+  "elf_cells_exit": {
+    "60": 0,
+    "600": 0,
+    "3600": 0
+  },
+  "logs_sha256": {
+    "release-build.log": "1f49df717133b34f1b5bc684e716c2ad571cd34765f4b65e1a68e86690b1cbbe",
+    "cargo-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cargo-check.log": "932cc039787a87c035951e3237f8eafe783715f93cda8f0d54daaccf4f834de4",
+    "cargo-clippy.log": "34e715db4760afe65ee9fa14e8a9b391ae87f7a9c866771e9946bcbec3e4acb1",
+    "cargo-test.log": "38d62fa1a3f8310ad5102de410beceab6dc6d022783a89cdcc3d3bd0bf2fc325",
+    "elf-auth.log": "c5790d980a7a94233139dea1b42a11e37ac6fb77d62fd833412a639834426fbd",
+    "elf-auth-retry.log": "08baa1cdf34d56e54a67878d79d91cf92f7aa849b994c6f1af7dd75cdcdf2d30",
+    "elf-full-baseline.log": "5b4da554542333c9502cb6920e815da20ad4b16a7b636e3890b3a78ad499dda8",
+    "python-tests.log": "091e5748129fa5e2cadd98681e6a861f9df5760b1f10c9965f28264cee736d5d",
+    "windows.json": "ff9466b4d289759a6eb2bf6d715a39af9c0f6a578f8c42f02c54f145fef64941",
+    "ecc-stage08.log": "30360446585fe2cfff9ba8fb2c4ebd6a1691f84c73fa6a3a96d15988457a1e9a",
+    "ecc-stage08-windows-rust.log": "96fe99ff8c368b22c3d91a86916b10a422998b37773ac4c088f35362faee36b4",
+    "elf-final-summary.json": "af005a46f3f45aef80b670691ecb8f2b0042c3239796f98f98fd71893008b211",
+    "accepted-source-tree.json": "263ec2ee0e9b4c40668f5ba1168be3e7f13ebc809e46ef5cf5aace6fd9eec2c5",
+    "source-manifest.json": "0cebc9860cf8cd9223972d87545415a40375fdd2f733b0941699adce1e6e65ae"
+  }
+}

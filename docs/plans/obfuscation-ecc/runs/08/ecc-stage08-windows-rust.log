@@ -1,0 +1,69 @@
+**********************************************************************
+** Visual Studio 2022 Developer Command Prompt v17.14.41
+** Copyright (c) 2025 Microsoft Corporation
+**********************************************************************
+   Compiling vmkek-protocol v0.1.0 (Z:\home\rax\vmkek-obfuscation-ecc\crates\protocol)
+   Compiling vmkek-client v0.1.0 (Z:\home\rax\vmkek-obfuscation-ecc\crates\client)
+   Compiling vmkek-runtime v0.1.0 (Z:\home\rax\vmkek-obfuscation-ecc\crates\runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.17s
+     Running unittests src\lib.rs (C:\Users\rax\.cache\vmkek-ecc-native-build\debug\deps\vmkek_protocol-6394c64b815c2ce9.exe)
+
+running 12 tests
+test lab::layers::tests::research_layer_arithmetic_timing ... ignored, release-only research timing
+test lab::verify::tests::v1_conservative_estimate_keeps_the_old_long_input_limit ... ok
+test lab::regions::tests::region_moves_typed_slots_and_clears_the_outgoing_storage ... ok
+test lab::fusion::tests::fusion_never_rewrites_a_branch_target_inside_the_window ... ok
+test lab::wipe::tests::wiped_instruction_allocation_includes_live_and_spare_slots ... ok
+test lab::verify::tests::v1_stack_keeps_its_verification_and_call_cutoffs ... ok
+test lab::layers::tests::os_generated_handles_have_independent_private_keys ... ok
+test lab::fusion::tests::rule_selection_binds_function_and_generation ... ok
+test lab::layers::tests::ciphertext_scope_and_inner_format_fail_before_a_result ... ok
+test lab::fusion::tests::rule_forms_match_an_independent_widened_oracle ... ok
+test identity::windows_cng::tests::windows_software_proof_interoperates_with_canonical_enrollment ... ok
+test lab::layers::tests::authenticated_word_and_limb_programs_match_a_widened_oracle ... ok
+
+test result: ok. 11 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (C:\Users\rax\.cache\vmkek-ecc-native-build\debug\deps\vmkek_runtime-0c1e11b900f4664d.exe)
+
+running 37 tests
+test observations::tests::release::staged_policy_rollout_recovers_with_a_higher_epoch ... ignored, runs the native release rollout and signed policy fixture
+test observations::scheduler::tests::elapsed_gap_is_one_due_scan_without_catch_up ... ok
+test online::tests::lifecycle::native_ffi_owned_allocations_clear_on_cancel_and_captured_lease_expiry ... ignored, requires a private copy-input Online fixture over loopback TLS and isolated PostgreSQL
+test online::tests::lifecycle::response::native_response_active_reentry_and_parallel ... ignored, requires A07 loopback TLS and the owned Windows observer
+test observations::windows::integrity_tests::changing_or_partial_snapshots_are_inconclusive ... ok
+test observations::windows::integrity_tests::native_page_loss_between_reads_is_inconclusive ... ok
+test online::tests::lifecycle::response::native_response_loss_keeps_local_denial_and_allows_fresh_session ... ignored, requires A07 loopback TLS transport controls and the owned Windows observer
+test online::tests::native_ffi_initializes_and_invokes_online ... ignored, requires the explicitly provisioned R12 TLS/PostgreSQL fixture
+test online::tests::native_ffi_key_timeout_clears_authority ... ignored, requires an isolated R14 fixture and key-open stall control
+test online::tests::native_ffi_negotiates_distinct_launches_and_swaps_generation ... ignored, requires the explicitly provisioned R13 generation catalog and TLS/PostgreSQL fixture
+test online::stop_policy::tests::terminal_notice_keeps_queue_pressure_distinct ... ok
+test online::tests::native_ffi_no_choice_renews_ciphertext_generation ... ignored, requires the final free generation in an isolated R14 catalog
+test online::tests::native_ffi_requests_new_key_and_denies_after_revoke ... ignored, requires a live isolated R14 fixture with revoke control
+test online::tests::native_owned_code_stop_cancels_and_reports_without_permanent_revoke ... ignored, requires the native R17 TLS/PostgreSQL fixture and local trusted config copy
+test online::tests::native_runtime_receipt_uses_current_session_without_opening_module ... ignored, requires the native R15 hybrid TLS/PostgreSQL fixture
+test state::tests::dropped_observation_notice_does_not_undo_local_stop ... ok
+test state::tests::expired_online_lease_cancels_active_calls_and_forbids_publication ... ok
+test state::tests::cancelled_old_frame_and_network_failure_cannot_publish_or_install ... ok
+test state::tests::no_choice_resumes_original_generation_after_renewal ... ok
+test state::tests::local_observation_stops_pending_swap_and_cancels_held_call_before_notification ... ok
+test state::tests::planned_swap_pins_old_frame_and_retires_after_drain ... ok
+test state::tests::shutdown_closes_before_other_lookups_can_see_a_missing_handle ... ok
+test tests::rust_panic_returns_a_stable_status ... ok
+test observations::tests::cached_expired_code_does_not_drop_fresh_debugger_sample ... ok
+test observations::tests::observed_offline_launcher_rejects_an_expired_gate ... ok
+test online::tests::initialization_reserves_process_quota_before_touching_configuration ... ok
+test online::tests::owned_key_and_plaintext_wipe_before_free_on_completion_and_unwind ... ok
+test online::tests::retained_ciphertext_permits_limit_frames_and_aggregate_bytes ... ok
+test online::tests::renewal_does_not_extend_lease_with_a_wrong_key_or_different_identity ... ok
+test observations::tests::observation_samples_are_bound_to_the_exact_signed_revision ... ok
+test observations::tests::observed_offline_launcher_applies_policy_before_vmk_invoke ... ok
+test observations::tests::observation_sample_time_uses_one_process_clock ... ok
+test observations::tests::response::response_offline_stop_discards_admitted_work_and_latches_for_the_activation ... ok
+test online::tests::online_runtime_independently_rejects_signed_bad_tag_wrong_key_and_wrong_grant ... ok
+test online::stop_policy::tests::profiled_online_stop_policy_checks_capabilities_before_sampling ... ok
+test observations::scheduler::tests::cancellation_wakes_idle_worker_and_bounds_blocked_worker ... ok
+test observations::scheduler::tests::cancelled_blocking_work_retains_the_last_process_slot ... ok
+
+test result: ok. 26 passed; 0 failed; 11 ignored; 0 measured; 0 filtered out; finished in 0.21s
+

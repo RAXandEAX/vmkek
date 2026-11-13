@@ -1,0 +1,15 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/debug/deps/vmkek-d88785ad57a58efe)
+
+running 8 tests
+test adversary::mba::tests::simplifier_leaves_the_sample_formula ... ok
+test adversary::mba::tests::simplifier_folds_every_s1_identity ... ok
+test adversary::tests::claim_measures_this_adversary_on_m_adv ... ok
+test adversary::tests::open_ir_recovers_the_sample_formula ... ok
+test adversary::tests::protected_ir_uses_a_c3_predicate ... ok
+test adversary::tests::input_independent_simplifier_misses_the_sample_formula ... ok
+test adversary::tests::protected_bytecode_stays_inside_the_step_budget ... ok
+test adversary::tests::research_budget_sweep_reports_owned_fixture ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 453 filtered out; finished in 0.37s
+

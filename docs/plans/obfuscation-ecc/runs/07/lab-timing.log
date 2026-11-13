@@ -1,0 +1,44 @@
+    Blocking waiting for file lock on artifact directory
+   Compiling zeroize v1.9.1
+   Compiling syn v3.0.9
+   Compiling vmkek-protocol v0.1.0 (/home/rax/vmkek-obfuscation-ecc/crates/protocol)
+   Compiling generic-array v0.14.7
+   Compiling der v0.7.10
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling crypto-bigint v0.5.5
+   Compiling digest v0.10.7
+   Compiling hmac v0.12.1
+   Compiling inout v0.1.4
+   Compiling spki v0.7.3
+   Compiling pkcs8 v0.10.2
+   Compiling sec1 v0.7.3
+   Compiling cipher v0.4.4
+   Compiling elliptic-curve v0.13.8
+   Compiling rfc6979 v0.4.0
+   Compiling signature v2.2.0
+   Compiling universal-hash v0.5.1
+   Compiling chacha20 v0.9.1
+   Compiling poly1305 v0.8.0
+   Compiling ecdsa v0.16.9
+   Compiling primeorder v0.13.6
+   Compiling thiserror-impl v2.0.21
+   Compiling sha2 v0.10.9
+   Compiling aead v0.5.2
+   Compiling chacha20poly1305 v0.10.1
+   Compiling p256 v0.13.2
+   Compiling hkdf v0.12.4
+   Compiling thiserror v2.0.21
+    Finished `release` profile [optimized] target(s) in 45.04s
+     Running unittests src/lib.rs (/home/rax/.cache/codex-research/obfuscation-ecc-rust/release/deps/vmkek_protocol-b6fc27fee92d49f9)
+
+running 1 test
+sample=0 calls=20000 setup_both_ns=16227 direct_ns=15225 depth3_ns=28509860 depth4_ns=52229540 word_open_ns=24159308 limb_open_ns=24391051 checksum=99980000 layer_struct_bytes=199 call_estimate_bytes=82 code_bytes_each=7
+sample=1 calls=20000 setup_both_ns=16227 direct_ns=12199 depth3_ns=26123469 depth4_ns=61991187 word_open_ns=26395765 limb_open_ns=26442965 checksum=99980000 layer_struct_bytes=199 call_estimate_bytes=82 code_bytes_each=7
+sample=2 calls=20000 setup_both_ns=16227 direct_ns=12209 depth3_ns=28010553 depth4_ns=56360676 word_open_ns=26301960 limb_open_ns=26174390 checksum=99980000 layer_struct_bytes=199 call_estimate_bytes=82 code_bytes_each=7
+sample=3 calls=20000 setup_both_ns=16227 direct_ns=12209 depth3_ns=28733800 depth4_ns=56484778 word_open_ns=24572885 limb_open_ns=25122805 checksum=99980000 layer_struct_bytes=199 call_estimate_bytes=82 code_bytes_each=7
+sample=4 calls=20000 setup_both_ns=16227 direct_ns=50554 depth3_ns=29685650 depth4_ns=70928570 word_open_ns=25213327 limb_open_ns=25110728 checksum=99980000 layer_struct_bytes=199 call_estimate_bytes=82 code_bytes_each=7
+test lab::layers::tests::research_layer_arithmetic_timing ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.69s
+

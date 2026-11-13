@@ -11,10 +11,13 @@ import random
 import resource
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
+
+import owned_scope
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -344,19 +347,14 @@ def save_baseline_progress(path, manifest):
 
 
 def build_baselines(args):
+    if args.affine_probe:
+        raise ValueError("--affine-probe is retired; build a baseline and use evaluation/affine_cells.py for per-cell measurements")
     selected = tuple(dict.fromkeys(args.fixture))
     pack = private_pack(args.holdout) if args.holdout else None
     if any(name in HOLDOUT for name in selected) and pack is None:
         raise ValueError("holdout fixtures require the evaluator's private pack")
     parameters = pack["parameters"] if pack else []
     cases = held_cases(pack["vector_seed"], parameters) if pack else public_cases()
-    probe_group = None
-    if args.affine_probe:
-        if selected != ("affine_xor",) or pack is None:
-            raise ValueError("affine probe requires only affine_xor and an evaluator pack")
-        if args.oracle_workers != 1:
-            raise ValueError("affine probe requires serial oracle comparisons")
-        probe_group = capped_scope()
     output = new_output(args.output)
     progress = output / "baseline-progress.json"
     manifest = {
@@ -409,6 +407,8 @@ def build_baselines(args):
                     row.update(status="pass", cases=len(selected_cases), observations_sha256=observations)
             except subprocess.TimeoutExpired:
                 row.update(status="timeout")
+            except ScopeFailure as error:
+                row.update(status=error.status, reason=str(error))
             except (OSError, ValueError) as error:
                 row.update(status="error", reason=str(error))
             manifest["rows"].append(row)
@@ -416,22 +416,9 @@ def build_baselines(args):
     manifest["run_config_sha256"] = baseline_config_digest(manifest, selected)
     publish_json(output / "baseline.json", manifest)
     progress.unlink()
-    if probe_group is not None:
-        affine_probe(output, manifest, pack, probe_group)
     print(json.dumps({"output": str(output), "rows": len(manifest["rows"]),
                       "passing": sum(row["status"] == "pass" for row in manifest["rows"])}))
     return 0 if any(row["status"] == "pass" for row in manifest["rows"]) else 1
-
-
-def capped_scope():
-    current = Path("/proc/self/cgroup").read_text().partition("::")[2].strip()
-    group = Path("/sys/fs/cgroup") / current.lstrip("/")
-    if not group.name.endswith(".scope") or (group / "memory.max").read_text().strip() != str(CATALOG["memory_bytes"]):
-        raise ValueError("affine probe requires a user scope with an 8 GiB memory.max")
-    limit = command(["systemctl", "--user", "show", group.name, "-p", "RuntimeMaxUSec", "--value"], timeout=5)
-    if limit.returncode or limit.stdout.strip() != "1min":
-        raise ValueError("affine probe requires a user scope with a one-minute runtime limit")
-    return group
 
 
 def fit_affine(observations):
@@ -461,13 +448,37 @@ def predict_affine(model, case):
 
 
 def score_affine(model, cases, expected):
-    predicted = [predict_affine(model, case) for case in cases]
+    candidate = HERE / "affine_candidate.py"
+    run = owned_scope.run(
+        ["/usr/bin/python3", "-B", str(candidate)], budget=60,
+        input_data=json.dumps({"model": model, "cases": cases}).encode(),
+        isolate_file=str(candidate),
+    )
+    if run["status"] == "timeout":
+        raise subprocess.TimeoutExpired(run["command"], 60)
+    if run["status"] in ("unsupported", "oom"):
+        raise ScopeFailure(run["status"], run.get("reason", run.get("systemd_result", "")))
+    if run["status"] != "pass":
+        raise ValueError(f"affine candidate failed: {run.get('stderr', run.get('reason', ''))}")
+    predicted = json.loads(run["stdout"])
+    if not isinstance(predicted, list) or any(not isinstance(item, dict) for item in predicted):
+        raise ValueError("affine candidate output must be a list of observations")
     mismatches = sum(canonical(left) != canonical(right) for left, right in zip(predicted, expected, strict=True))
     return {
         "status": "hypothesis_match" if not mismatches else "mismatch",
-        "candidate_sha256": digest_json(model), "hidden_cases": len(cases),
+        "candidate_sha256": digest(candidate), "model_sha256": digest_json(model), "hidden_cases": len(cases),
+        "runner_sha256": digest(HERE / "owned_scope.py"),
         "hidden_oracle_sha256": digest_json(expected), "mismatches": mismatches,
+        "candidate_scope": {key: run[key] for key in ("budget_seconds", "memory_limit_bytes",
+                                                       "memory_peak", "elapsed_seconds", "systemd_result")},
+        "filesystem_restriction": "landlock-usr-candidate",
     }
+
+
+class ScopeFailure(Exception):
+    def __init__(self, status, reason):
+        self.status = status
+        super().__init__(reason)
 
 
 def fresh_affine(artifact, cases, expected):
@@ -478,50 +489,11 @@ def fresh_affine(artifact, cases, expected):
                            target_queries=len(public_cases()), elapsed_seconds=time.monotonic() - start)
     except subprocess.TimeoutExpired:
         status = {"status": "timeout"}
+    except ScopeFailure as error:
+        status = {"status": error.status, "reason": str(error)}
     except (OSError, ValueError) as error:
         status = {"status": "error", "reason": str(error)}
     return None, dict(status, elapsed_seconds=time.monotonic() - start)
-
-
-def affine_probe(output, manifest, pack, group):
-    cases = held_cases(pack["vector_seed"], pack["parameters"])[len(public_cases()):]
-    expected = [oracle("affine_xor", case) for case in cases]
-    _, original = fresh_affine(output / "affine_xor-original.elf", cases, expected)
-    seeds = CATALOG["seeds"]
-    baseline = {row["seed"]: row for row in manifest["rows"]}
-    models = {}
-    rows = []
-    for seed in seeds:
-        artifact = baseline[seed]
-        row = {"mode": "fresh", "source_seed": None, "target_seed": seed,
-               "artifact_sha256": artifact.get("artifact_sha256"), "wall_seconds": 60}
-        if artifact["status"] == "pass" and original["status"] == "hypothesis_match":
-            models[seed], outcome = fresh_affine(output / f"affine_xor-{seed}.elf", cases, expected)
-            row.update(outcome)
-        else:
-            row.update(status="not_run", reason="original or protected baseline control unavailable")
-        rows.append(row)
-    for index, target in enumerate(seeds):
-        source = seeds[index - 1]
-        row = {"mode": "transfer", "source_seed": source, "target_seed": target,
-               "artifact_sha256": baseline[target].get("artifact_sha256"),
-               "donor_sha256": baseline[source].get("artifact_sha256"),
-               "wall_seconds": 60, "target_queries": 0}
-        model = models.get(source)
-        if model is not None and baseline[target]["status"] == "pass":
-            start = time.monotonic()
-            row.update(score_affine(model, cases, expected), elapsed_seconds=time.monotonic() - start)
-        else:
-            row.update(status="not_run", reason="fixed donor or target baseline unavailable")
-        rows.append(row)
-    evidence = {
-        "version": 1, "fixture": "affine_xor", "scope": "declared modular-affine XOR hypothesis",
-        "baseline_config_sha256": manifest["run_config_sha256"],
-        "original_control": original, "rows": rows,
-        "batch_wall_cap_seconds": 60, "batch_memory_max_bytes": CATALOG["memory_bytes"],
-        "batch_memory_peak_bytes": int((group / "memory.peak").read_text()),
-    }
-    (output / "affine-hypothesis.json").write_text(json.dumps(evidence, indent=2) + "\n")
 
 
 def baseline_config_digest(manifest, fixtures):

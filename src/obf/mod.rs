@@ -443,6 +443,79 @@ mod tests {
         }
     }
 
+    // This test-only pipeline keeps production's pass order and exposes one omission.
+    fn research_pipeline(func: &FuncIr, rng: &mut ChaCha20Rng, omit: &str) -> FuncIr {
+        let mut current = if omit == "rewrite" {
+            func.clone()
+        } else {
+            rewrite_ops(func, rng).0
+        };
+        if omit != "data-mix" {
+            current = data_mix::apply(&current, rng);
+        }
+        if omit != "block-split" {
+            current = split_blocks(&current);
+        }
+        if omit != "opaque" {
+            current = wrap_opaque(&current, rng);
+        }
+        if omit != "bogus" {
+            current = add_bogus(&current, rng);
+        }
+        if omit != "flatten" {
+            current = flatten(&current);
+        }
+        if omit != "shuffle" {
+            current = shuffle(&current, rng);
+        }
+        current
+    }
+
+    #[test]
+    fn research_pass_ablations_preserve_owned_ir_examples() {
+        let variants = [
+            "none",
+            "rewrite",
+            "data-mix",
+            "block-split",
+            "opaque",
+            "bogus",
+            "flatten",
+            "shuffle",
+        ];
+        for fixture in [rich(), live(true), live(false)] {
+            let expected = run(&fixture, 0);
+            for seed in [0x401u64, 0x402, 0x403] {
+                let mut default_rng = ChaCha20Rng::seed_from_u64(seed);
+                let default = obfuscate(&fixture, &mut default_rng).func;
+                for omit in variants {
+                    let mut rng = ChaCha20Rng::seed_from_u64(seed);
+                    let result = research_pipeline(&fixture, &mut rng, omit);
+                    if omit == "none" {
+                        assert_eq!(result, default);
+                    }
+                    assert_eq!(
+                        run(&result, 0),
+                        expected,
+                        "fixture={} seed={} omit={}",
+                        fixture.name,
+                        seed,
+                        omit
+                    );
+                    let operations: usize = result.blocks.iter().map(|b| b.ops.len()).sum();
+                    println!(
+                        "ablation fixture={} seed={} omitted={} blocks={} operations={}",
+                        fixture.name,
+                        seed,
+                        omit,
+                        result.blocks.len(),
+                        operations
+                    );
+                }
+            }
+        }
+    }
+
     #[test]
     fn authenticated_dispatch_routes_exactly_with_logarithmic_comparisons() {
         for count in [1usize, 2, 3, 7, 16, 65, 257] {

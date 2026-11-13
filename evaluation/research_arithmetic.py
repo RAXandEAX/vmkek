@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""Research-only, solver-gated 64-bit expression composition for owned fixtures."""
+import argparse
+import hashlib
+import json
+import random
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+CHECKER = ROOT / 'evaluation/research_arithmetic_solver.py'
+MASK = (1 << 64) - 1
+
+
+def candidate(seed, *, flags_dead, dst, src, scratch=()):
+    """Return AST only for dead flags and operands outside reserved registers."""
+    if not flags_dead or dst in scratch or src in scratch:
+        return None
+    rng = random.Random(seed)
+    a, b = ('var', 'a'), ('var', 'b')
+    expr = ('add', ('xor', a, b), ('shl', ('and', a, b), 1))
+    for _ in range(1 + rng.randrange(4)):
+        k = ('const', rng.getrandbits(64))
+        expr = ('xor', ('xor', expr, k), k)
+    return expr
+
+
+def emit(expr, mode):
+    op, *args = expr
+    if op == 'var':
+        return args[0]
+    if op == 'const':
+        return f'(_ bv{args[0]} 64)' if mode == 'smt' else f'UINT64_C({args[0]})'
+    if op == 'shl':
+        operand = emit(args[0], mode)
+        return f'(bvshl {operand} (_ bv{args[1]} 64))' if mode == 'smt' else f'({operand} << {args[1]})'
+    left, right = (emit(x, mode) for x in args)
+    smt_ops = {'add': 'bvadd', 'and': 'bvand', 'xor': 'bvxor'}
+    c_ops = {'add': '+', 'and': '&', 'xor': '^'}
+    return f'({smt_ops[op]} {left} {right})' if mode == 'smt' else f'({left} {c_ops[op]} {right})'
+
+
+def evaluate(expr, a, b):
+    op, *args = expr
+    if op == 'var':
+        return {'a': a, 'b': b}[args[0]]
+    if op == 'const':
+        return args[0]
+    if op == 'shl':
+        return (evaluate(args[0], a, b) << args[1]) & MASK
+    x, y = (evaluate(arg, a, b) for arg in args)
+    return {'add': lambda: (x + y) & MASK, 'xor': lambda: x ^ y, 'and': lambda: x & y}[op]()
+
+
+def obligation(expr):
+    formula = emit(expr, 'smt')
+    return ('(set-logic QF_BV)\n(set-option :timeout 4000)\n'
+            '(declare-const a (_ BitVec 64))\n(declare-const b (_ BitVec 64))\n'
+            f'(define-fun expr () (_ BitVec 64) {formula})\n'
+            '(push)\n(assert (distinct expr (bvadd a b)))\n(check-sat)\n(pop)\n'
+            '(push)\n(assert (= a b))\n(assert (distinct expr (bvadd a b)))\n(check-sat)\n(pop)\n'
+            '(push)\n(assert (distinct expr (bvadd (bvadd a b) (_ bv1 64))))\n(check-sat)\n(pop)\n')
+
+
+def verify(expr, checker=CHECKER, timeout=15):
+    """Admit only exact solver response; errors, timeouts and unknown fail closed."""
+    try:
+        process = subprocess.run([sys.executable, str(checker)], input=obligation(expr),
+                                 capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {'admitted': False, 'reason': type(exc).__name__}
+    try:
+        receipt = json.loads(process.stdout)
+    except (ValueError, TypeError):
+        receipt = None
+    valid = (process.returncode == 0 and isinstance(receipt, dict)
+             and set(receipt) == {'solver', 'answers'}
+             and isinstance(receipt['solver'], str) and receipt['solver'].startswith('Z3 ')
+             and receipt['answers'] == ['unsat', 'unsat', 'sat'])
+    if not valid:
+        return {'admitted': False, 'reason': 'solver error/unknown', 'exit_code': process.returncode}
+    return {'admitted': True, 'solver': receipt['solver'],
+            'general_equivalence': 'unsat', 'alias_equivalence': 'unsat',
+            'negative_control': 'sat', 'exit_code': process.returncode}
+
+
+def admitted(seed, *, flags_dead, dst, src, scratch=(), checker=CHECKER, timeout=15):
+    expr = candidate(seed, flags_dead=flags_dead, dst=dst, src=src, scratch=scratch)
+    if expr is None:
+        return None, {'admitted': False, 'reason': 'precondition'}
+    receipt = verify(expr, checker, timeout)
+    return (expr if receipt['admitted'] else None), receipt
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=False)
+    rows = []
+    source = ['#include <stdint.h>', 'uint64_t baseline(uint64_t a, uint64_t b) { return (a ^ b) + ((a & b) << 1); }']
+    for seed in range(20):
+        started = time.monotonic()
+        expr, proof = admitted(seed, flags_dead=True, dst=0, src=1, scratch=(256, 257, 258))
+        elapsed = time.monotonic() - started
+        row = {'seed': seed, 'seed_group': 'group_a' if seed < 10 else 'group_b',
+               'proof': proof, 'proof_seconds': elapsed}
+        if expr is not None:
+            smt = obligation(expr)
+            code = emit(expr, 'c')
+            row.update(smt_sha256=hashlib.sha256(smt.encode()).hexdigest(),
+                       expression_sha256=hashlib.sha256(code.encode()).hexdigest(), expression_bytes=len(code))
+            (args.output / f'seed-{seed:02}.smt2').write_text(smt)
+            source.append(f'uint64_t f{seed}(uint64_t a, uint64_t b) {{ return {code}; }}')
+        rows.append(row)
+    c = args.output / 'composed.c'
+    c.write_text('\n'.join(source) + '\n')
+    llvm = args.output / 'composed.ll'
+    try:
+        result = subprocess.run(['clang-18', '-O1', '-S', '-emit-llvm', str(c), '-o', str(llvm)],
+                                capture_output=True, text=True, timeout=60)
+        normalization_status = 'pass' if result.returncode == 0 else 'error'
+    except (OSError, subprocess.TimeoutExpired) as error:
+        result = subprocess.CompletedProcess([], 1, '', str(error))
+        normalization_status = 'unavailable' if isinstance(error, FileNotFoundError) else 'error'
+    bodies = []
+    if result.returncode == 0:
+        current = None
+        for line in llvm.read_text().splitlines():
+            if line.startswith('define '):
+                current = []
+            elif current is not None and line == '}':
+                bodies.append('\n'.join(current))
+                current = None
+            elif current is not None and line.strip() and not line.lstrip().startswith(';'):
+                current.append(line.strip())
+    report = {'scope': '64-bit source expressions only; flags dead, no memory or runtime integration',
+              'candidate_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+              'checker_sha256': hashlib.sha256(CHECKER.read_bytes()).hexdigest() if CHECKER.is_file() else None,
+              'rows': rows, 'normalization_status': normalization_status, 'clang_exit': result.returncode, 'clang_stderr': result.stderr,
+              'seed_groups_scope': 'two seed groups for one expression family, not independent holdout functions or transfer',
+              'distinct_candidate_bodies': len(set(bodies[1:])), 'llvm_functions': len(bodies),
+              'all_match_baseline': len(bodies) == 21 and all(x == bodies[0] for x in bodies[1:]),
+              'llvm_sha256': hashlib.sha256(llvm.read_bytes()).hexdigest() if llvm.exists() else None,
+              'decision': 'REJECT' if len(bodies) == 21 and all(x == bodies[0] for x in bodies[1:]) else 'INCONCLUSIVE'}
+    (args.output / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
+    return 0 if all(row['proof']['admitted'] for row in rows) and result.returncode == 0 else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -335,6 +335,90 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "release-only research timing"]
+    fn research_layer_arithmetic_timing() {
+        use std::hint::black_box;
+
+        let start = Instant::now();
+        let word = Layers::from_master(&descriptor(3), &[3; 32]).unwrap();
+        let limb = Layers::from_master(&descriptor(4), &[4; 32]).unwrap();
+        let setup_ns = start.elapsed().as_nanos();
+        let cancelled = AtomicBool::new(false);
+        let control = ExecutionControl {
+            deadline: Instant::now() + Duration::from_secs(120),
+            cancelled: &cancelled,
+        };
+        let rounds = 20_000u64;
+        let mut expected = 0u64;
+        for i in 0..rounds {
+            expected = expected.wrapping_add(i.wrapping_add(u64::MAX - i / 2));
+        }
+        for sample in 0..5 {
+            let start = Instant::now();
+            let mut direct_sum = 0u64;
+            for i in 0..rounds {
+                let left = black_box(i);
+                let right = black_box(u64::MAX - i / 2);
+                direct_sum = direct_sum.wrapping_add(black_box(left.wrapping_add(right)));
+            }
+            let direct_ns = start.elapsed().as_nanos();
+            let start = Instant::now();
+            let mut word_sum = 0u64;
+            for i in 0..rounds {
+                let mut fuel = 3;
+                let result = word
+                    .add(
+                        Scalar::U64(black_box(i)),
+                        Scalar::U64(black_box(u64::MAX - i / 2)),
+                        &mut fuel,
+                        &control,
+                    )
+                    .unwrap();
+                let Scalar::U64(value) = result else {
+                    panic!("unexpected type")
+                };
+                word_sum = word_sum.wrapping_add(black_box(value));
+                assert_eq!(fuel, 0);
+            }
+            let word_ns = start.elapsed().as_nanos();
+            let start = Instant::now();
+            let mut limb_sum = 0u64;
+            for i in 0..rounds {
+                let mut fuel = 6;
+                let result = limb
+                    .add(
+                        Scalar::U64(black_box(i)),
+                        Scalar::U64(black_box(u64::MAX - i / 2)),
+                        &mut fuel,
+                        &control,
+                    )
+                    .unwrap();
+                let Scalar::U64(value) = result else {
+                    panic!("unexpected type")
+                };
+                limb_sum = limb_sum.wrapping_add(black_box(value));
+                assert_eq!(fuel, 0);
+            }
+            let limb_ns = start.elapsed().as_nanos();
+            let start = Instant::now();
+            for _ in 0..rounds {
+                black_box(word.word.open().unwrap());
+            }
+            let word_open_ns = start.elapsed().as_nanos();
+            let start = Instant::now();
+            for _ in 0..rounds {
+                black_box(limb.limb.as_ref().unwrap().open().unwrap());
+            }
+            let limb_open_ns = start.elapsed().as_nanos();
+            assert_eq!(
+                (direct_sum, word_sum, limb_sum),
+                (expected, expected, expected)
+            );
+            eprintln!("sample={sample} calls={rounds} setup_both_ns={setup_ns} direct_ns={direct_ns} depth3_ns={word_ns} depth4_ns={limb_ns} word_open_ns={word_open_ns} limb_open_ns={limb_open_ns} checksum={expected} layer_struct_bytes={} call_estimate_bytes={} code_bytes_each={CODE_BYTES}", Layers::memory_bytes(), Layers::call_memory_bytes());
+        }
+    }
+
+    #[test]
     fn ciphertext_scope_and_inner_format_fail_before_a_result() {
         let flag = AtomicBool::new(false);
         let control = control(&flag);

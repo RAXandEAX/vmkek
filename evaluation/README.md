@@ -91,26 +91,62 @@ outside the observed results above. [KLEE testing tutorial](https://klee-se.org/
 
 The optional probe applies only to the repository's `affine_xor` fixture. It fits
 the parameters of a declared modular-affine XOR model from six public return
-observations. Target-free scoring in the same Python process compares the model's
-full predictions with 73 private cases, including state, buffer, canaries and
-effects. The scoring function receives the fitted parameters and cases without
-opening or running either target. The probe fits independently
+observations. The evaluator launches the fixed arithmetic candidate in a separate
+Python process with a fresh working directory, passing the model and cases on
+standard input. It compares the candidate's full predictions with 73 private
+cases, including state, buffer, canaries and effects. The candidate program
+runs in a separate systemd user service with Landlock restricting file access to
+`/usr`, `/etc/ld.so.cache`, and the candidate file. Target ELF files and the
+candidate must be outside `/usr`; do not place targets in `/usr` or expose them
+there through a hard link. The sandbox is scoped to this fixed Python candidate,
+not a guarantee for arbitrary untrusted code. Each service is limited to 8 GiB with zero swap and 1 MiB per output file.
+The per-cell wall budget is selected from 60, 600 and 3600 seconds. It inherits only standard I/O.
+An unavailable user manager or Landlock is reported rather than silently bypassed.
+The probe fits independently
 on each of ten protected seeds. Transfer uses the fixed donor's fitted parameters
 with zero target queries. The original fixture provides a separate control.
 
-Run the batch inside a transient user scope. The driver verifies the scope's
-one-minute lifetime and 8 GiB memory limit before building or probing.
+Build the baseline using `evaluate.py build` and run the per-cell controls below.
+The former `build --affine-probe` option is retired because its enclosing scope
+excluded separately launched scoring services. Historical results can be
+reproduced using their recorded source revision and retain their original limits.
+
+### Per-cell affine controls
+
+`affine_cells.py` reuses an existing complete `affine_xor` ELF baseline. It
+verifies the baseline hashes before executing any target. Run a separate report
+for each budget with a private pack outside the checkout:
 
 ```sh
-systemd-run --user --scope --quiet --property=MemoryMax=8589934592 --property=RuntimeMaxSec=60 -- /usr/bin/python3 "$PWD/evaluation/evaluate.py" build --fixture affine_xor --affine-probe --holdout "$private_pack" --output "$run/affine-probe" --signer "$signer" --pin "$pin"
+python3 evaluation/affine_cells.py --baseline "$run/affine-baseline" --pack "$private_pack" --budget 60 --output "$run/cells-60.json"
+python3 evaluation/affine_cells.py --baseline "$run/affine-baseline" --pack "$private_pack" --budget 600 --output "$run/cells-600.json"
+python3 evaluation/affine_cells.py --baseline "$run/affine-baseline" --pack "$private_pack" --budget 3600 --output "$run/cells-3600.json"
 ```
 
-The result uses `hypothesis_match` and records one batch memory peak, elapsed time
-per attempt, exact artifact and donor hashes, and the hidden oracle digest. This
-measurement covers the declared function family and the one-minute budget. The
-ten- and sixty-minute cells and broader protected recovery remain `not_run`.
+For fresh, the fit and isolated scoring run in two sequential user services.
+The scorer receives the remaining wall budget after fitting, rounded down to
+whole seconds. Each service has the same 8 GiB limit, swap disabled and reports
+its own memory peak. Elapsed time includes the orchestration between services,
+while the orchestrator is not included in those service memory measurements.
+Transfer reuses the fixed predecessor seed model and performs zero target
+queries. Each cell reports its status, hashes, limits and separate timings.
+This evaluates the declared affine hypothesis, not arbitrary binary recovery.
 
 ## Result protocol
+
+Create a machine-readable coverage manifest before running a campaign:
+
+```sh
+python3 evaluation/coverage_manifest.py --output "$run/coverage.json"
+```
+
+Pass `--baseline "$run/training/baseline.json"` to bind an existing complete
+baseline. The manifest records the training and holdout fixture names, hashes
+of the catalog, source inputs and manifest generator, Python and tool versions,
+Git HEAD when available, and the complete planned fresh/transfer matrix. Git
+HEAD identifies the checked-out commit and does not account for uncommitted changes. Every row remains `not_run`; the manifest is a plan,
+not a record of completed experiments. Its exclusive output creation protects
+previous evidence from accidental replacement.
 
 The version 1 JSONL plan has one row per fixture, platform, adapter, mode, target
 seed and budget. Fresh uses seeds `0x0401` through `0x040a` independently.

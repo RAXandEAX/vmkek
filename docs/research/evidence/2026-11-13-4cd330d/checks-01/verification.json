@@ -1,0 +1,38 @@
+{
+  "document_sha256": "7033662704f833e70d22d71b9d7196c8aa28af2e51854a15e0ab4b8ef2837c16",
+  "references_defined": 56,
+  "undefined_references": [],
+  "missing_local_targets": [],
+  "pinned_code_links_checked": 26,
+  "source_files_unchanged_after_tests": 451,
+  "changed_source_files": [],
+  "rust_test_counts": [
+    23,
+    7,
+    45,
+    5
+  ],
+  "python_test_counts": [
+    22
+  ],
+  "total_tests_passed": 102,
+  "log_digest_matches": true,
+  "build_artifact_hashes": [
+    {
+      "path": "target/debug/deps/vmkek-d88785ad57a58efe",
+      "sha256": "2684c7ee9b2a5cee9554f2378a530bf9bab6fcd5d0a35b7b74ab3c6840dd0602"
+    },
+    {
+      "path": "target/debug/deps/lab-2e4671e4c885469f",
+      "sha256": "1edec73076d5fae0f6020da96d2f9db5bcc102652cd7db1a5a7654220a175b03"
+    },
+    {
+      "path": "target/debug/build/vmkek-protocol-818f31899d418618/out/r06.smt2",
+      "sha256": "ca5c10b09ecf271eac3209d0732cdfdec925b5752fe50f665544247eb6988cbd"
+    },
+    {
+      "path": "target/debug/build/vmkek-protocol-818f31899d418618/out/r06-proof.txt",
+      "sha256": "e9da1edc59f23add00dd1e182a6cc0a8080babd597771a6335de3ef8f3961a43"
+    }
+  ]
+}

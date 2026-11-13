@@ -298,6 +298,61 @@ mod tests {
     use rand_chacha::ChaCha20Rng;
 
     #[test]
+    fn research_layer_lookup_matches_direct_table_for_all_codes() {
+        let program = product_program();
+        assert_eq!(program.len(), 258);
+        for code in u8::MIN..=u8::MAX {
+            let expected = program[1 + usize::from(code)];
+            match (select(&program, code), expected) {
+                (Ok(actual), value) if value != REJECT => assert_eq!(actual, value),
+                (Err(_), REJECT) => {}
+                _ => panic!("lookup mismatch for {code:#04x}"),
+            }
+        }
+        assert!(select(&program[..257], 0).is_err());
+    }
+
+    #[test]
+    #[ignore = "release-only research timing"]
+    fn research_layer_lookup_timing() {
+        use std::hint::black_box;
+        use std::time::Instant;
+
+        let program = product_program();
+        let tags = crate::vm::BYTECODE_OPCODES;
+        let rounds = 100_000usize;
+        let mut expected = 0u64;
+        for _ in 0..rounds {
+            for &tag in tags {
+                expected = expected.wrapping_add(u64::from(program[1 + usize::from(tag)]));
+            }
+        }
+        for sample in 0..5 {
+            let start = Instant::now();
+            let mut direct_sum = 0u64;
+            for _ in 0..rounds {
+                for &tag in tags {
+                    let tag = black_box(tag);
+                    direct_sum = direct_sum
+                        .wrapping_add(u64::from(black_box(&program)[1 + usize::from(tag)]));
+                }
+            }
+            let direct_ns = start.elapsed().as_nanos();
+            let start = Instant::now();
+            let mut inner_sum = 0u64;
+            for _ in 0..rounds {
+                for &tag in tags {
+                    let value = select(black_box(&program), black_box(tag)).unwrap();
+                    inner_sum = inner_sum.wrapping_add(u64::from(black_box(value)));
+                }
+            }
+            let inner_ns = start.elapsed().as_nanos();
+            assert_eq!((direct_sum, inner_sum), (expected, expected));
+            eprintln!("sample={sample} calls={} direct_ns={direct_ns} inner_ns={inner_ns} checksum={expected} program_bytes={}", rounds * tags.len(), program.len());
+        }
+    }
+
+    #[test]
     fn second_level_does_not_add_a_third() {
         assert_eq!(LEVELS, 2);
         // Nest stays an outer tag. Nothing in this ISA starts another interpreter.

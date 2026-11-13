@@ -1,0 +1,1 @@
+Z3 4.8.12.0: add-pair UNSAT, subtract-negated-pair UNSAT, negative control SAT

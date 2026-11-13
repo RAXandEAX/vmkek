@@ -1,5 +1,6 @@
 import json
 import subprocess
+import sys
 import tempfile
 import threading
 import unittest
@@ -315,13 +316,53 @@ class CorpusTests(unittest.TestCase):
             with patch.object(Path, "read_text", side_effect=PermissionError("unreadable")):
                 self.assertIsNone(evaluate.normalized_listing(listing))
 
+    def test_affine_candidate_rejects_non_list_json(self):
+        response = {"status": "pass", "stdout": "null"}
+        with patch.object(evaluate.owned_scope, "run", return_value=response):
+            with self.assertRaises(ValueError):
+                evaluate.score_affine((12, 11), [(1, 2, 3, 0, ())], [{}])
+
+    def test_legacy_affine_probe_rejected_before_creating_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "out"
+            run = subprocess.run([
+                sys.executable, str(evaluate.HERE / "evaluate.py"), "build",
+                "--fixture", "affine_xor", "--output", str(output),
+                "--signer", "missing-signer", "--pin", "missing-pin", "--affine-probe",
+            ], capture_output=True, text=True)
+            self.assertNotEqual(run.returncode, 0)
+            self.assertIn("affine_cells.py", run.stderr)
+            self.assertFalse(output.exists())
+
+    def test_affine_candidate_fails_closed_without_isolation(self):
+        unavailable = {"status": "unsupported", "reason": "user bus unavailable"}
+        with patch.object(evaluate.owned_scope, "run", return_value=unavailable):
+            with self.assertRaises(evaluate.ScopeFailure) as failure:
+                evaluate.score_affine((12, 11), [], [])
+        self.assertEqual(failure.exception.status, "unsupported")
+
     def test_declared_affine_hypothesis_fits_and_grades_detached(self):
         rows = [(0, 0, 11), (1, 2, 21), (2, 3, 32)]
         model = evaluate.fit_affine(rows)
         self.assertEqual(model, (12, 11))
         private_case = (3, 0, 8, 0, (7,) * 16)
         expected = evaluate.result(47, 8, private_case[-1])
-        self.assertEqual(evaluate.score_affine(model, [private_case], [expected])["status"], "hypothesis_match")
+        def run_candidate(argv, *, budget, input_data, isolate_file):
+            self.assertEqual(budget, 60)
+            self.assertEqual(Path(isolate_file), evaluate.HERE / "affine_candidate.py")
+            completed = subprocess.run(argv, input=input_data, capture_output=True, check=True)
+            return {"status": "pass", "stdout": completed.stdout.decode(),
+                    "budget_seconds": budget, "memory_limit_bytes": 8 * 1024**3,
+                    "memory_peak": None, "elapsed_seconds": 0, "systemd_result": "success"}
+
+        with patch.object(evaluate.owned_scope, "run", side_effect=run_candidate):
+            matching = evaluate.score_affine(model, [private_case], [expected])
+            self.assertEqual(matching["status"], "hypothesis_match")
+            self.assertEqual(matching["runner_sha256"], evaluate.digest(evaluate.HERE / "owned_scope.py"))
+            corrupted_buffer = dict(expected, buffer="00" * 16)
+            self.assertEqual(evaluate.score_affine(model, [private_case], [corrupted_buffer])["status"], "mismatch")
+            extra_effect = dict(expected, effects=[1], effect_count=1)
+            self.assertEqual(evaluate.score_affine(model, [private_case], [extra_effect])["status"], "mismatch")
         rows[-1] = (2, 3, 33)
         with self.assertRaises(ValueError):
             evaluate.fit_affine(rows)

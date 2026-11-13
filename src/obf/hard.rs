@@ -4,9 +4,10 @@
 //! program embeds a preimage of that target. Ops the S1 catalog cannot rewrite
 //! are the multiply and the shift; deleting those, and every other op the
 //! catalog does not match, leaves a formula whose value is 0. The target is
-//! not 0, so that simplified formula has no preimage. Hardness of the
-//! truncation as a preimage filter is an assumption with an explicit width.
-//! It is not a theorem that the program stays hidden.
+//! not 0, so that simplified formula has no preimage. The original
+//! computation uses an embedded public input, so the checked outcome can be
+//! computed directly. The deleted-operation demonstration does not preserve
+//! the semantics of the original predicate.
 //!
 //! Algebraic S2 predicates stay in `predicates`. Those still prove that the
 //! true arm runs. They do not prove hardness. The System channel of this stage
@@ -18,7 +19,7 @@ use crate::proof::Claim;
 
 use super::identities;
 
-/// Output width of the truncated hash used as a preimage filter.
+/// Output width of the truncated hash compared by the predicate.
 pub const HASH_BITS: u32 = 16;
 /// Odd multiplier. Bit 31 is clear, so `ImulRi` does not sign-extend it.
 const MUL0: u64 = 0x6C62_2725;
@@ -38,7 +39,7 @@ pub const NON_PREIMAGE: u64 = PREIMAGE ^ 0x9E37;
 /// JE / ZF. See [`crate::flags::cond_taken`].
 pub const COND: u8 = 4;
 
-const ASSUMPTION: &str = "стойкость усечённого хэша как фильтра прообраза, длина выхода 16 бит; это не теорема сокрытия программы";
+const ASSUMPTION: &str = "Вход встроен в программу, длина выхода 16 бит. Результат можно вычислить; поиск скрытого прообраза и стойкость не установлены.";
 
 const _: () = assert!(TARGET == 0xFE5D);
 const _: () = assert!(TARGET != 0 && TARGET <= MASK);
@@ -47,7 +48,7 @@ const _: () = assert!(MUL0 <= i32::MAX as u64);
 const _: () = assert!(MUL1 <= i32::MAX as u64);
 const _: () = assert!(MASK <= i32::MAX as u64);
 
-/// Green means the named test passed. Red means the channel was not run.
+/// Green marks a supported claim. Red marks an unverified or unsupported claim.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ChannelColor {
     Green,
@@ -62,13 +63,13 @@ pub struct HardClaim {
     pub machine: &'static str,
     pub color: ChannelColor,
     pub level: Option<Claim>,
-    /// Complexity assumption. `None` when the row does not state one.
+    /// Explanation of the assumption or limitation recorded for this row.
     pub assumption: Option<&'static str>,
-    /// Test that locks a green row, or why a red row was not run.
+    /// Supporting test, limitation test, or reason the channel was not run.
     pub anchor: &'static str,
 }
 
-/// Crypto records the truncation assumption. System on M-ADV stays red until C4.
+/// Crypto describes the known input, without a hardness claim. System remains unverified.
 #[must_use]
 pub fn claims() -> &'static [HardClaim] {
     const CLAIMS: &[HardClaim] = &[
@@ -76,8 +77,8 @@ pub fn claims() -> &'static [HardClaim] {
             id: "truncated-hash-preimage",
             channel: "Crypto",
             machine: "",
-            color: ChannelColor::Green,
-            level: Some(Claim::ReducedToAssumption),
+            color: ChannelColor::Red,
+            level: None,
             assumption: Some(ASSUMPTION),
             anchor: "known_preimage_executes_and_s1_does_not_fold",
         },
@@ -447,13 +448,13 @@ mod tests {
     }
 
     #[test]
-    fn crypto_claim_records_the_truncation_assumption() {
+    fn crypto_claim_records_the_known_input_limit() {
         let crypto = claims()
             .iter()
             .find(|row| row.channel == "Crypto")
             .expect("crypto");
-        assert_eq!(crypto.color, ChannelColor::Green);
-        assert_eq!(crypto.level, Some(Claim::ReducedToAssumption));
+        assert_eq!(crypto.color, ChannelColor::Red);
+        assert_eq!(crypto.level, None);
         assert_eq!(
             crypto.anchor,
             "known_preimage_executes_and_s1_does_not_fold"
@@ -461,7 +462,8 @@ mod tests {
         let assumption = crypto.assumption.expect("assumption");
         let width = format!("длина выхода {HASH_BITS} бит");
         assert!(assumption.contains(&width), "{assumption}");
-        assert!(assumption.contains("это не теорема сокрытия программы"));
+        assert!(assumption.contains("Вход встроен в программу"));
+        assert!(assumption.contains("стойкость не установлены"));
         assert!(!assumption.to_lowercase().contains("virtual"));
         assert!(assumption.contains(&HASH_BITS.to_string()));
     }
